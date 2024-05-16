@@ -2,6 +2,7 @@
 
 
 #include "Game/DK_GameMode.h"
+#include "Manager/DK_OptionManager.h"
 
 ADK_GameMode::ADK_GameMode()
 {

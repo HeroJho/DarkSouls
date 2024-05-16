@@ -26,7 +26,7 @@ ADK_Player::ADK_Player()
 
 	// Mesh
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> CharacterMeshRef(
-		TEXT("/Script/Engine.SkeletalMesh'/Game/Resources/InfinityBladeWarriors/Character/CompleteCharacters/sk_CharM_Base.sk_CharM_Base'"));
+		TEXT("/Script/Engine.SkeletalMesh'/Game/Resources/Primitive_Characters_Pack/Mesh/Primitive_01/Mesh_UE5/Separate/SKM_Primitive_Charater_01_Body.SKM_Primitive_Charater_01_Body'"));
 	if (CharacterMeshRef.Object)
 	{
 		GetMesh()->SetSkeletalMesh(CharacterMeshRef.Object);
@@ -95,7 +95,7 @@ void ADK_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 	UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent);
 
-	// EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
+	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
 	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ADK_Player::ShoulderMove);
 	EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ADK_Player::ShoulderLook);
 
@@ -125,5 +125,5 @@ void ADK_Player::ShoulderLook(const FInputActionValue& Value)
 	AddControllerYawInput(LookAxisVector.X * MouseSensitivity);
 	AddControllerPitchInput(LookAxisVector.Y * MouseSensitivity);
 
-	UE_LOG(LogTemp, Log, TEXT("Log Message %f / %f"), LookAxisVector.X, LookAxisVector.Y);
+	// UE_LOG(LogTemp, Log, TEXT("Log Message %f / %f"), LookAxisVector.X, LookAxisVector.Y);
 }
