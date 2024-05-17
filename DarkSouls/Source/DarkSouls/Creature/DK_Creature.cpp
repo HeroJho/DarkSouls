@@ -5,6 +5,8 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
+#include "Component/Combo/DK_ComboComponent.h"
+
 // Sets default values
 ADK_Creature::ADK_Creature()
 {
@@ -25,6 +27,10 @@ ADK_Creature::ADK_Creature()
 
 	// Movement
 	GetCharacterMovement()->bOrientRotationToMovement = true;
+
+
+	// ComboComponent
+	ComboComponent = CreateDefaultSubobject<UDK_ComboComponent>(TEXT("ComboComponent"));
 
 }
 
@@ -47,5 +53,10 @@ void ADK_Creature::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+}
+
+void ADK_Creature::Attack()
+{
+	ComboComponent->ProcessComboCommand();
 }
 

@@ -49,6 +49,12 @@ ADK_Player::ADK_Player()
 		{
 			JumpAction = InputActionJumpRef.Object;
 		}
+		static ConstructorHelpers::FObjectFinder<UInputAction> InputActionAttakRef(TEXT(
+			"/Script/EnhancedInput.InputAction'/Game/Inputs/Actions/IA_Attack.IA_Attack'"));
+		if (nullptr != InputActionAttakRef.Object)
+		{
+			AttackAction = InputActionAttakRef.Object;
+		}
 		static ConstructorHelpers::FObjectFinder<UInputAction> InputActionShoulderMoveRef(TEXT(
 			"/Script/EnhancedInput.InputAction'/Game/Inputs/Actions/IA_Move.IA_Move'"));
 		if (nullptr != InputActionShoulderMoveRef.Object)
@@ -95,7 +101,8 @@ void ADK_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 	UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent);
 
-	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
+	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
+	EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &ADK_Creature::Attack);
 	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ADK_Player::ShoulderMove);
 	EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ADK_Player::ShoulderLook);
 

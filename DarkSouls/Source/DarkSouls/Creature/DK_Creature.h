@@ -26,4 +26,11 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+public:
+	void Attack();
+
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Combo)
+	TObjectPtr<class UDK_ComboComponent> ComboComponent;
+
 };
