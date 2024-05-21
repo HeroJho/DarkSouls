@@ -7,6 +7,7 @@
 #include "InputMappingContext.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Engine/World.h"
 
 #include "Game/DK_GameMode.h"
 #include "Manager/DK_OptionManager.h"
@@ -102,7 +103,8 @@ void ADK_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent);
 
 	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
-	EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &ADK_Creature::Attack);
+	EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &ADK_Player::ChargeAttack);
+	EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Completed, this, &ADK_Player::EndChargeAttack);
 	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ADK_Player::ShoulderMove);
 	EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ADK_Player::ShoulderLook);
 
@@ -110,6 +112,12 @@ void ADK_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 void ADK_Player::ShoulderMove(const FInputActionValue& Value)
 {
+	// 공격 중에는 움직임 X -> MovementComponent로 막으면 RootAnimation도 막힘
+	if (bIsAttacking || bIsCharging)
+	{
+		return;
+	}
+
 	FVector2D MovementVector = Value.Get<FVector2D>();
 
 	const FRotator Rotation = Controller->GetControlRotation();
@@ -133,4 +141,64 @@ void ADK_Player::ShoulderLook(const FInputActionValue& Value)
 	AddControllerPitchInput(LookAxisVector.Y * MouseSensitivity);
 
 	// UE_LOG(LogTemp, Log, TEXT("Log Message %f / %f"), LookAxisVector.X, LookAxisVector.Y);
+}
+
+
+
+
+void ADK_Player::ChargeAttack(const FInputActionValue& Value)
+{
+	if (bIsAttacking || (!bIsCharging && bIsHoldingAttackKey))
+	{
+		return;
+	}
+
+	bIsCharging = true;
+	bIsHoldingAttackKey = true;
+
+	float DeltaSeconds = GetWorld()->GetDeltaSeconds();
+
+	ChargePowarTimeAcc = FMath::Clamp(ChargePowarTimeAcc + DeltaSeconds, 0.f, MaxChargePowerTime);
+
+	if (ChargePowarTimeAcc >= PowarAttackTimeThreshould)
+	{
+		PowarAttack();
+	}
+}
+
+void ADK_Player::EndChargeAttack(const FInputActionValue& Value)
+{
+	// 약 공격
+	if (bIsCharging && ChargePowarTimeAcc < PowarAttackTimeThreshould)
+	{
+		SmallAttack();
+	}
+
+	bIsHoldingAttackKey = false;
+}
+
+void ADK_Player::SmallAttack()
+{
+	bIsAttacking = true;
+
+	PlayAnimMontage(SmallAttackAnim);
+
+	ChargePowarTimeAcc = 0.f;
+	bIsCharging = false;
+}
+
+void ADK_Player::PowarAttack()
+{
+	bIsAttacking = true;
+
+	PlayAnimMontage(PowarAttackAnim);
+
+	ChargePowarTimeAcc = 0.f;
+	bIsCharging = false;
+}
+
+void ADK_Player::CheckAttack_Notify()
+{
+	bIsAttacking = false;
+
 }

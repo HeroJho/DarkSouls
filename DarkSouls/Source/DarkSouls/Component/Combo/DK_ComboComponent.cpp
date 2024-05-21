@@ -68,10 +68,11 @@ void UDK_ComboComponent::ComboActionBegin()
 	HasNextComboCommand = false;
 
 	// Movement Setting
-	Owner->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+	// Owner->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 
 	// Animation Setting
 	const float AttackSpeedRate = 1.f;
+	
 	UAnimInstance* AnimInstance = Owner->GetMesh()->GetAnimInstance();
 	AnimInstance->Montage_Play(ComboActionDatas[CurComboActionDataIndex]->ComboActionMontage, AttackSpeedRate);
 
@@ -110,8 +111,12 @@ void UDK_ComboComponent::ComboCheck()
 
 		CurrentCombo = FMath::Clamp(CurrentCombo + 1, 1, CurData->MaxComboCount);
 		FName NextSection = *FString::Printf(TEXT("%s%d"), *CurData->MontageSectionNamePrefix, CurrentCombo);
-		AnimInstance->Montage_JumpToSection(NextSection, CurData->ComboActionMontage);
-		
+
+		Owner->PlayAnimMontage(ComboActionDatas[CurComboActionDataIndex]->ComboActionMontage, 1.f, NextSection);
+		// * JumpToSection은 Section 사이에 블랜딩이 안됨.
+		//AnimInstance->Montage_JumpToSection(NextSection, CurData->ComboActionMontage);
+		//AnimInstance->Montage_Play(ComboActionDatas[CurComboActionDataIndex]->ComboActionMontage);
+
 		HasNextComboCommand = false;
 	}
 

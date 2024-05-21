@@ -52,4 +52,34 @@ protected:
 	void ShoulderMove(const FInputActionValue& Value);
 	void ShoulderLook(const FInputActionValue& Value);
 
+	// Attack Section
+public:
+	FORCEINLINE float GetChargePowarTimeAcc() { return ChargePowarTimeAcc; }
+	FORCEINLINE bool GetIsCharging() { return bIsCharging; }
+
+	void CheckAttack_Notify();
+
+protected:
+	void ChargeAttack(const FInputActionValue& Value);
+	void EndChargeAttack(const FInputActionValue& Value);
+
+	void SmallAttack();
+	void PowarAttack();
+
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Attack, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> PowarAttackAnim;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Attack, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> SmallAttackAnim;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Attack)
+	float MaxChargePowerTime = 0.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Attack)
+	float PowarAttackTimeThreshould = 0.f;
+
+	float ChargePowarTimeAcc = 0.f;
+	bool bIsCharging = false;
+	bool bIsHoldingAttackKey = false;
+	bool bIsAttacking = false;
+
 };
