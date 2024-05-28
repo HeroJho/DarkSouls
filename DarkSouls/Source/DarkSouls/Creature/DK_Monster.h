@@ -13,5 +13,22 @@ UCLASS()
 class DARKSOULS_API ADK_Monster : public ADK_Creature
 {
 	GENERATED_BODY()
-	
+
+public:
+	ADK_Monster();
+
+
+protected:
+	virtual void BeginPlay() override;
+
+	virtual void PostInitializeComponents() override;
+
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+
+
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Collision)
+	TObjectPtr<class UDK_CollisionManagerComponent> CollisionManagerComponent;
+
+
 };

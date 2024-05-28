@@ -119,7 +119,7 @@ void UDK_ComboComponent::ComboCheck()
 
 		HasNextComboCommand = false;
 	}
-
+	
 }
 
 void UDK_ComboComponent::ChangeComboActionData(uint8 DataIndex)
@@ -129,15 +129,18 @@ void UDK_ComboComponent::ChangeComboActionData(uint8 DataIndex)
 
 	UAnimInstance* AnimInstance = Owner->GetMesh()->GetAnimInstance();
 
-	// 몽타주가 실행중이다
-	if (AnimInstance->IsAnyMontagePlaying())
+	if (AnimInstance)
 	{
-		ReserveComboActionDataIndex = DataIndex;
-	}
-	else
-	{
-		CurComboActionDataIndex = DataIndex;
-		ReserveComboActionDataIndex = -1;
+		// 몽타주가 실행중이다
+		if (AnimInstance->IsAnyMontagePlaying())
+		{
+			ReserveComboActionDataIndex = DataIndex;
+		}
+		else
+		{
+			CurComboActionDataIndex = DataIndex;
+			ReserveComboActionDataIndex = -1;
+		}
 	}
 
 }
