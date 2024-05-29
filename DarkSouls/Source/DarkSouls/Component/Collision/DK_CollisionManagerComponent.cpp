@@ -44,8 +44,8 @@ void UDK_CollisionManagerComponent::InitializeComponent()
 		EndDelegate.BindUFunction(this, FName("OnOverlapEnd"));
 		Components[i]->OnComponentEndOverlap.AddUnique(EndDelegate);
 
-		GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Green,
-			FString::Printf(TEXT("%s"), *Name));
+		//GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Green,
+		//	FString::Printf(TEXT("%s"), *Name));
 	}
 
 }
@@ -114,7 +114,7 @@ void UDK_CollisionManagerComponent::OnOverlapBegin(UPrimitiveComponent* Overlapp
 	if (OtherActor == GetOwner())
 		return;
 
-	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Blue, FString::Printf(TEXT("Begin: %s"), *OverlappedComp->GetName()));
+	// GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Blue, FString::Printf(TEXT("Begin: %s"), *OverlappedComp->GetName()));
 
 }
 
@@ -123,7 +123,7 @@ void UDK_CollisionManagerComponent::OnOverlapEnd(UPrimitiveComponent* Overlapped
 	if (OtherActor == GetOwner())
 		return;
 
-	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Blue, FString::Printf(TEXT("End: %s"), *OverlappedComp->GetName()));
+	// GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Blue, FString::Printf(TEXT("End: %s"), *OverlappedComp->GetName()));
 
 }
 

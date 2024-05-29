@@ -60,11 +60,12 @@ void ADK_Creature::Attack()
 	ComboComponent->ProcessComboCommand();
 }
 
-void ADK_Creature::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void ADK_Creature::BeginAttackRange()
 {
+	bIsInAttackRange = true;
 }
 
-void ADK_Creature::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+void ADK_Creature::EndAttackRange()
 {
+	bIsInAttackRange = false;
 }
-

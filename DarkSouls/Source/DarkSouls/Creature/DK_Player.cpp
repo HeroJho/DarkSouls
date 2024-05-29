@@ -8,6 +8,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Engine/World.h"
+#include "Components/CapsuleComponent.h"
 
 #include "Game/DK_GameMode.h"
 #include "Manager/DK_OptionManager.h"
@@ -71,7 +72,22 @@ ADK_Player::ADK_Player()
 	}
 
 
+}
 
+void ADK_Player::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	// Attack
+	WeaponCapsuleComponentTemp = Cast<UCapsuleComponent>(GetDefaultSubobjectByName(TEXT("WeaponCapsuleComponent")));
+
+	FScriptDelegate BeginDelegate;
+	BeginDelegate.BindUFunction(this, FName("OnWeaponOverlapBegin"));
+	WeaponCapsuleComponentTemp->OnComponentBeginOverlap.AddUnique(BeginDelegate);
+	FScriptDelegate EndDelegate;
+	EndDelegate.BindUFunction(this, FName("OnWeaponOverlapEnd"));
+	WeaponCapsuleComponentTemp->OnComponentBeginOverlap.AddUnique(EndDelegate);
+	
 }
 
 void ADK_Player::BeginPlay()
@@ -202,3 +218,31 @@ void ADK_Player::CheckAttack_Notify()
 	bIsAttacking = false;
 
 }
+
+
+void ADK_Player::OnWeaponOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor == this)
+		return;
+
+	// 여기서 몬스터의 Damage 함수를 호출
+	if (!bIsInAttackRange)
+		return;
+
+
+	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Blue, FString::Printf(TEXT("Begin: %s"), *OverlappedComp->GetName()));
+
+}
+
+void ADK_Player::OnWeaponOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (OtherActor == this)
+		return;
+
+	if (!bIsInAttackRange)
+		return;
+
+	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Blue, FString::Printf(TEXT("End: %s"), *OverlappedComp->GetName()));
+
+}
+

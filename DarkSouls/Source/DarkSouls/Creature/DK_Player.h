@@ -19,6 +19,8 @@ public:
 	ADK_Player();
 
 protected:
+	virtual void PostInitializeComponents() override;
+
 	virtual void BeginPlay() override;
 
 	// Called to bind functionality to input
@@ -66,6 +68,13 @@ protected:
 	void SmallAttack();
 	void PowarAttack();
 
+	UFUNCTION()
+	void OnWeaponOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+	void OnWeaponOverlapEnd(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Attack, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> PowarAttackAnim;
@@ -81,5 +90,8 @@ protected:
 	bool bIsCharging = false;
 	bool bIsHoldingAttackKey = false;
 	bool bIsAttacking = false;
+
+	UPROPERTY()
+	TObjectPtr<class UCapsuleComponent> WeaponCapsuleComponentTemp;
 
 };
