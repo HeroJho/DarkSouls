@@ -6,9 +6,19 @@
 #include "Engine/DataAsset.h"
 #include "DK_ComboActionData.generated.h"
 
-/**
- * 
- */
+
+
+USTRUCT()
+struct FAttackColInfo
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere)
+	TArray<FString> AttackCollisions;
+
+};
+
 UCLASS()
 class DARKSOULS_API UDK_ComboActionData : public UPrimaryDataAsset
 {
@@ -19,13 +29,17 @@ public:
 
 
 public:
-	UPROPERTY(EditAnywhere, Category = Name)
+	UPROPERTY(EditAnywhere, Category = Combo)
 	TObjectPtr<class UAnimMontage> ComboActionMontage;
 
-	UPROPERTY(EditAnywhere, Category = Name)
+	UPROPERTY(EditAnywhere, Category = Combo)
 	FString MontageSectionNamePrefix;
 
-	UPROPERTY(EditAnywhere, Category = Name)
+	UPROPERTY(EditAnywhere, Category = Combo)
 	uint8 MaxComboCount;
+
+	UPROPERTY(EditAnywhere, Category = Collision)
+	TArray<FAttackColInfo> AttackColInfos;
+	
 
 };

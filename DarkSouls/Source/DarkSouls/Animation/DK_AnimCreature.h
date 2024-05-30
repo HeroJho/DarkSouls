@@ -25,7 +25,7 @@ protected:
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Creature)
-	TObjectPtr<class ACharacter> Owner;
+	TObjectPtr<class ADK_Creature> Owner;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Creature)
 	TObjectPtr<class UCharacterMovementComponent> Movement;
@@ -47,6 +47,10 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Creature)
 	uint8 bIsJumping : 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Creature)
+	uint8 bIsStun : 1;
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Creature)
 	float JumpingThreshould;

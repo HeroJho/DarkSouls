@@ -15,7 +15,7 @@ void UDK_AnimNotifyState_AttackRange::NotifyBegin(USkeletalMeshComponent* MeshCo
 		ADK_Creature* Creature = Cast<ADK_Creature>(MeshComp->GetOwner());
 		if (Creature)
 		{
-			Creature->BeginAttackRange();
+			Creature->BeginAttackRange_Notify();
 		}
 	}
 	
@@ -37,7 +37,7 @@ void UDK_AnimNotifyState_AttackRange::NotifyEnd(USkeletalMeshComponent* MeshComp
 		ADK_Creature* Creature = Cast<ADK_Creature>(MeshComp->GetOwner());
 		if (Creature)
 		{
-			Creature->EndAttackRange();
+			Creature->EndAttackRange_Notify();
 		}
 	}
 

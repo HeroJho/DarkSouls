@@ -2,7 +2,9 @@
 
 
 #include "Component/Collision/DK_CollisionManagerComponent.h"
+#include "Engine/DamageEvents.h"
 
+#include "Tool/Define.h"
 #include "Components/CapsuleComponent.h"
 #include "Creature/DK_Creature.h"
 
@@ -24,9 +26,11 @@ void UDK_CollisionManagerComponent::InitializeComponent()
 	Super::InitializeComponent();
 
 
+	CreatureOwner = Cast<ADK_Creature>(GetOwner());
+
 	// Store All CapsuleCollisions
 	TArray<UCapsuleComponent*> Components;
-	GetOwner()->GetComponents(UCapsuleComponent::StaticClass(), Components);
+	CreatureOwner->GetComponents(UCapsuleComponent::StaticClass(), Components);
 
 	for (int32 i = 0; i < Components.Num(); ++i)
 	{
@@ -74,13 +78,16 @@ void UDK_CollisionManagerComponent::TurnAttackCol(const TArray<FString>& Capsule
 	{
 		for (auto Iter : Capsules)
 		{
-			Iter.Value->SetCollisionProfileName(TEXT("BlockCreatureCol"));
+			Iter.Value->SetCollisionProfileName(COL_BLOCK);
 		}
 	}
 
 	for (int32 i = 0; i < CapsuleNames.Num(); ++i)
 	{
-		Capsules[CapsuleNames[i]]->SetCollisionProfileName(TEXT("AttackCreatureCol"));
+		Capsules[CapsuleNames[i]]->SetCollisionProfileName(COL_ATTACK);
+
+		GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Green,
+		FString::Printf(TEXT("%s"), *CapsuleNames[i]));
 	}
 
 }
@@ -89,32 +96,72 @@ void UDK_CollisionManagerComponent::TurnBlockCol(const TArray<FString>& CapsuleN
 {
 	for (int32 i = 0; i < CapsuleNames.Num(); ++i)
 	{
-		Capsules[CapsuleNames[i]]->SetCollisionProfileName(TEXT("BlockCreatureCol"));
+		Capsules[CapsuleNames[i]]->SetCollisionProfileName(COL_BLOCK);
 	}
 }
 
 void UDK_CollisionManagerComponent::TurnBlockAllCol()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Green,
-		FString::Printf(TEXT("TurnBlockAllCol")));
-
 	for (auto Iter : Capsules)
 	{
-		Iter.Value->SetCollisionProfileName(TEXT("BlockCreatureCol"));
-
-		//GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Green,
-		//	FString::Printf(TEXT("%s"), *(Iter.Value->GetName())));
+		Iter.Value->SetCollisionProfileName(COL_BLOCK);
 	}
 }
 
+bool UDK_CollisionManagerComponent::CheckIsAttackCol(FString Name)
+{
+	TObjectPtr<UCapsuleComponent>* Capsule = Capsules.Find(Name);
+	
+	if (Capsule)
+	{
+		if ((*Capsule)->GetCollisionProfileName() == COL_ATTACK)
+		{
+			return true;
+		}
+	}
 
+	return false;
+}
+
+void UDK_CollisionManagerComponent::ClearCreatureTemps()
+{
+	CreatureTemps.Empty();
+}
+
+
+bool UDK_CollisionManagerComponent::CheckAttackedCreature(AActor* InCreature)
+{
+	TSoftObjectPtr<AActor>* Creature = CreatureTemps.Find(InCreature);
+
+	if (Creature)
+		return true;
+
+	return false;
+}
 
 void UDK_CollisionManagerComponent::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (OtherActor == GetOwner())
 		return;
 
-	// GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Blue, FString::Printf(TEXT("Begin: %s"), *OverlappedComp->GetName()));
+	// 공격 애니메이션 범위인지
+	if (!CreatureOwner->IsInAttackRange())
+		return;
+
+	FString ColName = OverlappedComp->GetName();
+	// 공격 판정 콜라이더라면 
+	if (CheckIsAttackCol(ColName))
+	{
+		// 중복 공격 방지
+		if (CheckAttackedCreature(OtherActor))
+			return;
+		CreatureTemps.Add(OtherActor);
+
+		// 대미지
+		FDamageEvent DamageEvent;
+		// Instigator 누가 대미지를 입혔는가, Causer 무엇이 대미지를 입혔는가
+		OtherActor->TakeDamage(0, DamageEvent, CreatureOwner->GetController(), OtherActor);
+	}
 
 }
 
@@ -122,8 +169,6 @@ void UDK_CollisionManagerComponent::OnOverlapEnd(UPrimitiveComponent* Overlapped
 {
 	if (OtherActor == GetOwner())
 		return;
-
-	// GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Blue, FString::Printf(TEXT("End: %s"), *OverlappedComp->GetName()));
 
 }
 

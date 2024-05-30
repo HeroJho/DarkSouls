@@ -5,6 +5,8 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
+#include "Creature/DK_Creature.h"
+
 UDK_AnimCreature::UDK_AnimCreature()
 {
 	MovingThreshould = 3.0f;
@@ -16,7 +18,7 @@ void UDK_AnimCreature::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();
 
-	Owner = Cast<ACharacter>(GetOwningActor());
+	Owner = Cast<ADK_Creature>(GetOwningActor());
 	if (Owner)
 	{
 		Movement = Owner->GetCharacterMovement();
@@ -35,4 +37,10 @@ void UDK_AnimCreature::NativeUpdateAnimation(float DeltaSeconds)
 		bIsFalling = Movement->IsFalling();
 		bIsJumping = bIsFalling & (Velocity.Z > JumpingThreshould);
 	}
+
+	if (Owner)
+	{
+		bIsStun = Owner->IsStun();
+	}
+	
 }

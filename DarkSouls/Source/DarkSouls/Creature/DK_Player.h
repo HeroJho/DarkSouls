@@ -67,12 +67,7 @@ protected:
 
 	void SmallAttack();
 	void PowarAttack();
-
-	UFUNCTION()
-	void OnWeaponOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-	UFUNCTION()
-	void OnWeaponOverlapEnd(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	void ResetChargeAttack();
 
 
 protected:
@@ -91,7 +86,15 @@ protected:
 	bool bIsHoldingAttackKey = false;
 	bool bIsAttacking = false;
 
-	UPROPERTY()
-	TObjectPtr<class UCapsuleComponent> WeaponCapsuleComponentTemp;
+
+	// State Section
+public:
+	virtual void Stun(float StunTime) override;
+
+protected:
+	bool CanAttack();
+	bool CanMove();
+
+	virtual void EndStun() override;
 
 };

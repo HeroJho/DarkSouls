@@ -78,15 +78,6 @@ void ADK_Player::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 
-	// Attack
-	WeaponCapsuleComponentTemp = Cast<UCapsuleComponent>(GetDefaultSubobjectByName(TEXT("WeaponCapsuleComponent")));
-
-	FScriptDelegate BeginDelegate;
-	BeginDelegate.BindUFunction(this, FName("OnWeaponOverlapBegin"));
-	WeaponCapsuleComponentTemp->OnComponentBeginOverlap.AddUnique(BeginDelegate);
-	FScriptDelegate EndDelegate;
-	EndDelegate.BindUFunction(this, FName("OnWeaponOverlapEnd"));
-	WeaponCapsuleComponentTemp->OnComponentBeginOverlap.AddUnique(EndDelegate);
 	
 }
 
@@ -129,7 +120,7 @@ void ADK_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 void ADK_Player::ShoulderMove(const FInputActionValue& Value)
 {
 	// 공격 중에는 움직임 X -> MovementComponent로 막으면 RootAnimation도 막힘
-	if (bIsAttacking || bIsCharging)
+	if (!CanMove())
 	{
 		return;
 	}
@@ -164,13 +155,19 @@ void ADK_Player::ShoulderLook(const FInputActionValue& Value)
 
 void ADK_Player::ChargeAttack(const FInputActionValue& Value)
 {
-	if (bIsAttacking || (!bIsCharging && bIsHoldingAttackKey))
+	if (!CanAttack())
+	{
+		return;
+	}
+
+	// 기를 안 모으고 있는데, 키가 눌린 상태
+	// *누른상태에서 파워어택이 나갈경우 다시 입력 들어오는거 막기 위해서
+	if (!bIsCharging && bIsHoldingAttackKey)
 	{
 		return;
 	}
 
 	bIsCharging = true;
-	bIsHoldingAttackKey = true;
 
 	float DeltaSeconds = GetWorld()->GetDeltaSeconds();
 
@@ -180,6 +177,8 @@ void ADK_Player::ChargeAttack(const FInputActionValue& Value)
 	{
 		PowarAttack();
 	}
+
+	bIsHoldingAttackKey = true;
 }
 
 void ADK_Player::EndChargeAttack(const FInputActionValue& Value)
@@ -199,8 +198,7 @@ void ADK_Player::SmallAttack()
 
 	PlayAnimMontage(SmallAttackAnim);
 
-	ChargePowarTimeAcc = 0.f;
-	bIsCharging = false;
+	ResetChargeAttack();
 }
 
 void ADK_Player::PowarAttack()
@@ -209,8 +207,30 @@ void ADK_Player::PowarAttack()
 
 	PlayAnimMontage(PowarAttackAnim);
 
+	ResetChargeAttack();
+}
+
+void ADK_Player::ResetChargeAttack()
+{
 	ChargePowarTimeAcc = 0.f;
 	bIsCharging = false;
+}
+
+void ADK_Player::Stun(float StunTime)
+{
+	Super::Stun(StunTime);
+
+	// 차지중에 스턴 걸리면 차지 리셋
+	ResetChargeAttack();
+
+	// 노티 끊기니까
+	bIsAttacking = false;
+}
+
+void ADK_Player::EndStun()
+{
+	Super::EndStun();
+
 }
 
 void ADK_Player::CheckAttack_Notify()
@@ -220,29 +240,29 @@ void ADK_Player::CheckAttack_Notify()
 }
 
 
-void ADK_Player::OnWeaponOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+bool ADK_Player::CanAttack()
 {
-	if (OtherActor == this)
-		return;
+	// 스턴이면
+	if (bIsStun)
+		return false;
 
-	// 여기서 몬스터의 Damage 함수를 호출
-	if (!bIsInAttackRange)
-		return;
+	// 공격중일 때
+	if (bIsAttacking)
+		return false;
 
-
-	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Blue, FString::Printf(TEXT("Begin: %s"), *OverlappedComp->GetName()));
-
+	return true;
 }
 
-void ADK_Player::OnWeaponOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+bool ADK_Player::CanMove()
 {
-	if (OtherActor == this)
-		return;
+	if (bIsAttacking)
+		return false;
 
-	if (!bIsInAttackRange)
-		return;
+	if (bIsCharging)
+		return false;
 
-	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Blue, FString::Printf(TEXT("End: %s"), *OverlappedComp->GetName()));
+	if (bIsStun)
+		return false;
 
+	return true;
 }
-

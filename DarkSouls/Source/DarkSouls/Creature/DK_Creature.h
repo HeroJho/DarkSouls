@@ -28,18 +28,52 @@ public:
 
 
 
-	// Combo
+	// Combo && Attack
 public:
+	UFUNCTION(BlueprintCallable)
 	void Attack();
 
-	void BeginAttackRange();
-	void EndAttackRange();
+	FORCEINLINE bool IsInAttackRange() { return bIsInAttackRange; }
+
+	void BeginAttackRange_Notify();
+	void EndAttackRange_Notify();
+
+	void BeginColRange_Notify();
+	void EndColRange_Notify();
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Combo)
 	TObjectPtr<class UDK_ComboComponent> ComboComponent;
 
 	bool bIsInAttackRange = false;
+
+
+	// Collsion
+public:
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser);
+
+	virtual void OnDamaged();
+
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Collision)
+	TObjectPtr<class UDK_CollisionManagerComponent> CollisionManagerComponent;
+
+
+	// State
+public:
+	FORCEINLINE bool IsStun() { return bIsStun; }
+
+	virtual void Stun(float StunTime);
+
+protected:
+	virtual void EndStun();
+
+protected:
+	FTimerHandle StunTimerHandle;
+	bool bIsStun = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = State, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> HitMontage;
 
 
 };
