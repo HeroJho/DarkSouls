@@ -108,7 +108,7 @@ void UDK_ComboComponent::BindEndDelegate()
 
 void UDK_ComboComponent::UnBindEndDelegate()
 {
-	UAnimInstance* AnimInstance = Owner->GetMesh()->GetAnimInstance();
+	UAnimInstance* AnimInstance = Owner->GetMesh()->GetAnimInstance(); 
 	FOnMontageEnded* PreEndDelegate = AnimInstance->Montage_GetEndedDelegate();
 	if (PreEndDelegate)
 		PreEndDelegate->Unbind();
@@ -172,6 +172,20 @@ void UDK_ComboComponent::ChangeComboActionData(uint8 DataIndex)
 const TArray<FString>& UDK_ComboComponent::GetCurrentAttackCollisionInfos()
 {
 	return ComboActionDatas[CurComboActionDataIndex]->AttackColInfos[CurrentCombo].AttackCollisions;
+}
+
+void UDK_ComboComponent::GetCurrentAttackInfos(float& OUT_Damage, bool& OUT_bIsDown, bool& OUT_bSetStunTimeToHitAnim, float& OUT_StunTime)
+{
+	const FAttackInfo& AttackInfo = ComboActionDatas[CurComboActionDataIndex]->AttackColInfos[CurrentCombo];
+
+	OUT_Damage = AttackInfo.Damage;
+	OUT_bIsDown = AttackInfo.bIsDown;
+	OUT_bSetStunTimeToHitAnim = AttackInfo.bSetStunTimeToHitAnim;
+	OUT_StunTime = AttackInfo.StunTime;
+
+	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Green,
+		FString::Printf(TEXT("Owner: %s Cur: %d, %f, %d, %f"), *GetOwner()->GetName(), CurrentCombo, AttackInfo.Damage, AttackInfo.bIsDown, AttackInfo.StunTime));
+
 }
 
 void UDK_ComboComponent::ResetComboInfo()

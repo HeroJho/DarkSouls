@@ -41,6 +41,9 @@ public:
 	void BeginColRange_Notify();
 	void EndColRange_Notify();
 
+	void GetCurrentAttackInfos(float& OUT_Damage, bool& OUT_bIsDown, bool& OUT_bSetStunTimeToHitAnim, float& OUT_StunTime);
+
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Combo)
 	TObjectPtr<class UDK_ComboComponent> ComboComponent;
@@ -52,7 +55,7 @@ protected:
 public:
 	/*virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser);*/
 
-	virtual void OnDamaged(float DamageAmount, float StunTime, AActor* DamageCauser, bool bIsDown = false);
+	virtual void OnDamaged(float DamageAmount, bool bIsDown, bool bSetStunTimeToHitAnim, float StunTime, AActor* DamageCauser);
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Collision)

@@ -91,6 +91,11 @@ void ADK_Creature::EndColRange_Notify()
 	CollisionManagerComponent->TurnBlockAllCol();
 }
 
+void ADK_Creature::GetCurrentAttackInfos(float& OUT_Damage, bool& OUT_bIsDown, bool& OUT_bSetStunTimeToHitAnim, float& OUT_StunTime)
+{
+	ComboComponent->GetCurrentAttackInfos(OUT_Damage, OUT_bIsDown, OUT_bSetStunTimeToHitAnim, OUT_StunTime);
+}
+
 
 
 //float ADK_Creature::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -102,11 +107,35 @@ void ADK_Creature::EndColRange_Notify()
 //	return 0.0f;
 //}
 
-void ADK_Creature::OnDamaged(float DamageAmount, float StunTime, AActor* DamageCauser, bool bIsDown)
+void ADK_Creature::OnDamaged(float DamageAmount, bool bIsDown, bool bSetStunTimeToHitAnim, float StunTime, AActor* DamageCauser)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Blue, FString::Printf(TEXT("%s is Attacked"), *GetName()));
+	// GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Blue, FString::Printf(TEXT("%s is Attacked"), *GetName()));
+	
+	if (!bIsDown)
+	{
+		if (bSetStunTimeToHitAnim)
+		{
+			const int32 HitAnimMontageIndex = 0;
+			float StartTime = 0.f, EndTime = 0.f;
+			HitMontage->GetSectionStartAndEndTime(HitAnimMontageIndex, StartTime, EndTime);
 
-	Stun(StunTime);
+			float DisTime = EndTime - StartTime - 0.1f;
+
+			Stun(DisTime);
+		}
+		else
+		{
+			Stun(StunTime);
+		}
+
+
+	}
+	else
+	{
+		// TODO
+
+	}
+
 }
 
 
@@ -125,9 +154,11 @@ void ADK_Creature::Stun(float StunTime)
 	GetWorldTimerManager().ClearTimer(StunTimerHandle);
 	GetWorldTimerManager().SetTimer(StunTimerHandle, this, &ADK_Creature::EndStun, StunTime, false);
 	
-	if(HitMontage)
+	if (HitMontage)
+	{
 		PlayAnimMontage(HitMontage, 1.f);
-
+	}
+	
 }
 
 void ADK_Creature::ResetInfoOnStun()
@@ -140,4 +171,8 @@ void ADK_Creature::ResetInfoOnStun()
 void ADK_Creature::EndStun()
 {
 	bIsStun = false;
+
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if(AnimInstance->Montage_IsPlaying(HitMontage))
+		StopAnimMontage(HitMontage);
 }

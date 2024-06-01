@@ -29,7 +29,8 @@ public:
 	void ChangeComboActionData(uint8 DataIndex);
 
 	const TArray<FString>& GetCurrentAttackCollisionInfos();
-	
+	void GetCurrentAttackInfos(float& OUT_Damage, bool& OUT_bIsDown, bool& OUT_bSetStunTimeToHitAnim, float& OUT_StunTime);
+
 	// ex) 스턴이 걸렸을 때 호출
 	void ResetComboInfo();
 

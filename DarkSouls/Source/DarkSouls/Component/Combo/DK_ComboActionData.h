@@ -9,15 +9,25 @@
 
 
 USTRUCT()
-struct FAttackColInfo
+struct FAttackInfo
 {
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = Collision)
 	TArray<FString> AttackCollisions;
-
+	
+	UPROPERTY(EditAnywhere, Category = Attack)
+	float Damage;
+	UPROPERTY(EditAnywhere, Category = Attack)
+	uint8 bIsDown : 1;
+	UPROPERTY(EditAnywhere, Category = Attack)
+	uint8 bSetStunTimeToHitAnim : 1;
+	UPROPERTY(EditAnywhere, Category = Attack)
+	float StunTime;
 };
+
+
 
 UCLASS()
 class DARKSOULS_API UDK_ComboActionData : public UPrimaryDataAsset
@@ -38,8 +48,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = Combo)
 	uint8 MaxComboCount;
 
-	UPROPERTY(EditAnywhere, Category = Collision)
-	TArray<FAttackColInfo> AttackColInfos;
+	UPROPERTY(EditAnywhere, Category = Attack)
+	TArray<FAttackInfo> AttackColInfos;
 	
+
 
 };

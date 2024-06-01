@@ -158,17 +158,22 @@ void UDK_CollisionManagerComponent::OnOverlapBegin(UPrimitiveComponent* Overlapp
 			return;
 		ActorTemps.Add(OtherActor);
 
-
 		// 대미지
 		//FDamageEvent DamageEvent;
 		// Instigator 누가 대미지를 입혔는가, Causer 무엇이 대미지를 입혔는가
 		//OtherActor->TakeDamage(0, DamageEvent, CreatureOwner->GetController(), OtherActor);
 
 		ADK_Creature* OtherCreature = Cast<ADK_Creature>(OtherActor);
-		
-		if(CreatureOwner.Get())
-			OtherCreature->OnDamaged(0, 5.f, CreatureOwner.Get());
+		float Damage = 0.f;
+		bool bIsDown = false;
+		bool bSetStunTimeToHitAnim = false;
+		float StunTime = 0.f;
+		CreatureOwner->GetCurrentAttackInfos(Damage, bIsDown, bSetStunTimeToHitAnim, StunTime);
 
+		OtherCreature->OnDamaged(Damage, bIsDown, bSetStunTimeToHitAnim, StunTime, CreatureOwner);
+
+/*		GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Green,
+		FString::Printf(TEXT("%f, %d, %f"), Damage, bIsDown, StunTime))*/;
 	}
 
 }
