@@ -50,9 +50,9 @@ protected:
 
 	// Collsion
 public:
-	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser);
+	/*virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser);*/
 
-	virtual void OnDamaged();
+	virtual void OnDamaged(float DamageAmount, float StunTime, AActor* DamageCauser, bool bIsDown = false);
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Collision)
@@ -64,9 +64,12 @@ public:
 	FORCEINLINE bool IsStun() { return bIsStun; }
 
 	virtual void Stun(float StunTime);
-
+	
 protected:
 	virtual void EndStun();
+
+	// 스턴 시, 초기화해야할 작업들
+	virtual void ResetInfoOnStun();
 
 protected:
 	FTimerHandle StunTimerHandle;

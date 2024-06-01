@@ -90,11 +90,13 @@ protected:
 	// State Section
 public:
 	virtual void Stun(float StunTime) override;
+	
 
 protected:
 	bool CanAttack();
 	bool CanMove();
 
 	virtual void EndStun() override;
+	virtual void ResetInfoOnStun() override;
 
 };

@@ -73,7 +73,6 @@ void UDK_ComboComponent::ComboActionBegin()
 
 void UDK_ComboComponent::ComboActionEnd(UAnimMontage* TargetMontage, bool IsProperlyEnded)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Green, FString::Printf(TEXT("%d"), CurrentCombo));
 
 	// 스킵해야하는 상황 (마지막 콤보가 아니고, 키입력을 받았을 때)
 	uint8 MaxCount = ComboActionDatas[CurComboActionDataIndex]->MaxComboCount;
@@ -113,6 +112,7 @@ void UDK_ComboComponent::UnBindEndDelegate()
 	FOnMontageEnded* PreEndDelegate = AnimInstance->Montage_GetEndedDelegate();
 	if (PreEndDelegate)
 		PreEndDelegate->Unbind();
+
 }
 
 void UDK_ComboComponent::ComboCheck()
@@ -172,4 +172,14 @@ void UDK_ComboComponent::ChangeComboActionData(uint8 DataIndex)
 const TArray<FString>& UDK_ComboComponent::GetCurrentAttackCollisionInfos()
 {
 	return ComboActionDatas[CurComboActionDataIndex]->AttackColInfos[CurrentCombo].AttackCollisions;
+}
+
+void UDK_ComboComponent::ResetComboInfo()
+{
+	// 이 인덱스에 따라 콤보가 실행됨
+	CurrentCombo = 0;
+	bHasNextComboCommand = false;
+	bIsCallEnd = false; // EndDelegate 호출 여부
+
+	ReserveComboActionDataIndex = -1;
 }

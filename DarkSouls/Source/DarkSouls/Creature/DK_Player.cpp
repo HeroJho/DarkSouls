@@ -220,17 +220,23 @@ void ADK_Player::Stun(float StunTime)
 {
 	Super::Stun(StunTime);
 
-	// 차지중에 스턴 걸리면 차지 리셋
-	ResetChargeAttack();
 
-	// 노티 끊기니까
-	bIsAttacking = false;
 }
 
 void ADK_Player::EndStun()
 {
 	Super::EndStun();
 
+}
+
+void ADK_Player::ResetInfoOnStun()
+{
+	Super::ResetInfoOnStun();
+
+	// 차지중에 스턴 걸리면 차지 리셋
+	ResetChargeAttack();
+	// 공격도중에 스턴 걸리면 노티 끊기니까
+	bIsAttacking = false;
 }
 
 void ADK_Player::CheckAttack_Notify()

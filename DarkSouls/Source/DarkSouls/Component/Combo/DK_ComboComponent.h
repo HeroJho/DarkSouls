@@ -29,6 +29,9 @@ public:
 	void ChangeComboActionData(uint8 DataIndex);
 
 	const TArray<FString>& GetCurrentAttackCollisionInfos();
+	
+	// ex) 스턴이 걸렸을 때 호출
+	void ResetComboInfo();
 
 protected:	
 	void ComboActionBegin();
@@ -51,7 +54,6 @@ protected:
 	bool bHasNextComboCommand = false;
 	bool bIsCallEnd = false;
 
-	bool bIsChangedData = false;
 	int8 ReserveComboActionDataIndex = -1;
 
 		

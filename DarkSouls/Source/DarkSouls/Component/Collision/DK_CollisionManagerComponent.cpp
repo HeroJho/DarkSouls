@@ -34,10 +34,11 @@ void UDK_CollisionManagerComponent::InitializeComponent()
 
 	for (int32 i = 0; i < Components.Num(); ++i)
 	{
-		FString Name = Components[i]->GetName();
-	
-		if (Name == TEXT("CollisionCylinder"))
+		if (Components[i]->ComponentHasTag(TEXT("NoManage")))
 			continue;
+
+	
+		FString Name = Components[i]->GetName();
 
 		Capsules.Add(Name, Components[i]);
 		
@@ -76,18 +77,13 @@ void UDK_CollisionManagerComponent::TurnAttackCol(const TArray<FString>& Capsule
 {
 	if (bAutoSetAnotherBlock)
 	{
-		for (auto Iter : Capsules)
-		{
-			Iter.Value->SetCollisionProfileName(COL_BLOCK);
-		}
+		TurnBlockAllCol();
 	}
 
 	for (int32 i = 0; i < CapsuleNames.Num(); ++i)
 	{
 		Capsules[CapsuleNames[i]]->SetCollisionProfileName(COL_ATTACK);
-
-		GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Green,
-		FString::Printf(TEXT("%s"), *CapsuleNames[i]));
+		// Capsules[CapsuleNames[i]]->bHiddenInGame = false;
 	}
 
 }
@@ -97,6 +93,7 @@ void UDK_CollisionManagerComponent::TurnBlockCol(const TArray<FString>& CapsuleN
 	for (int32 i = 0; i < CapsuleNames.Num(); ++i)
 	{
 		Capsules[CapsuleNames[i]]->SetCollisionProfileName(COL_BLOCK);
+		// Capsules[CapsuleNames[i]]->bHiddenInGame = true;
 	}
 }
 
@@ -104,7 +101,11 @@ void UDK_CollisionManagerComponent::TurnBlockAllCol()
 {
 	for (auto Iter : Capsules)
 	{
+		if (Iter.Value->ComponentHasTag(TEXT("NoBlock")))
+			continue;
+
 		Iter.Value->SetCollisionProfileName(COL_BLOCK);
+		// Iter.Value->bHiddenInGame = true;
 	}
 }
 
@@ -123,15 +124,15 @@ bool UDK_CollisionManagerComponent::CheckIsAttackCol(FString Name)
 	return false;
 }
 
-void UDK_CollisionManagerComponent::ClearCreatureTemps()
+void UDK_CollisionManagerComponent::ClearActorTemps()
 {
-	CreatureTemps.Empty();
+	ActorTemps.Empty();
 }
 
 
-bool UDK_CollisionManagerComponent::CheckAttackedCreature(AActor* InCreature)
+bool UDK_CollisionManagerComponent::CheckAttackedActor(AActor* InCreature)
 {
-	TSoftObjectPtr<AActor>* Creature = CreatureTemps.Find(InCreature);
+	TSoftObjectPtr<AActor>* Creature = ActorTemps.Find(InCreature);
 
 	if (Creature)
 		return true;
@@ -153,14 +154,21 @@ void UDK_CollisionManagerComponent::OnOverlapBegin(UPrimitiveComponent* Overlapp
 	if (CheckIsAttackCol(ColName))
 	{
 		// 중복 공격 방지
-		if (CheckAttackedCreature(OtherActor))
+		if (CheckAttackedActor(OtherActor))
 			return;
-		CreatureTemps.Add(OtherActor);
+		ActorTemps.Add(OtherActor);
+
 
 		// 대미지
-		FDamageEvent DamageEvent;
+		//FDamageEvent DamageEvent;
 		// Instigator 누가 대미지를 입혔는가, Causer 무엇이 대미지를 입혔는가
-		OtherActor->TakeDamage(0, DamageEvent, CreatureOwner->GetController(), OtherActor);
+		//OtherActor->TakeDamage(0, DamageEvent, CreatureOwner->GetController(), OtherActor);
+
+		ADK_Creature* OtherCreature = Cast<ADK_Creature>(OtherActor);
+		
+		if(CreatureOwner.Get())
+			OtherCreature->OnDamaged(0, 5.f, CreatureOwner.Get());
+
 	}
 
 }
@@ -169,6 +177,8 @@ void UDK_CollisionManagerComponent::OnOverlapEnd(UPrimitiveComponent* Overlapped
 {
 	if (OtherActor == GetOwner())
 		return;
+
+
 
 }
 

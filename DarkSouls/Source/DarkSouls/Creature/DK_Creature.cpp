@@ -59,6 +59,11 @@ void ADK_Creature::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 }
 
+
+
+
+
+
 void ADK_Creature::Attack()
 {
 	ComboComponent->ProcessComboCommand();
@@ -72,7 +77,7 @@ void ADK_Creature::BeginAttackRange_Notify()
 void ADK_Creature::EndAttackRange_Notify()
 {
 	bIsInAttackRange = false;
-	CollisionManagerComponent->ClearCreatureTemps();
+	CollisionManagerComponent->ClearActorTemps();
 }
 
 void ADK_Creature::BeginColRange_Notify()
@@ -88,26 +93,33 @@ void ADK_Creature::EndColRange_Notify()
 
 
 
+//float ADK_Creature::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+//{
+//	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+//
+//	OnDamaged();
+//
+//	return 0.0f;
+//}
 
-float ADK_Creature::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
-{
-	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-
-	OnDamaged();
-
-	return 0.0f;
-}
-
-void ADK_Creature::OnDamaged()
+void ADK_Creature::OnDamaged(float DamageAmount, float StunTime, AActor* DamageCauser, bool bIsDown)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Blue, FString::Printf(TEXT("%s is Attacked"), *GetName()));
 
-	Stun(5.f);
+	Stun(StunTime);
 }
+
+
+
+
+
+
 
 
 void ADK_Creature::Stun(float StunTime)
 {
+	ResetInfoOnStun();
+
 	bIsStun = true;
 
 	GetWorldTimerManager().ClearTimer(StunTimerHandle);
@@ -115,6 +127,14 @@ void ADK_Creature::Stun(float StunTime)
 	
 	if(HitMontage)
 		PlayAnimMontage(HitMontage, 1.f);
+
+}
+
+void ADK_Creature::ResetInfoOnStun()
+{
+	EndColRange_Notify(); // 공격 콜라이더
+	EndAttackRange_Notify(); // 공격 애니메이션 범위
+	ComboComponent->ResetComboInfo(); // 콤보
 }
 
 void ADK_Creature::EndStun()
