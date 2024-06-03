@@ -23,10 +23,6 @@ protected:
 
 	virtual void PostInitializeComponents() override;
 
-
-
 protected:
-
-
 
 };

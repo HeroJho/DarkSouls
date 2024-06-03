@@ -20,10 +20,10 @@ ADK_Creature::ADK_Creature()
 	bUseControllerRotationRoll = false;
 
 	// Capsule
-	// GetCapsuleComponent()->SetCollisionProfileName(TEXT("NoCollision"));
+	GetCapsuleComponent()->SetCollisionProfileName(TEXT("RootCreatureCol"));
 
 	// Mesh
-	// GetMesh()->SetCollisionProfileName(TEXT("NoCollision"));
+	GetMesh()->SetCollisionProfileName(TEXT("NoCollision"));
 	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
 
 	// Movement
@@ -32,6 +32,7 @@ ADK_Creature::ADK_Creature()
 
 	// ComboComponent
 	ComboComponent = CreateDefaultSubobject<UDK_ComboComponent>(TEXT("ComboComponent"));
+
 
 	// CollisionManagerComponent
 	CollisionManagerComponent = CreateDefaultSubobject<UDK_CollisionManagerComponent>("CollisionManagerComponent");

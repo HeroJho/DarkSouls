@@ -69,6 +69,15 @@ ADK_Player::ADK_Player()
 		{
 			LookAction = InputActionShoulderLookRef.Object;
 		}
+		static ConstructorHelpers::FObjectFinder<UInputAction> InputActionTargetLockRef(TEXT(
+			"/Script/EnhancedInput.InputAction'/Game/Inputs/Actions/IA_TargetLock.IA_TargetLock'"));
+		if (nullptr != InputActionTargetLockRef.Object)
+		{
+			TargetLockAction = InputActionTargetLockRef.Object;
+		}
+
+
+
 	}
 
 

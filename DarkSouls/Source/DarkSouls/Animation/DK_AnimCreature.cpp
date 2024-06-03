@@ -18,6 +18,7 @@ void UDK_AnimCreature::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();
 
+
 	Owner = Cast<ADK_Creature>(GetOwningActor());
 	if (Owner)
 	{

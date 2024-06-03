@@ -3,11 +3,12 @@
 
 #include "Creature/DK_Monster.h"
 
+#include "Components/ArrowComponent.h"
+
 
 ADK_Monster::ADK_Monster()
 {
-
-
+	
 }
 
 
