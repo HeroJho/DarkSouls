@@ -26,6 +26,10 @@ protected:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+public:
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+
 
 	// Camera Section
 protected:
@@ -94,10 +98,36 @@ public:
 	
 
 protected:
+	virtual void EndStun() override;
+	virtual void ResetInfoOnStun() override;
+
+
+	// LockOn Section
+public:
+	void LockTarget();
+	void LockTarget(bool bIsLock);
+
+protected:
+	void LockTick();
+
+
+protected:
+	bool bIsTargetLockOn = false;
+	TSoftObjectPtr<AActor> TargetLockedOn;
+
+	UPROPERTY(EditAnywhere, Category = LockOn)
+	float LockOnSmoothSpeed = 5.f;
+
+	const float LockMaxDis = 3000.f;
+	const float MaxAngle = 90.f;
+	const float LockOnCameraLagSpeed = 3.f;
+	const float LockOffCameraLagSpeed = 6.f;
+	
+
+	// Condition Section
+protected:
 	bool CanAttack();
 	bool CanMove();
 
-	virtual void EndStun() override;
-	virtual void ResetInfoOnStun() override;
 
 };

@@ -25,6 +25,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	const TArray<AActor*> GetObjectInAngleByChannel(ECollisionChannel Channel, FVector StanPos, float MaxDis, FVector StanVec, float MaxAngle, bool bDebug);
 	UFUNCTION(BlueprintCallable)
-	const AActor* GetObjectInNearstAngleByChannel(ECollisionChannel Channel, FVector StanPos, float MaxDis, FVector StanVec, float MaxAngle, bool bDebug);
+	AActor* GetObjectInNearstAngleByChannel(ECollisionChannel Channel, FVector StanPos, float MaxDis, FVector StanVec, float MaxAngle, bool bDebug);
 
 };

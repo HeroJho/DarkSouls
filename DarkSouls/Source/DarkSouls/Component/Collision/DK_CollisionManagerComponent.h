@@ -28,12 +28,10 @@ public:
 
 
 public:
-	UFUNCTION(BlueprintCallable)
 	void TurnAttackCol(const TArray<FString>& CapsuleNames, bool bAutoSetAnotherBlock = false);
-	UFUNCTION(BlueprintCallable)
 	void TurnBlockCol(const TArray<FString>& CapsuleNames);
-	UFUNCTION(BlueprintCallable)
 	void TurnBlockAllCol();
+	void TurnDodgeCol();
 	
 	bool CheckIsAttackCol(FString Name);
 

@@ -82,4 +82,37 @@ protected:
 	TObjectPtr<class UAnimMontage> HitMontage;
 
 
+	// SmoothTurn
+public:
+	UFUNCTION(BlueprintCallable)
+	void SmoothTurnByCallOnce(FVector InDestPos, float TurnSpeed);
+	void StopSmoothTurn();
+
+protected:
+	virtual bool CanSmoothTurn();
+	void SmoothTurnTick();
+
+protected:
+	bool bIsSmoothTurn = false;
+	float SmoothTurnSpeed = 0.f;
+	FVector DestPos;
+
+
+	// Dodge
+public:
+	void Dodge();
+	void EndDoge(UAnimMontage* TargetMontage, bool IsProperlyEnded);
+
+	void StartDodgeSkip_Notify();
+	void EndDodgeSkip_Notify();
+
+
+protected:
+	bool bIsDodge = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Dodge, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> DodgeMontage;
+
+
+
 };

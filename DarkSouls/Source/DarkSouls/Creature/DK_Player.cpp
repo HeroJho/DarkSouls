@@ -9,12 +9,20 @@
 #include "EnhancedInputSubsystems.h"
 #include "Engine/World.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/ArrowComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
+#include "Tool/Define.h"
 #include "Game/DK_GameMode.h"
 #include "Manager/DK_OptionManager.h"
+#include "Manager/DK_ToolManager.h"
+
+
 
 ADK_Player::ADK_Player()
 {
+	PrimaryActorTick.bCanEverTick = true;
+
 	// Camera
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
@@ -124,6 +132,22 @@ void ADK_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ADK_Player::ShoulderMove);
 	EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ADK_Player::ShoulderLook);
 
+	EnhancedInputComponent->BindAction(TargetLockAction, ETriggerEvent::Started, this, &ADK_Player::LockTarget);
+
+}
+
+void ADK_Player::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+
+
+	if (bIsTargetLockOn)
+	{
+		LockTick();
+	}
+
+
 }
 
 void ADK_Player::ShoulderMove(const FInputActionValue& Value)
@@ -148,6 +172,11 @@ void ADK_Player::ShoulderMove(const FInputActionValue& Value)
 
 void ADK_Player::ShoulderLook(const FInputActionValue& Value)
 {
+	if (bIsTargetLockOn)
+	{
+		return;
+	}
+
 	FVector2D LookAxisVector = Value.Get<FVector2D>();
 
 	ADK_GameMode* GameMode = Cast<ADK_GameMode>(GetWorld()->GetAuthGameMode());
@@ -169,12 +198,13 @@ void ADK_Player::ChargeAttack(const FInputActionValue& Value)
 		return;
 	}
 
-	// 기를 안 모으고 있는데, 키가 눌린 상태
-	// *누른상태에서 파워어택이 나갈경우 다시 입력 들어오는거 막기 위해서
-	if (!bIsCharging && bIsHoldingAttackKey)
+
+	// 락온일 때는 적 방향으로 공격
+	if (bIsTargetLockOn && IsValid(TargetLockedOn.Get()))
 	{
-		return;
+		SmoothTurnByCallOnce(TargetLockedOn.Get()->GetActorLocation(), 10.f);
 	}
+
 
 	bIsCharging = true;
 
@@ -248,6 +278,7 @@ void ADK_Player::ResetInfoOnStun()
 	bIsAttacking = false;
 }
 
+
 void ADK_Player::CheckAttack_Notify()
 {
 	bIsAttacking = false;
@@ -265,6 +296,12 @@ bool ADK_Player::CanAttack()
 	if (bIsAttacking)
 		return false;
 
+	// 기를 안 모으고 있는데, 키가 눌린 상태
+	// *누른상태에서 파워어택이 나갈경우 다시 입력 들어오는거 막기 위해서
+	if (!bIsCharging && bIsHoldingAttackKey)
+		return false;
+
+
 	return true;
 }
 
@@ -280,4 +317,127 @@ bool ADK_Player::CanMove()
 		return false;
 
 	return true;
+}
+
+
+
+
+
+void ADK_Player::LockTarget()
+{
+	if (bIsTargetLockOn)
+	{
+		LockTarget(false);
+	}
+	else
+	{
+		LockTarget(true);
+	}
+
+}
+
+void ADK_Player::LockTarget(bool bIsLock)
+{
+
+	if (bIsLock)
+	{
+		ADK_GameMode* GameMode = Cast<ADK_GameMode>(GetWorld()->GetAuthGameMode());
+
+		FVector StanPos = GetActorLocation();
+
+		FRotator ControlRotation = GetController()->GetControlRotation();
+		FVector StanVec = FRotationMatrix(ControlRotation).GetScaledAxis(EAxis::X);
+
+		AActor* LockTarget = GameMode->GetToolManager()->GetObjectInNearstAngleByChannel(ECC_GameTraceChannel2, StanPos, LockMaxDis, StanVec, MaxAngle, false);
+		if (LockTarget)
+		{
+			TargetLockedOn = LockTarget;
+
+			CameraBoom->CameraLagSpeed = LockOnCameraLagSpeed;
+			bIsTargetLockOn = true;
+
+		}
+
+	}
+	else
+	{
+		TargetLockedOn = nullptr;
+
+		CameraBoom->CameraLagSpeed = LockOffCameraLagSpeed;
+		bIsTargetLockOn = false;
+
+	}
+
+
+}
+
+void ADK_Player::LockTick()
+{
+	if(!IsValid(TargetLockedOn.Get()))
+	{
+		LockTarget(false);
+		return;
+	}
+
+	// LockOnPos 위치를 가리키는 Arrow 컴포넌트를 찾는다
+	UArrowComponent* LockArrow = nullptr;
+	TArray<UArrowComponent*> ArrowComponents;
+	TargetLockedOn->GetComponents<UArrowComponent>(ArrowComponents);
+
+	for (int32 i = 0; i < ArrowComponents.Num(); ++i)
+	{
+		if (ArrowComponents[i]->GetName() == TEXT("LockOnPos"))
+		{
+			LockArrow = ArrowComponents[i];
+			break;
+		}
+
+	}
+
+	if (LockArrow == nullptr)
+	{
+		LockTarget(false);
+		return;
+	}
+
+
+	// 거리 확인
+	if (LockMaxDis < GetDistanceTo(TargetLockedOn.Get()))
+	{
+		LockTarget(false);
+		return;
+	}
+
+
+	// 컨트롤러(Boom)의 Yaw을 얼마나 회전해야하냐
+	FVector ArrowLocation = LockArrow->GetComponentLocation();
+	FVector PlayerLocation = GetActorLocation();
+	
+	FRotator RotationYaw = UKismetMathLibrary::FindLookAtRotation(PlayerLocation, ArrowLocation);
+	
+	// 컨트롤러(Boom)의 Pitch을 얼마나 회전해야하냐
+	FVector StartLocation;
+	FVector LocalArmLocation = FVector(CameraBoom->TargetArmLength * -1.f, 0.f, 0.f);
+	LocalArmLocation = UKismetMathLibrary::RotateAngleAxis(LocalArmLocation, RotationYaw.Yaw, FVector::ZAxisVector);
+	StartLocation.X = LocalArmLocation.X;
+	StartLocation.Y = LocalArmLocation.Y;
+	StartLocation.Z = CameraBoom->TargetOffset.Z;
+
+	FVector EndLocation = ArrowLocation - PlayerLocation;
+	FRotator RotationPitch = UKismetMathLibrary::FindLookAtRotation(StartLocation, EndLocation);
+
+
+	// 구한 Yaw와 Pitch로 Lerp해서 회전한다
+	float Pitch = RotationPitch.Pitch;
+	float Yaw = RotationYaw.Yaw;
+
+	FRotator CurRot = GetController()->GetControlRotation();
+	FRotator WantRot(Pitch , Yaw, 0.f);
+
+
+	FRotator ResultRot = FMath::RInterpTo(CurRot, WantRot, GetWorld()->GetDeltaSeconds(), LockOnSmoothSpeed);
+
+
+	GetController()->SetControlRotation(ResultRot);
+
 }

@@ -84,6 +84,9 @@ void UDK_CollisionManagerComponent::TurnAttackCol(const TArray<FString>& Capsule
 	{
 		Capsules[CapsuleNames[i]]->SetCollisionProfileName(COL_ATTACK);
 		// Capsules[CapsuleNames[i]]->bHiddenInGame = false;
+
+		GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Green,
+		FString::Printf(TEXT("%s"), *Capsules[CapsuleNames[i]].GetName()));
 	}
 
 }
@@ -106,6 +109,14 @@ void UDK_CollisionManagerComponent::TurnBlockAllCol()
 
 		Iter.Value->SetCollisionProfileName(COL_BLOCK);
 		// Iter.Value->bHiddenInGame = true;
+	}
+}
+
+void UDK_CollisionManagerComponent::TurnDodgeCol()
+{
+	for (auto Iter : Capsules)
+	{
+		Iter.Value->SetCollisionProfileName(COL_DODGE);
 	}
 }
 

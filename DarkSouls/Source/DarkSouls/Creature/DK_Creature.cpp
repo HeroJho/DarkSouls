@@ -4,7 +4,9 @@
 #include "Creature/DK_Creature.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
+#include "Tool/Define.h"
 #include "Component/Combo/DK_ComboComponent.h"
 #include "Component/Collision/DK_CollisionManagerComponent.h"
 
@@ -12,7 +14,7 @@
 ADK_Creature::ADK_Creature()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 
 	// Pawn
 	bUseControllerRotationPitch = false;
@@ -50,6 +52,13 @@ void ADK_Creature::BeginPlay()
 void ADK_Creature::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	// 타이머로 할려고했는데, 카메라가 흔들리는 문제가 생김
+	if (bIsSmoothTurn)
+	{
+		SmoothTurnTick();
+	}
+
 
 }
 
@@ -176,4 +185,95 @@ void ADK_Creature::EndStun()
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if(AnimInstance->Montage_IsPlaying(HitMontage))
 		StopAnimMontage(HitMontage);
+}
+
+
+
+
+
+void ADK_Creature::SmoothTurnByCallOnce(FVector InDestPos, float TurnSpeed)
+{
+	if (!CanSmoothTurn())
+		return;
+
+	DestPos = InDestPos;
+	SmoothTurnSpeed = TurnSpeed;
+
+	bIsSmoothTurn = true;
+}
+
+void ADK_Creature::StopSmoothTurn()
+{
+	bIsSmoothTurn = false;
+}
+
+bool ADK_Creature::CanSmoothTurn()
+{
+	if (bIsStun)
+		return false;
+
+
+	return true;
+}
+
+void ADK_Creature::SmoothTurnTick()
+{
+	if (!CanSmoothTurn())
+	{
+		StopSmoothTurn();
+		return;
+	}
+
+
+	FRotator CurRot = K2_GetActorRotation();
+	CurRot.Roll = 0.f;
+	CurRot.Pitch = 0.f;
+	FRotator DestRot = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), DestPos);
+	DestRot.Roll = 0.f;
+	DestRot.Pitch = 0.f;
+
+	FRotator NowRot = FMath::RInterpTo(CurRot, DestRot, GetWorld()->DeltaTimeSeconds, SmoothTurnSpeed);
+
+	FRotator DisRot = CurRot - NowRot;
+	if (DisRot.IsNearlyZero(0.1f))
+	{
+		StopSmoothTurn();
+		return;
+	}
+
+	SetActorRotation(NowRot);
+	
+}
+
+
+
+void ADK_Creature::Dodge()
+{
+	bIsDodge = true;
+
+	PlayAnimMontage(DodgeMontage);
+
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	FOnMontageEnded EndDelegate;
+	EndDelegate.BindUObject(this, &ADK_Creature::EndDoge);
+	AnimInstance->Montage_SetEndDelegate(EndDelegate, DodgeMontage);
+}
+
+void ADK_Creature::EndDoge(UAnimMontage* TargetMontage, bool IsProperlyEnded)
+{
+	bIsDodge = false;
+
+
+}
+
+void ADK_Creature::StartDodgeSkip_Notify()
+{
+	CollisionManagerComponent->TurnDodgeCol();
+
+}
+
+void ADK_Creature::EndDodgeSkip_Notify()
+{
+	CollisionManagerComponent->TurnBlockAllCol();
+
 }

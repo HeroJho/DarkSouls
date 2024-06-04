@@ -67,7 +67,7 @@ const TArray<AActor*> UDK_ToolManager::GetObjectInAngleByChannel(ECollisionChann
 		{
 			FVector Location = Answers[i]->GetActorLocation();
 
-			DrawDebugSphere(GetWorld(), Location, 150.f, 20, FColor::Red);
+			DrawDebugSphere(GetWorld(), Location, 150.f, 20, FColor::Red, false, 10.f);
 		}
 	}
 
@@ -78,7 +78,7 @@ const TArray<AActor*> UDK_ToolManager::GetObjectInAngleByChannel(ECollisionChann
 	return Answers;
 }
 
-const AActor* UDK_ToolManager::GetObjectInNearstAngleByChannel(ECollisionChannel Channel, FVector StanPos, float MaxDis, FVector StanVec, float MaxAngle, bool bDebug)
+AActor* UDK_ToolManager::GetObjectInNearstAngleByChannel(ECollisionChannel Channel, FVector StanPos, float MaxDis, FVector StanVec, float MaxAngle, bool bDebug)
 {
 	AActor* Answer = nullptr;
 
@@ -110,7 +110,7 @@ const AActor* UDK_ToolManager::GetObjectInNearstAngleByChannel(ECollisionChannel
 	{
 		if (Answer)
 		{
-			DrawDebugSphere(GetWorld(), Answer->GetActorLocation(), 150.f, 20, FColor::Green);
+			DrawDebugSphere(GetWorld(), Answer->GetActorLocation(), 150.f, 20, FColor::Green, false, 10.f);
 		}
 	}
 
