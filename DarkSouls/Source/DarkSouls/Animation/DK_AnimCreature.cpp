@@ -42,6 +42,9 @@ void UDK_AnimCreature::NativeUpdateAnimation(float DeltaSeconds)
 	if (Owner)
 	{
 		bIsStun = Owner->IsStun();
+		bIsKnockDown = Owner->IsKnockDown();
+		bIsPlayEndKnockDown = Owner->IsPlayEndKnockDown();
+		bIsBlock = Owner->IsBlock();
 	}
 	
 }

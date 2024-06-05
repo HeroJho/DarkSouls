@@ -27,6 +27,8 @@ void UDK_AnimPlayer::NativeUpdateAnimation(float DeltaSeconds)
 	{
 		ChargePaworAcc = PlayerOwner->GetChargePowarTimeAcc();
 		bIsCharging = PlayerOwner->GetIsCharging();
+		InputDir = PlayerOwner->GetInputDir();
+		InputDir.Normalize();
 	}
 	
 }

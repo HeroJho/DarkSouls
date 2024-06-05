@@ -83,9 +83,20 @@ ADK_Player::ADK_Player()
 		{
 			TargetLockAction = InputActionTargetLockRef.Object;
 		}
+		static ConstructorHelpers::FObjectFinder<UInputAction> InputActionDodgeRef(TEXT(
+			"/Script/EnhancedInput.InputAction'/Game/Inputs/Actions/IA_Dodge.IA_Dodge'"));
+		if (nullptr != InputActionDodgeRef.Object)
+		{
+			DodgeAction = InputActionDodgeRef.Object;
+		}
+		static ConstructorHelpers::FObjectFinder<UInputAction> InputActionBlockRef(TEXT(
+			"/Script/EnhancedInput.InputAction'/Game/Inputs/Actions/IA_Block.IA_Block'"));
+		if (nullptr != InputActionBlockRef.Object)
+		{
+			BlockAction = InputActionBlockRef.Object;
+		}
 
-
-
+		
 	}
 
 
@@ -133,7 +144,10 @@ void ADK_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ADK_Player::ShoulderLook);
 
 	EnhancedInputComponent->BindAction(TargetLockAction, ETriggerEvent::Started, this, &ADK_Player::LockTarget);
+	EnhancedInputComponent->BindAction(DodgeAction, ETriggerEvent::Started, this, &ADK_Player::Dodge);
 
+	EnhancedInputComponent->BindAction(BlockAction, ETriggerEvent::Triggered, this, &ADK_Creature::Block);
+	EnhancedInputComponent->BindAction(BlockAction, ETriggerEvent::Completed, this, &ADK_Creature::EndBlock);
 }
 
 void ADK_Player::Tick(float DeltaTime)
@@ -152,13 +166,12 @@ void ADK_Player::Tick(float DeltaTime)
 
 void ADK_Player::ShoulderMove(const FInputActionValue& Value)
 {
-	// 공격 중에는 움직임 X -> MovementComponent로 막으면 RootAnimation도 막힘
+	MoveInputDir = Value.Get<FVector2D>();
+
 	if (!CanMove())
 	{
 		return;
 	}
-
-	FVector2D MovementVector = Value.Get<FVector2D>();
 
 	const FRotator Rotation = Controller->GetControlRotation();
 	const FRotator YawRotation(0, Rotation.Yaw, 0);
@@ -166,8 +179,8 @@ void ADK_Player::ShoulderMove(const FInputActionValue& Value)
 	const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 	const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
-	AddMovementInput(ForwardDirection, MovementVector.X);
-	AddMovementInput(RightDirection, MovementVector.Y);
+	AddMovementInput(ForwardDirection, MoveInputDir.X);
+	AddMovementInput(RightDirection, MoveInputDir.Y);
 }
 
 void ADK_Player::ShoulderLook(const FInputActionValue& Value)
@@ -198,6 +211,9 @@ void ADK_Player::ChargeAttack(const FInputActionValue& Value)
 		return;
 	}
 
+	ResetInfoOnAttack();
+
+	//GEngine->AddOnScreenDebugMessage(-1, 0.1f, FColor::Blue, FString::Printf(TEXT("afaf")));
 
 	// 락온일 때는 적 방향으로 공격
 	if (bIsTargetLockOn && IsValid(TargetLockedOn.Get()))
@@ -268,6 +284,14 @@ void ADK_Player::EndStun()
 
 }
 
+void ADK_Player::ResetInfoOnAttack()
+{
+	Super::ResetInfoOnAttack();
+
+	EndBlock();
+
+}
+
 void ADK_Player::ResetInfoOnStun()
 {
 	Super::ResetInfoOnStun();
@@ -278,6 +302,16 @@ void ADK_Player::ResetInfoOnStun()
 	bIsAttacking = false;
 }
 
+void ADK_Player::ResetInfoOnBlock()
+{
+	Super::ResetInfoOnBlock();
+
+	// 차지중에 가드
+	// ResetChargeAttack();
+
+
+}
+
 
 void ADK_Player::CheckAttack_Notify()
 {
@@ -286,39 +320,27 @@ void ADK_Player::CheckAttack_Notify()
 }
 
 
-bool ADK_Player::CanAttack()
+
+void ADK_Player::Dodge()
 {
-	// 스턴이면
-	if (bIsStun)
-		return false;
+	if (!CanDodge())
+		return;
 
-	// 공격중일 때
-	if (bIsAttacking)
-		return false;
+	Super::Dodge();
 
-	// 기를 안 모으고 있는데, 키가 눌린 상태
-	// *누른상태에서 파워어택이 나갈경우 다시 입력 들어오는거 막기 위해서
-	if (!bIsCharging && bIsHoldingAttackKey)
-		return false;
+	FVector Dir(MoveInputDir.X, MoveInputDir.Y, 0.f);
+
+	FRotator DirRot = UKismetMathLibrary::FindLookAtRotation(FVector::Zero(), Dir);
+	DirRot.Pitch = 0.f;
+	DirRot.Roll = 0.f;
 
 
-	return true;
+	FRotator CamRot = GetController()->GetControlRotation();
+	DirRot.Yaw = CamRot.Yaw + DirRot.Yaw;
+
+	SetActorRotation(DirRot);
+
 }
-
-bool ADK_Player::CanMove()
-{
-	if (bIsAttacking)
-		return false;
-
-	if (bIsCharging)
-		return false;
-
-	if (bIsStun)
-		return false;
-
-	return true;
-}
-
 
 
 
@@ -440,4 +462,100 @@ void ADK_Player::LockTick()
 
 	GetController()->SetControlRotation(ResultRot);
 
+}
+
+
+
+
+
+
+void ADK_Player::Block()
+{
+	Super::Block();
+
+	// 락온일 때는 적 방향으로 공격
+	if (bIsTargetLockOn && IsValid(TargetLockedOn.Get()))
+	{
+		SmoothTurnByCallOnce(TargetLockedOn.Get()->GetActorLocation(), 10.f);
+	}
+
+}
+
+
+
+
+
+bool ADK_Player::CanAttack()
+{
+	if (bIsStun)
+		return false;
+
+	if (bIsKnockDown)
+		return false;
+
+	if (bIsAttacking)
+		return false;
+
+	if (bIsDodge)
+		return false;
+
+	// 기를 안 모으고 있는데, 키가 눌린 상태
+	// *누른상태에서 파워어택이 나갈경우 다시 입력 들어오는거 막기 위해서
+	if (!bIsCharging && bIsHoldingAttackKey)
+		return false;
+
+
+	return true;
+}
+
+bool ADK_Player::CanMove()
+{
+	if (bIsAttacking)
+		return false;
+
+	if (bIsCharging)
+		return false;
+
+	if (bIsStun)
+		return false;
+
+	if (bIsKnockDown)
+		return false;
+
+
+	// * 루트 모션 중이라 안 움직이는 뜻
+	//if (bIsDodge)
+	//	return false;
+
+	return true;
+}
+
+bool ADK_Player::CanDodge()
+{
+	if (!Super::CanDodge())
+		return false;
+
+	if (bIsAttacking)
+		return false;
+
+	if (bIsCharging)
+		return false;
+
+
+	return true;
+}
+
+bool ADK_Player::CanBlock()
+{
+	if (!Super::CanBlock())
+		return false;
+
+	if (bIsAttacking)
+		return false;
+
+	if (bIsCharging)
+		return false;
+
+
+	return true;
 }

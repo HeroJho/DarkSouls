@@ -31,7 +31,6 @@ public:
 	void TurnAttackCol(const TArray<FString>& CapsuleNames, bool bAutoSetAnotherBlock = false);
 	void TurnBlockCol(const TArray<FString>& CapsuleNames);
 	void TurnBlockAllCol();
-	void TurnDodgeCol();
 	
 	bool CheckIsAttackCol(FString Name);
 

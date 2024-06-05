@@ -51,6 +51,13 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Creature)
 	uint8 bIsStun : 1;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Creature)
+	uint8 bIsKnockDown : 1;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Creature)
+	uint8 bIsPlayEndKnockDown : 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Creature)
+	uint8 bIsBlock : 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Creature)
 	float JumpingThreshould;

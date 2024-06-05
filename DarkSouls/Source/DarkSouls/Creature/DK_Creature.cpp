@@ -30,6 +30,7 @@ ADK_Creature::ADK_Creature()
 
 	// Movement
 	GetCharacterMovement()->bOrientRotationToMovement = true;
+	GetCharacterMovement()->MaxWalkSpeed = NormalSpeed;
 
 
 	// ComboComponent
@@ -76,6 +77,8 @@ void ADK_Creature::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 void ADK_Creature::Attack()
 {
+	ResetInfoOnAttack();
+
 	ComboComponent->ProcessComboCommand();
 }
 
@@ -94,11 +97,14 @@ void ADK_Creature::BeginColRange_Notify()
 {
 	const TArray<FString>& AttackCollisionInfos = ComboComponent->GetCurrentAttackCollisionInfos();
 	CollisionManagerComponent->TurnAttackCol(AttackCollisionInfos, true);
+
 }
 
 void ADK_Creature::EndColRange_Notify()
 {
 	CollisionManagerComponent->TurnBlockAllCol();
+
+	// Dodge 무효 델리게이트 호출
 }
 
 void ADK_Creature::GetCurrentAttackInfos(float& OUT_Damage, bool& OUT_bIsDown, bool& OUT_bSetStunTimeToHitAnim, float& OUT_StunTime)
@@ -119,8 +125,12 @@ void ADK_Creature::GetCurrentAttackInfos(float& OUT_Damage, bool& OUT_bIsDown, b
 
 void ADK_Creature::OnDamaged(float DamageAmount, bool bIsDown, bool bSetStunTimeToHitAnim, float StunTime, AActor* DamageCauser)
 {
-	// GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Blue, FString::Printf(TEXT("%s is Attacked"), *GetName()));
-	
+	if (!CanDamaged())
+		return;
+
+	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Blue, FString::Printf(TEXT("%s is Attacked"), *GetName()));
+
+
 	if (!bIsDown)
 	{
 		if (bSetStunTimeToHitAnim)
@@ -143,7 +153,7 @@ void ADK_Creature::OnDamaged(float DamageAmount, bool bIsDown, bool bSetStunTime
 	else
 	{
 		// TODO
-
+		KnockDown(StunTime);
 	}
 
 }
@@ -157,6 +167,10 @@ void ADK_Creature::OnDamaged(float DamageAmount, bool bIsDown, bool bSetStunTime
 
 void ADK_Creature::Stun(float StunTime)
 {
+	if (!CanStun())
+		return;
+
+
 	ResetInfoOnStun();
 
 	bIsStun = true;
@@ -171,13 +185,6 @@ void ADK_Creature::Stun(float StunTime)
 	
 }
 
-void ADK_Creature::ResetInfoOnStun()
-{
-	EndColRange_Notify(); // 공격 콜라이더
-	EndAttackRange_Notify(); // 공격 애니메이션 범위
-	ComboComponent->ResetComboInfo(); // 콤보
-}
-
 void ADK_Creature::EndStun()
 {
 	bIsStun = false;
@@ -186,6 +193,42 @@ void ADK_Creature::EndStun()
 	if(AnimInstance->Montage_IsPlaying(HitMontage))
 		StopAnimMontage(HitMontage);
 }
+
+
+
+void ADK_Creature::KnockDown(float KnockDownTime)
+{
+	if (!CanKnockDown())
+		return;
+
+
+	ResetInfoOnKnockDown();
+
+	bIsKnockDown = true;
+
+	// TODO : 일어서는 모션 시간을 하드코딩으로 했음, 시간되면 
+	GetWorldTimerManager().ClearTimer(KnockDownTimerHandle);
+	GetWorldTimerManager().SetTimer(KnockDownTimerHandle, this, &ADK_Creature::EndKnockDown, KnockDownTime, false);
+
+	if (StartKnockDownMontage)
+	{
+		PlayAnimMontage(StartKnockDownMontage, 1.f);
+	}
+
+}
+
+void ADK_Creature::EndKnockDown()
+{
+	// 일어서는 모션에서 EndKnockDown_Notify 호출
+	bIsPlayEndKnockDown = true;
+}
+
+void ADK_Creature::EndKnockDown_Notify()
+{
+	bIsKnockDown = false;
+	bIsPlayEndKnockDown = false;
+}
+
 
 
 
@@ -205,15 +248,6 @@ void ADK_Creature::SmoothTurnByCallOnce(FVector InDestPos, float TurnSpeed)
 void ADK_Creature::StopSmoothTurn()
 {
 	bIsSmoothTurn = false;
-}
-
-bool ADK_Creature::CanSmoothTurn()
-{
-	if (bIsStun)
-		return false;
-
-
-	return true;
 }
 
 void ADK_Creature::SmoothTurnTick()
@@ -247,8 +281,16 @@ void ADK_Creature::SmoothTurnTick()
 
 
 
+
+
+
 void ADK_Creature::Dodge()
 {
+	if (!CanDodge())
+		return;
+
+	ResetInfoOnDodge();
+
 	bIsDodge = true;
 
 	PlayAnimMontage(DodgeMontage);
@@ -266,14 +308,149 @@ void ADK_Creature::EndDoge(UAnimMontage* TargetMontage, bool IsProperlyEnded)
 
 }
 
-void ADK_Creature::StartDodgeSkip_Notify()
+void ADK_Creature::BeginDodgeSkip_Notify()
 {
-	CollisionManagerComponent->TurnDodgeCol();
-
+	bCanDodgeSkip = true;
 }
 
 void ADK_Creature::EndDodgeSkip_Notify()
 {
-	CollisionManagerComponent->TurnBlockAllCol();
+	bCanDodgeSkip = false;
+}
 
+
+
+
+
+
+void ADK_Creature::Block()
+{
+	if (!CanBlock())
+		return;
+
+	ResetInfoOnBlock();
+
+	GetCharacterMovement()->bOrientRotationToMovement = false;
+	GetCharacterMovement()->MaxWalkSpeed = BlockSpeed;
+
+	bIsBlock = true;
+	
+}
+
+void ADK_Creature::EndBlock()
+{
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+	GetCharacterMovement()->MaxWalkSpeed = NormalSpeed;
+
+	bIsBlock = false;
+}
+
+
+
+
+
+
+bool ADK_Creature::CanDodge()
+{
+	if (bIsDodge)
+		return false;
+
+	if (bIsStun)
+		return false;
+
+	if (bIsKnockDown)
+		return false;
+
+
+	return true;
+}
+
+bool ADK_Creature::CanSmoothTurn()
+{
+	if (bIsStun)
+		return false;
+
+	if (bIsKnockDown)
+		return false;
+
+	if (bIsDodge)
+		return false;
+
+
+	return true;
+}
+
+bool ADK_Creature::CanStun()
+{
+	if (bIsKnockDown)
+		return false;
+
+
+	return true;
+}
+
+bool ADK_Creature::CanKnockDown()
+{
+	if (bIsKnockDown)
+		return false;
+
+	return true;
+}
+
+bool ADK_Creature::CanDamaged()
+{
+	if (bCanDodgeSkip)
+		return false;
+
+	if (bIsKnockDown)
+		return false;
+
+	return true;
+}
+
+bool ADK_Creature::CanBlock()
+{
+	if (bIsDodge)
+		return false;
+
+	if (bIsStun)
+		return false;
+
+	if (bIsKnockDown)
+		return false;
+
+
+	return true;
+}
+
+
+
+
+
+void ADK_Creature::ResetInfoOnAttack()
+{
+}
+
+void ADK_Creature::ResetInfoOnStun()
+{
+	EndColRange_Notify(); // 공격 콜라이더
+	EndAttackRange_Notify(); // 공격 애니메이션 범위
+	ComboComponent->ResetComboInfo(); // 콤보
+
+	EndDodgeSkip_Notify(); // 무적시간 (혹시모르니)
+}
+
+void ADK_Creature::ResetInfoOnKnockDown()
+{
+	ResetInfoOnStun();
+}
+
+void ADK_Creature::ResetInfoOnDodge()
+{
+	EndBlock();
+
+}
+
+void ADK_Creature::ResetInfoOnBlock()
+{
 }

@@ -182,10 +182,6 @@ void UDK_ComboComponent::GetCurrentAttackInfos(float& OUT_Damage, bool& OUT_bIsD
 	OUT_bIsDown = AttackInfo.bIsDown;
 	OUT_bSetStunTimeToHitAnim = AttackInfo.bSetStunTimeToHitAnim;
 	OUT_StunTime = AttackInfo.StunTime;
-
-	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Green,
-		FString::Printf(TEXT("Owner: %s Cur: %d, %f, %d, %f"), *GetOwner()->GetName(), CurrentCombo, AttackInfo.Damage, AttackInfo.bIsDown, AttackInfo.StunTime));
-
 }
 
 void UDK_ComboComponent::ResetComboInfo()

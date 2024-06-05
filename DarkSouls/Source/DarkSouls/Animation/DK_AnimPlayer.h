@@ -29,7 +29,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Player)
 	uint8 bIsCharging : 1;
-	
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Player)
+	FVector2D InputDir;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Player)
 	TObjectPtr<class ADK_Player> PlayerOwner;

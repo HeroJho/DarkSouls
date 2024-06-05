@@ -41,7 +41,16 @@ protected:
 
 
 	// Input Section
+public:
+	FORCEINLINE FVector2D GetInputDir() { return MoveInputDir; }
+
 protected:
+	void ShoulderMove(const FInputActionValue& Value);
+	void ShoulderLook(const FInputActionValue& Value);
+
+protected:
+	FVector2D MoveInputDir;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputMappingContext> DefaulMappingContext;
 
@@ -55,9 +64,11 @@ protected:
 	TObjectPtr<class UInputAction> LookAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> TargetLockAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> DodgeAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> BlockAction;
 
-	void ShoulderMove(const FInputActionValue& Value);
-	void ShoulderLook(const FInputActionValue& Value);
 
 	// Attack Section
 public:
@@ -99,7 +110,6 @@ public:
 
 protected:
 	virtual void EndStun() override;
-	virtual void ResetInfoOnStun() override;
 
 
 	// LockOn Section
@@ -124,10 +134,28 @@ protected:
 	const float LockOffCameraLagSpeed = 6.f;
 	
 
+	// Dodge Section
+protected:
+	virtual void Dodge() override;
+
+
+
+	// Block Secion
+public:
+	virtual void Block() override;
+
+
 	// Condition Section
 protected:
 	bool CanAttack();
 	bool CanMove();
+	virtual bool CanDodge() override;
+	virtual bool CanBlock() override;
+
+
+	virtual void ResetInfoOnAttack() override;
+	virtual void ResetInfoOnStun() override;
+	virtual void ResetInfoOnBlock() override;
 
 
 };
