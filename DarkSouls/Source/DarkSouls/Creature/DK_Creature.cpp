@@ -7,6 +7,7 @@
 #include "Kismet/KismetMathLibrary.h"
 
 #include "Tool/Define.h"
+#include "Tool/Struct.h"
 #include "Component/Combo/DK_ComboComponent.h"
 #include "Component/Collision/DK_CollisionManagerComponent.h"
 
@@ -74,9 +75,22 @@ void ADK_Creature::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 
 
+void ADK_Creature::AddImpulse(FVector Dir, float Powar)
+{
+	Dir.Normalize();
+	GetCharacterMovement()->AddImpulse(Dir * Powar, true);
+}
+
+
+
+
+
 
 void ADK_Creature::Attack()
 {
+	if (!CanAttack())
+		return;
+
 	ResetInfoOnAttack();
 
 	ComboComponent->ProcessComboCommand();
@@ -107,9 +121,9 @@ void ADK_Creature::EndColRange_Notify()
 	// Dodge 무효 델리게이트 호출
 }
 
-void ADK_Creature::GetCurrentAttackInfos(float& OUT_Damage, bool& OUT_bIsDown, bool& OUT_bSetStunTimeToHitAnim, float& OUT_StunTime)
+FAttackDamagedInfo ADK_Creature::GetCurrentAttackInfos()
 {
-	ComboComponent->GetCurrentAttackInfos(OUT_Damage, OUT_bIsDown, OUT_bSetStunTimeToHitAnim, OUT_StunTime);
+	return ComboComponent->GetCurrentAttackInfos();
 }
 
 
@@ -123,38 +137,41 @@ void ADK_Creature::GetCurrentAttackInfos(float& OUT_Damage, bool& OUT_bIsDown, b
 //	return 0.0f;
 //}
 
-void ADK_Creature::OnDamaged(float DamageAmount, bool bIsDown, bool bSetStunTimeToHitAnim, float StunTime, AActor* DamageCauser)
+void ADK_Creature::OnDamaged(const FAttackDamagedInfo& AttackDamagedInfo, AActor* DamageCauser)
 {
+	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Blue, FString::Printf(TEXT("%s is Attacked"), *GetName()));
+
 	if (!CanDamaged())
 		return;
 
-	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Blue, FString::Printf(TEXT("%s is Attacked"), *GetName()));
 
-
-	if (!bIsDown)
+	FVector CauserPos = DamageCauser->GetActorLocation();
+	// 가드 여부
+	if (CheckBlock(CauserPos))
 	{
-		if (bSetStunTimeToHitAnim)
-		{
-			const int32 HitAnimMontageIndex = 0;
-			float StartTime = 0.f, EndTime = 0.f;
-			HitMontage->GetSectionStartAndEndTime(HitAnimMontageIndex, StartTime, EndTime);
+		BlockAttack(DamageCauser, AttackDamagedInfo.BlockPushPowar);
 
-			float DisTime = EndTime - StartTime - 0.1f;
-
-			Stun(DisTime);
-		}
-		else
-		{
-			Stun(StunTime);
-		}
+		return;
+	}
 
 
+	FVector TargetToMeDir = GetActorLocation() - CauserPos;
+	TargetToMeDir.Normalize();
+
+	if (!AttackDamagedInfo.bIsDown)
+	{
+		Stun(AttackDamagedInfo.StunTime, AttackDamagedInfo.bSetStunTimeToHitAnim);
+		AddImpulse(TargetToMeDir, AttackDamagedInfo.HitPushPowar);
 	}
 	else
 	{
-		// TODO
-		KnockDown(StunTime);
+		KnockDown(AttackDamagedInfo.StunTime);
+		AddImpulse(TargetToMeDir, AttackDamagedInfo.KnockDownPushPowar);
+
+		SmoothTurnByCallOnce(CauserPos, 10.f);
 	}
+
+
 
 }
 
@@ -165,11 +182,19 @@ void ADK_Creature::OnDamaged(float DamageAmount, bool bIsDown, bool bSetStunTime
 
 
 
-void ADK_Creature::Stun(float StunTime)
+void ADK_Creature::Stun(float StunTime, bool bSetAnimTime)
 {
 	if (!CanStun())
 		return;
 
+	if (bSetAnimTime)
+	{
+		const int32 HitAnimMontageIndex = 0;
+		float StartTime = 0.f, EndTime = 0.f;
+		HitMontage->GetSectionStartAndEndTime(HitAnimMontageIndex, StartTime, EndTime);
+		StunTime = EndTime - StartTime - 0.1f;
+	}
+	
 
 	ResetInfoOnStun();
 
@@ -323,6 +348,13 @@ void ADK_Creature::EndDodgeSkip_Notify()
 
 
 
+void ADK_Creature::BlockAttack(AActor* Attacker, float PushBackPowar)
+{
+	HitBlock();
+	AddImpulse(GetActorForwardVector() * -1.f, PushBackPowar);
+
+}
+
 void ADK_Creature::Block()
 {
 	if (!CanBlock())
@@ -341,8 +373,64 @@ void ADK_Creature::EndBlock()
 {
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->MaxWalkSpeed = NormalSpeed;
+	StopSmoothTurn();
 
 	bIsBlock = false;
+}
+
+bool ADK_Creature::CheckBlock(FVector AttackerPos)
+{
+	if (!bIsBlock)
+		return false;
+
+	const float MaxAngle = 90.f;
+
+
+	FVector MeLook = GetActorForwardVector();
+	FVector LookAtTargetVec = AttackerPos - GetActorLocation();
+	LookAtTargetVec.Normalize();
+	MeLook.Normalize();
+	
+	float  DotResult = FVector::DotProduct(MeLook, LookAtTargetVec);
+	float Angle = (FMath::Acos(DotResult) / UE_PI) * 180.f;
+
+	if (FMath::Abs(Angle) > MaxAngle)
+		return false;
+
+
+	return true;
+}
+
+void ADK_Creature::HitBlock()
+{
+	if (!bIsBlock)
+		return;
+
+	ResetInfoOnHitBlock();
+
+	bIsHitBlock = true;
+	
+	float HitDelayTime = HitTime;
+
+	if (BlockHitMontage)
+	{
+		float StartTime = 0.f, EndTime = 0.f;
+		BlockHitMontage->GetSectionStartAndEndTime(0, StartTime, EndTime);
+		HitDelayTime = EndTime - StartTime;
+
+		PlayAnimMontage(BlockHitMontage, 1.f);
+	}
+
+	GetWorldTimerManager().ClearTimer(HitBlockTimerHandle);
+	GetWorldTimerManager().SetTimer(HitBlockTimerHandle, this, &ADK_Creature::EndHitBlock, HitDelayTime, false);
+
+
+}
+
+void ADK_Creature::EndHitBlock()
+{
+	bIsHitBlock = false;
+
 }
 
 
@@ -350,12 +438,33 @@ void ADK_Creature::EndBlock()
 
 
 
+bool ADK_Creature::CanAttack()
+{
+	if (bIsStun)
+		return false;
+
+	if (bIsKnockDown)
+		return false;
+
+	if (bIsDodge)
+		return false;
+
+	if (bIsHitBlock)
+		return false;
+
+
+	return true;
+}
+
 bool ADK_Creature::CanDodge()
 {
 	if (bIsDodge)
 		return false;
 
 	if (bIsStun)
+		return false;
+
+	if (bIsHitBlock)
 		return false;
 
 	if (bIsKnockDown)
@@ -370,8 +479,11 @@ bool ADK_Creature::CanSmoothTurn()
 	if (bIsStun)
 		return false;
 
-	if (bIsKnockDown)
+	if (bIsHitBlock)
 		return false;
+
+	//if (bIsKnockDown)
+	//	return false;
 
 	if (bIsDodge)
 		return false;
@@ -429,6 +541,8 @@ bool ADK_Creature::CanBlock()
 
 void ADK_Creature::ResetInfoOnAttack()
 {
+	EndBlock();
+
 }
 
 void ADK_Creature::ResetInfoOnStun()
@@ -438,11 +552,19 @@ void ADK_Creature::ResetInfoOnStun()
 	ComboComponent->ResetComboInfo(); // 콤보
 
 	EndDodgeSkip_Notify(); // 무적시간 (혹시모르니)
+
+	StopSmoothTurn();
+
+	EndBlock();
 }
 
 void ADK_Creature::ResetInfoOnKnockDown()
 {
 	ResetInfoOnStun();
+
+	EndStun();
+
+	EndBlock();
 }
 
 void ADK_Creature::ResetInfoOnDodge()
@@ -453,4 +575,9 @@ void ADK_Creature::ResetInfoOnDodge()
 
 void ADK_Creature::ResetInfoOnBlock()
 {
+}
+
+void ADK_Creature::ResetInfoOnHitBlock()
+{
+	StopSmoothTurn();
 }

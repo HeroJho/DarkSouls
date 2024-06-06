@@ -4,6 +4,7 @@
 #include "Creature/DK_Player.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "InputMappingContext.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
@@ -180,7 +181,19 @@ void ADK_Player::ShoulderMove(const FInputActionValue& Value)
 	const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
 	AddMovementInput(ForwardDirection, MoveInputDir.X);
-	AddMovementInput(RightDirection, MoveInputDir.Y);
+	AddMovementInput(RightDirection, MoveInputDir.Y); 
+
+	if (bIsBlock)
+	{
+		// 입력 벡터를 엑터와 컨트롤러의 Yaw 차이 만큼 돌려주는 작업
+		FRotator ActorRot = GetActorRotation();
+		FVector MoveInputDir3D = FVector(MoveInputDir.X, MoveInputDir.Y, 0.f);
+		MoveInputDir3D.Normalize();
+		FVector Rot = UKismetMathLibrary::RotateAngleAxis(MoveInputDir3D, Rotation.Yaw - ActorRot.Yaw, FVector::ZAxisVector);
+		BlockMoveDir.X = Rot.X;
+		BlockMoveDir.Y = Rot.Y;
+	}
+
 }
 
 void ADK_Player::ShoulderLook(const FInputActionValue& Value)
@@ -213,7 +226,6 @@ void ADK_Player::ChargeAttack(const FInputActionValue& Value)
 
 	ResetInfoOnAttack();
 
-	//GEngine->AddOnScreenDebugMessage(-1, 0.1f, FColor::Blue, FString::Printf(TEXT("afaf")));
 
 	// 락온일 때는 적 방향으로 공격
 	if (bIsTargetLockOn && IsValid(TargetLockedOn.Get()))
@@ -271,9 +283,13 @@ void ADK_Player::ResetChargeAttack()
 	bIsCharging = false;
 }
 
-void ADK_Player::Stun(float StunTime)
+
+
+
+
+void ADK_Player::Stun(float StunTime, bool bSetAnimTime)
 {
-	Super::Stun(StunTime);
+	Super::Stun(StunTime, bSetAnimTime);
 
 
 }
@@ -284,33 +300,7 @@ void ADK_Player::EndStun()
 
 }
 
-void ADK_Player::ResetInfoOnAttack()
-{
-	Super::ResetInfoOnAttack();
 
-	EndBlock();
-
-}
-
-void ADK_Player::ResetInfoOnStun()
-{
-	Super::ResetInfoOnStun();
-
-	// 차지중에 스턴 걸리면 차지 리셋
-	ResetChargeAttack();
-	// 공격도중에 스턴 걸리면 노티 끊기니까
-	bIsAttacking = false;
-}
-
-void ADK_Player::ResetInfoOnBlock()
-{
-	Super::ResetInfoOnBlock();
-
-	// 차지중에 가드
-	// ResetChargeAttack();
-
-
-}
 
 
 void ADK_Player::CheckAttack_Notify()
@@ -318,6 +308,7 @@ void ADK_Player::CheckAttack_Notify()
 	bIsAttacking = false;
 
 }
+
 
 
 
@@ -471,15 +462,104 @@ void ADK_Player::LockTick()
 
 void ADK_Player::Block()
 {
-	Super::Block();
+	if (!CanBlock())
+		return;
+
+	ResetInfoOnBlock();
+
+	GetCharacterMovement()->bOrientRotationToMovement = false;
+	GetCharacterMovement()->MaxWalkSpeed = BlockSpeed;
 
 	// 락온일 때는 적 방향으로 공격
 	if (bIsTargetLockOn && IsValid(TargetLockedOn.Get()))
 	{
-		SmoothTurnByCallOnce(TargetLockedOn.Get()->GetActorLocation(), 10.f);
+		SmoothTurnByCallOnce(TargetLockedOn.Get()->GetActorLocation(), 30.f);
 	}
 
+	// 처음 블락 진입
+	if (!bIsBlock)
+	{
+		StartPerfectBlock();
+	}
+
+	bIsBlock = true;
 }
+
+
+void ADK_Player::BlockAttack(AActor* Attacker, float PushBackPowar)
+{
+	if (bIsPerfectBlock)
+	{
+		ADK_Creature* AttackerCreature = Cast<ADK_Creature>(Attacker);
+		if (AttackerCreature)
+		{
+			// TODO : 적 그로기 수치 쌓기, 스테미나 덜 깎기
+			AttackerCreature->Stun(0.f, true);
+		}
+
+	}
+
+
+	// TODO : 스테미나에 따라 위크 호출
+	/*HitBlock();*/
+	HitWeakBlock();
+
+
+	AddImpulse(GetActorForwardVector() * -1, PushBackPowar);
+
+}
+
+void ADK_Player::StartPerfectBlock()
+{
+	const float PerfectBlockTime = 0.05f;
+
+	EndPerfectBlock();
+
+	bIsPerfectBlock = true;
+
+	GetWorldTimerManager().SetTimer(PerfectBlockTimerHandle, this, &ADK_Player::EndPerfectBlock, PerfectBlockTime, false);
+
+}
+
+void ADK_Player::EndPerfectBlock()
+{
+	bIsPerfectBlock = false;
+	GetWorldTimerManager().ClearTimer(PerfectBlockTimerHandle);
+
+}
+
+void ADK_Player::HitWeakBlock()
+{
+	if (!bIsBlock)
+		return;
+
+	ResetInfoOnHitBlock();
+
+	bIsHitBlock = true;
+
+	float HitDelayTime = HitTime;
+
+	if (BlockWeakHitMontage)
+	{
+		float StartTime = 0.f, EndTime = 0.f;
+		BlockWeakHitMontage->GetSectionStartAndEndTime(0, StartTime, EndTime);
+		HitDelayTime = EndTime - StartTime;
+
+		PlayAnimMontage(BlockWeakHitMontage, 1.f);
+	}
+
+	GetWorldTimerManager().ClearTimer(HitBlockTimerHandle);
+	GetWorldTimerManager().SetTimer(HitBlockTimerHandle, this, &ADK_Creature::EndHitBlock, HitDelayTime, false);
+
+	// 가드 풀기
+	EndBlock();
+
+	// 스테미나 딜레이 함수 호출 (몇초동안 회복하는 걸 멈춘다)
+	// 그럼 Block에서 스테미나가 없기 때문에 가드를 다시 못 쓴다
+}
+
+
+
 
 
 
@@ -487,17 +567,12 @@ void ADK_Player::Block()
 
 bool ADK_Player::CanAttack()
 {
-	if (bIsStun)
-		return false;
-
-	if (bIsKnockDown)
+	if (!Super::CanAttack())
 		return false;
 
 	if (bIsAttacking)
 		return false;
 
-	if (bIsDodge)
-		return false;
 
 	// 기를 안 모으고 있는데, 키가 눌린 상태
 	// *누른상태에서 파워어택이 나갈경우 다시 입력 들어오는거 막기 위해서
@@ -517,6 +592,9 @@ bool ADK_Player::CanMove()
 		return false;
 
 	if (bIsStun)
+		return false;
+
+	if (bIsHitBlock)
 		return false;
 
 	if (bIsKnockDown)
@@ -559,3 +637,85 @@ bool ADK_Player::CanBlock()
 
 	return true;
 }
+
+bool ADK_Player::CanSmoothTurn()
+{
+	if (!Super::CanSmoothTurn())
+		return false;
+
+	return true;
+}
+
+bool ADK_Player::CanStun()
+{
+	if (!Super::CanStun())
+		return false;
+
+	return true;
+}
+
+bool ADK_Player::CanKnockDown()
+{
+	if (!Super::CanKnockDown())
+		return false;
+
+	return true;
+}
+
+bool ADK_Player::CanDamaged()
+{
+	if (!Super::CanDamaged())
+		return false;
+
+	return true;
+}
+
+
+
+
+void ADK_Player::ResetInfoOnAttack()
+{
+	Super::ResetInfoOnAttack();
+
+	EndPerfectBlock();
+}
+
+void ADK_Player::ResetInfoOnStun()
+{
+	Super::ResetInfoOnStun();
+
+	// 차지중에 스턴 걸리면 차지 리셋
+	ResetChargeAttack();
+	// 공격도중에 스턴 걸리면 노티 끊기니까
+	bIsAttacking = false;
+
+	EndPerfectBlock();
+}
+
+void ADK_Player::ResetInfoOnKnockDown()
+{
+	Super::ResetInfoOnKnockDown();
+
+	EndPerfectBlock();
+}
+
+void ADK_Player::ResetInfoOnDodge()
+{
+	Super::ResetInfoOnDodge();
+
+	EndPerfectBlock();
+}
+
+void ADK_Player::ResetInfoOnBlock()
+{
+	Super::ResetInfoOnBlock();
+
+	
+}
+
+void ADK_Player::ResetInfoOnHitBlock()
+{
+	Super::ResetInfoOnHitBlock();
+
+}
+

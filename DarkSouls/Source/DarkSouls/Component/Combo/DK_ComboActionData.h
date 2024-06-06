@@ -7,7 +7,6 @@
 #include "DK_ComboActionData.generated.h"
 
 
-
 USTRUCT()
 struct FAttackInfo
 {
@@ -16,7 +15,8 @@ struct FAttackInfo
 public:
 	UPROPERTY(EditAnywhere, Category = Collision)
 	TArray<FString> AttackCollisions;
-	
+
+
 	UPROPERTY(EditAnywhere, Category = Attack)
 	float Damage;
 	UPROPERTY(EditAnywhere, Category = Attack)
@@ -25,6 +25,13 @@ public:
 	uint8 bSetStunTimeToHitAnim : 1;
 	UPROPERTY(EditAnywhere, Category = Attack)
 	float StunTime;
+
+	UPROPERTY(EditAnywhere, Category = PushPowar)
+	float HitPushPowar;
+	UPROPERTY(EditAnywhere, Category = PushPowar)
+	float KnockDownPushPowar;
+	UPROPERTY(EditAnywhere, Category = PushPowar)
+	float BlockPushPowar;
 };
 
 

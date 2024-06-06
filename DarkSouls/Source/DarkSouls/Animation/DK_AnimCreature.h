@@ -43,6 +43,9 @@ protected:
 	float MovingThreshould;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Creature)
+	float JumpingThreshould;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Creature)
 	uint8 bIsFalling : 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Creature)
@@ -60,6 +63,9 @@ protected:
 	uint8 bIsBlock : 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Creature)
-	float JumpingThreshould;
+	float BlockSpeed;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Creature)
+	FVector2D BlockMoveDir;
+
 
 };

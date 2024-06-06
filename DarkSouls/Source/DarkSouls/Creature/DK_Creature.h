@@ -27,12 +27,22 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 
+
+	// Common
+public:
+	void AddImpulse(FVector Dir, float Powar);
+
+
+
 	// State
+public:
+	FORCEINLINE float GetBlockSpeed() { return BlockSpeed; }
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = State)
-	float NormalSpeed = 100.f;
+	float NormalSpeed = 500.f;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = State)
-	float BlockSpeed = 20.f;
+	float BlockSpeed = 150.f;
 
 
 
@@ -50,7 +60,7 @@ public:
 	void BeginColRange_Notify();
 	void EndColRange_Notify();
 
-	void GetCurrentAttackInfos(float& OUT_Damage, bool& OUT_bIsDown, bool& OUT_bSetStunTimeToHitAnim, float& OUT_StunTime);
+	FAttackDamagedInfo GetCurrentAttackInfos();
 
 
 protected:
@@ -69,7 +79,7 @@ protected:
 public:
 	/*virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser);*/
 
-	virtual void OnDamaged(float DamageAmount, bool bIsDown, bool bSetStunTimeToHitAnim, float StunTime, AActor* DamageCauser);
+	virtual void OnDamaged(const FAttackDamagedInfo& AttackDamagedInfo, AActor* DamageCauser);
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Collision)
@@ -80,11 +90,10 @@ protected:
 
 
 
-
 	// Stun
 public:
 	FORCEINLINE bool IsStun() { return bIsStun; }
-	virtual void Stun(float StunTime);
+	virtual void Stun(float StunTime, bool bSetAnimTime = false);
 
 	FORCEINLINE bool IsKnockDown() { return bIsKnockDown; }
 	FORCEINLINE bool IsPlayEndKnockDown() { return bIsPlayEndKnockDown; }
@@ -115,6 +124,8 @@ protected:
 
 
 
+
+
 	// SmoothTurn
 public:
 	UFUNCTION(BlueprintCallable)
@@ -128,6 +139,10 @@ protected:
 	bool bIsSmoothTurn = false;
 	float SmoothTurnSpeed = 0.f;
 	FVector DestPos;
+
+
+
+
 
 
 	// Dodge
@@ -147,20 +162,47 @@ protected:
 	TObjectPtr<class UAnimMontage> DodgeMontage;
 
 
+
+
+
+
 	// Block
 public:
+	FORCEINLINE bool IsBlock() { return bIsBlock; }
+	FORCEINLINE FVector2D GetBlockMoveDir() { return BlockMoveDir; }
+
 	virtual void Block();
 	void EndBlock();
 
-	FORCEINLINE bool IsBlock() { return bIsBlock; }
+	void HitBlock();
+	void EndHitBlock();
+
+protected:
+	virtual void BlockAttack(AActor* Attacker, float PushBackPowar);
+
+	virtual bool CheckBlock(FVector AttackerPos);
+	
+
 
 
 protected:
 	bool bIsBlock = false;
+	bool bIsHitBlock = false;
+	FVector2D BlockMoveDir;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Block, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> BlockHitMontage;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Block, Meta = (AllowPrivateAccess = "true"))
+	float HitTime = 0.f;
+	
+	FTimerHandle HitBlockTimerHandle;
+
+
 
 
 	// Condition
 protected:
+	virtual bool CanAttack();
 	virtual bool CanDodge();
 	virtual bool CanSmoothTurn();
 	virtual bool CanStun();
@@ -180,6 +222,7 @@ protected:
 	virtual void ResetInfoOnDodge();
 	// 가드 시,
 	virtual void ResetInfoOnBlock();
-
+	// 가드 힛 시,
+	virtual void ResetInfoOnHitBlock();
 
 };

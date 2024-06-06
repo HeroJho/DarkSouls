@@ -41,9 +41,6 @@ protected:
 
 
 	// Input Section
-public:
-	FORCEINLINE FVector2D GetInputDir() { return MoveInputDir; }
-
 protected:
 	void ShoulderMove(const FInputActionValue& Value);
 	void ShoulderLook(const FInputActionValue& Value);
@@ -105,7 +102,7 @@ protected:
 
 	// State Section
 public:
-	virtual void Stun(float StunTime) override;
+	virtual void Stun(float StunTime, bool bSetAnimTime = false) override;
 	
 
 protected:
@@ -143,19 +140,52 @@ protected:
 	// Block Secion
 public:
 	virtual void Block() override;
+	
+	FORCEINLINE bool IsPerfectBlock() { return bIsPerfectBlock; }
+
+protected:
+	virtual void BlockAttack(AActor* Attacker, float PushBackPowar) override;
+
+	void StartPerfectBlock();
+	void EndPerfectBlock();
+
+	void HitWeakBlock();
+
+
+protected:	
+	bool bIsPerfectBlock = false;
+	FTimerHandle PerfectBlockTimerHandle;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Block, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> BlockWeakHitMontage;
+
 
 
 	// Condition Section
 protected:
-	bool CanAttack();
 	bool CanMove();
+
+	virtual bool CanAttack() override;
 	virtual bool CanDodge() override;
 	virtual bool CanBlock() override;
+	virtual bool CanSmoothTurn() override;
+	virtual bool CanStun() override;
+	virtual bool CanKnockDown() override;
+	virtual bool CanDamaged() override;
+	
 
-
+	// 상태에 들어가면 초기화해야할 작업들
+// 공격 시,
 	virtual void ResetInfoOnAttack() override;
+	// 스턴 시, 
 	virtual void ResetInfoOnStun() override;
+	// 기절 시,
+	virtual void ResetInfoOnKnockDown() override;
+	// 회피 시,
+	virtual void ResetInfoOnDodge() override;
+	// 가드 시,
 	virtual void ResetInfoOnBlock() override;
-
+	// 가드 힛 시,
+	virtual void ResetInfoOnHitBlock() override;
 
 };

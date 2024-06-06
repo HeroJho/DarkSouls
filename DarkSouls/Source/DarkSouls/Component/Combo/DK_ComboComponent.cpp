@@ -174,14 +174,22 @@ const TArray<FString>& UDK_ComboComponent::GetCurrentAttackCollisionInfos()
 	return ComboActionDatas[CurComboActionDataIndex]->AttackColInfos[CurrentCombo].AttackCollisions;
 }
 
-void UDK_ComboComponent::GetCurrentAttackInfos(float& OUT_Damage, bool& OUT_bIsDown, bool& OUT_bSetStunTimeToHitAnim, float& OUT_StunTime)
+FAttackDamagedInfo UDK_ComboComponent::GetCurrentAttackInfos()
 {
 	const FAttackInfo& AttackInfo = ComboActionDatas[CurComboActionDataIndex]->AttackColInfos[CurrentCombo];
 
-	OUT_Damage = AttackInfo.Damage;
-	OUT_bIsDown = AttackInfo.bIsDown;
-	OUT_bSetStunTimeToHitAnim = AttackInfo.bSetStunTimeToHitAnim;
-	OUT_StunTime = AttackInfo.StunTime;
+	FAttackDamagedInfo Result;
+
+	Result.Damage = AttackInfo.Damage;
+	Result.bIsDown = AttackInfo.bIsDown;
+	Result.bSetStunTimeToHitAnim = AttackInfo.bSetStunTimeToHitAnim;
+	Result.StunTime = AttackInfo.StunTime;
+
+	Result.HitPushPowar = AttackInfo.HitPushPowar;
+	Result.KnockDownPushPowar = AttackInfo.KnockDownPushPowar;
+	Result.BlockPushPowar = AttackInfo.BlockPushPowar;
+
+	return Result;
 }
 
 void UDK_ComboComponent::ResetComboInfo()
