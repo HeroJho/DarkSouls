@@ -12,7 +12,6 @@
 #include "Component/Collision/DK_CollisionManagerComponent.h"
 #include "Component/Stat/DK_StatComponent.h"
 #include "UI/DK_WidgetComponent.h"
-#include "UI/DK_HPBarWidget.h"
 
 
 

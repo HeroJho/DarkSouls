@@ -61,14 +61,14 @@ void UDK_StatComponent::AddZeroHPDelegateFunc(UObject* Object, FName FuncName)
 
 
 
-void UDK_StatComponent::IncreaseHP(int Value)
+void UDK_StatComponent::IncreaseHP(int32 Value)
 {
 	CurHP = FMath::Clamp(CurHP + Value, 0, MaxHP);
 
 	Delegate_ChangeHP.Broadcast(CurHP, MaxHP);
 }
 
-void UDK_StatComponent::DecreaseHP(int Value)
+void UDK_StatComponent::DecreaseHP(int32 Value)
 {
 	CurHP = FMath::Clamp(CurHP - Value, 0, MaxHP);
 	

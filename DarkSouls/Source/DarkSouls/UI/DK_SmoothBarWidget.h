@@ -4,18 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "UI/DK_UserWidget.h"
-#include "DK_HPBarWidget.generated.h"
+#include "DK_SmoothBarWidget.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class DARKSOULS_API UDK_HPBarWidget : public UDK_UserWidget
+class DARKSOULS_API UDK_SmoothBarWidget : public UDK_UserWidget
 {
 	GENERATED_BODY()
 	
 public:
-	UDK_HPBarWidget();
+	UDK_SmoothBarWidget();
 
 protected:
 	virtual void NativeConstruct() override;

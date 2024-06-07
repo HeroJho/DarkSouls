@@ -23,11 +23,11 @@ protected:
 
 	// HPBar
 public:
-	FORCEINLINE UDK_HPBarWidget* GetHpBarWidget() { return HPBarWidget; }
-	FORCEINLINE UDK_HPBarWidget* GetSpBarWidget() { return SPBarWidget; }
+	FORCEINLINE class UDK_SmoothBarWidget* GetHpBarWidget() { return HPBarWidget; }
+	FORCEINLINE class UDK_SmoothBarWidget* GetSpBarWidget() { return SPBarWidget; }
 
 protected:
-	TObjectPtr<class UDK_HPBarWidget> HPBarWidget;
-	TObjectPtr<class UDK_HPBarWidget> SPBarWidget;
+	TObjectPtr<class UDK_SmoothBarWidget> HPBarWidget;
+	TObjectPtr<class UDK_SmoothBarWidget> SPBarWidget;
 
 };

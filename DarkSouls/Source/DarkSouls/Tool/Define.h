@@ -6,4 +6,4 @@
 
 
 
-#define PRINT_TEXT(X) 		GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Green, FString::Printf(TEXT("%s"), TEXT("X")))
+#define PRINT_TEXT(X) 		GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Green, FString::Printf(TEXT("%s"), X))

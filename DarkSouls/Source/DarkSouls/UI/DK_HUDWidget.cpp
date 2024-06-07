@@ -3,7 +3,7 @@
 
 #include "UI/DK_HUDWidget.h"
 
-#include "UI/DK_HPBarWidget.h"
+#include "UI/DK_SmoothBarWidget.h"
 
 
 
@@ -16,7 +16,7 @@ void UDK_HUDWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	HPBarWidget = Cast<UDK_HPBarWidget>(GetWidgetFromName(TEXT("WBHpBar")));
-	SPBarWidget = Cast<UDK_HPBarWidget>(GetWidgetFromName(TEXT("WBSpBar")));
+	HPBarWidget = Cast<UDK_SmoothBarWidget>(GetWidgetFromName(TEXT("WBHpBar")));
+	SPBarWidget = Cast<UDK_SmoothBarWidget>(GetWidgetFromName(TEXT("WBSpBar")));
 	
 }

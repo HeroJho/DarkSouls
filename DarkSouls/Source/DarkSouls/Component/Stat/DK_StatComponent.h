@@ -40,10 +40,9 @@ public:
 	void AddChangeHPDelegateFunc(UObject* Object, FName FuncName);
 	void AddZeroHPDelegateFunc(UObject* Object, FName FuncName);
 
-	UFUNCTION(BlueprintCallable)
-	void IncreaseHP(int Value);
-	UFUNCTION(BlueprintCallable)
-	void DecreaseHP(int Value);
+
+	void IncreaseHP(int32 Value);
+	void DecreaseHP(int32 Value);
 
 
 

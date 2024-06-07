@@ -69,9 +69,28 @@ protected:
 
 	// Stat Section
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Stat)
 	TObjectPtr<class UDK_PlayerStatComponent> PlayerStatComponent;
 
+	UPROPERTY(EditAnywhere, Category = Stat)
+	float DelaySPTimeAfterActting = 0.5f;
+
+	UPROPERTY(EditAnywhere, Category = Stat)
+	int32 SmallAttackSP = 10.f;
+	UPROPERTY(EditAnywhere, Category = Stat)
+	int32 PowarAttackSP = 20.f;
+	UPROPERTY(EditAnywhere, Category = Stat)
+	int32 AttackSPThreshould = 10.f;
+
+	UPROPERTY(EditAnywhere, Category = Stat)
+	int32 DodgeSP = 10.f;
+	UPROPERTY(EditAnywhere, Category = Stat)
+	int32 DodgeSPThreshould = 10.f;
+
+	UPROPERTY(EditAnywhere, Category = Stat)
+	int32 BlockSP = 10.f;
+	UPROPERTY(EditAnywhere, Category = Stat)
+	int32 BlockSPThreshould = 10.f;
 
 
 

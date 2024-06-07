@@ -18,7 +18,7 @@
 #include "Manager/DK_OptionManager.h"
 #include "Manager/DK_ToolManager.h"
 #include "Player/DK_PlayerController.h"
-#include "UI/DK_HUDWidget.h"
+#include "UI/DK_SmoothBarWidget.h"
 #include "Component/Stat/DK_PlayerStatComponent.h"
 
 
@@ -141,10 +141,10 @@ void ADK_Player::BeginPlay()
 	}
 
 
-	UDK_HPBarWidget* HudHpBarWidget = PlayerController->GetHUDWidget()->GetHpBarWidget();
+	UDK_SmoothBarWidget* HudHpBarWidget = PlayerController->GetHUDWidget()->GetHpBarWidget();
 	PlayerStatComponent->AddChangeHPDelegateFunc(HudHpBarWidget, FName("UpdateHpBar"));
 	
-	UDK_HPBarWidget* HudSpBarWidget = PlayerController->GetHUDWidget()->GetSpBarWidget();
+	UDK_SmoothBarWidget* HudSpBarWidget = PlayerController->GetHUDWidget()->GetSpBarWidget();
 	PlayerStatComponent->AddChangeSPDelegateFunc(HudSpBarWidget, FName("UpdateHpBar"));
 	PlayerStatComponent->ResetStat();
 
@@ -243,8 +243,10 @@ void ADK_Player::ChargeAttack(const FInputActionValue& Value)
 		return;
 	}
 
+
 	ResetInfoOnAttack();
 
+	PlayerStatComponent->DelayRecoverySP(1.5f);
 
 	// 락온일 때는 적 방향으로 공격
 	if (bIsTargetLockOn && IsValid(TargetLockedOn.Get()))
@@ -285,6 +287,9 @@ void ADK_Player::SmallAttack()
 	PlayAnimMontage(SmallAttackAnim);
 
 	ResetChargeAttack();
+
+	PlayerStatComponent->DelayRecoverySP(DelaySPTimeAfterActting);
+	PlayerStatComponent->DecreaseSP(SmallAttackSP);
 }
 
 void ADK_Player::PowarAttack()
@@ -294,6 +299,9 @@ void ADK_Player::PowarAttack()
 	PlayAnimMontage(PowarAttackAnim);
 
 	ResetChargeAttack();
+
+	PlayerStatComponent->DelayRecoverySP(DelaySPTimeAfterActting);
+	PlayerStatComponent->DecreaseSP(PowarAttackSP);
 }
 
 void ADK_Player::ResetChargeAttack()
@@ -350,6 +358,8 @@ void ADK_Player::Dodge()
 
 	SetActorRotation(DirRot);
 
+	PlayerStatComponent->DelayRecoverySP(DelaySPTimeAfterActting);
+	PlayerStatComponent->DecreaseSP(DodgeSP);
 }
 
 
@@ -519,11 +529,18 @@ void ADK_Player::BlockAttack(AActor* Attacker, float PushBackPowar)
 	}
 
 
-	// TODO : 스테미나에 따라 위크 호출
-	HitBlock();
-	
-	/*HitWeakBlock();*/
+	PlayerStatComponent->DelayRecoverySP(DelaySPTimeAfterActting);
+	PlayerStatComponent->DecreaseSP(BlockSP);
 
+	if (PlayerStatComponent->IsZeroSP())
+	{
+		HitWeakBlock();
+	}
+	else
+	{
+		HitBlock();
+	}
+	
 
 	AddImpulse(GetActorForwardVector() * -1, PushBackPowar);
 
@@ -593,6 +610,8 @@ bool ADK_Player::CanAttack()
 	if (bIsAttacking)
 		return false;
 
+	if (!PlayerStatComponent->CanUse(AttackSPThreshould))
+		return false;
 
 	// 기를 안 모으고 있는데, 키가 눌린 상태
 	// *누른상태에서 파워어택이 나갈경우 다시 입력 들어오는거 막기 위해서
@@ -639,6 +658,8 @@ bool ADK_Player::CanDodge()
 	if (bIsCharging)
 		return false;
 
+	if (!PlayerStatComponent->CanUse(DodgeSPThreshould))
+		return false;
 
 	return true;
 }
@@ -654,6 +675,8 @@ bool ADK_Player::CanBlock()
 	if (bIsCharging)
 		return false;
 
+	if (!PlayerStatComponent->CanUse(BlockSPThreshould))
+		return false;
 
 	return true;
 }

@@ -1,40 +1,39 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "UI/DK_HPBarWidget.h"
+#include "UI/DK_SmoothBarWidget.h"
 #include "Components/ProgressBar.h"
 
 #include "Tool/Define.h"
 
 
-UDK_HPBarWidget::UDK_HPBarWidget()
+UDK_SmoothBarWidget::UDK_SmoothBarWidget()
 {
 }
 
-void UDK_HPBarWidget::NativeConstruct()
+void UDK_SmoothBarWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
 	// 블루프린트에서 작업한 오브젝트들이 생성되는 시점
 
-	HpProgressBar = Cast<UProgressBar>(GetWidgetFromName(TEXT("PbHpBar")));
+	HpProgressBar = Cast<UProgressBar>(GetWidgetFromName(TEXT("PbBar")));
 	ensure(HpProgressBar);
 
 
 }
 
-void UDK_HPBarWidget::UpdateHpBar(uint32 IN_CurHP, uint32 IN_MaxHP)
+void UDK_SmoothBarWidget::UpdateHpBar(uint32 IN_CurHP, uint32 IN_MaxHP)
 {
 	CurHP = (float)IN_CurHP;
 	MaxHP = (float)IN_MaxHP;
 
 	GetWorld()->GetTimerManager().ClearTimer(HpBarTimerHandle);
-	GetWorld()->GetTimerManager().SetTimer(HpBarTimerHandle, this, &UDK_HPBarWidget::TickHpBar, 1/60.f, true);
+	GetWorld()->GetTimerManager().SetTimer(HpBarTimerHandle, this, &UDK_SmoothBarWidget::TickHpBar, 1/60.f, true);
 
-	PRINT_TEXT(sdfsd);
 }
 
-void UDK_HPBarWidget::TickHpBar()
+void UDK_SmoothBarWidget::TickHpBar()
 {
 	const float StatAdjSpeed = 5.f;
 
