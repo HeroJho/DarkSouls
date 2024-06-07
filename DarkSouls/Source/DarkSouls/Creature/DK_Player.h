@@ -67,6 +67,14 @@ protected:
 	TObjectPtr<class UInputAction> BlockAction;
 
 
+	// Stat Section
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+	TObjectPtr<class UDK_PlayerStatComponent> PlayerStatComponent;
+
+
+
+
 	// Attack Section
 public:
 	FORCEINLINE float GetChargePowarTimeAcc() { return ChargePowarTimeAcc; }

@@ -3,6 +3,8 @@
 
 #include "Component/Stat/DK_StatComponent.h"
 
+#include "Tool/Define.h"
+
 // Sets default values for this component's properties
 UDK_StatComponent::UDK_StatComponent()
 {
@@ -31,4 +33,55 @@ void UDK_StatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 
 	// ...
 }
+
+
+
+
+
+void UDK_StatComponent::ResetStat()
+{
+	IncreaseHP(MaxHP);
+
+}
+
+
+void UDK_StatComponent::AddChangeHPDelegateFunc(UObject* Object, FName FuncName)
+{
+	Delegate_ChangeHP.AddUFunction(Object, FuncName);
+}
+
+void UDK_StatComponent::AddZeroHPDelegateFunc(UObject* Object, FName FuncName)
+{
+	Delegate_ZeroHP.AddUFunction(Object, FuncName);
+}
+
+
+
+
+
+
+
+void UDK_StatComponent::IncreaseHP(int Value)
+{
+	CurHP = FMath::Clamp(CurHP + Value, 0, MaxHP);
+
+	Delegate_ChangeHP.Broadcast(CurHP, MaxHP);
+}
+
+void UDK_StatComponent::DecreaseHP(int Value)
+{
+	CurHP = FMath::Clamp(CurHP - Value, 0, MaxHP);
+	
+
+	if (CurHP == 0)
+	{
+		// ªÁ∏¡ µ®∏Æ∞‘¿Ã∆Æ
+
+		Delegate_ZeroHP.Broadcast();
+	}
+
+
+	Delegate_ChangeHP.Broadcast(CurHP, MaxHP);
+}
+
 

@@ -14,4 +14,21 @@ class DARKSOULS_API ADK_PlayerController : public APlayerController
 {
 	GENERATED_BODY()
 	
+public:
+	ADK_PlayerController();
+
+protected:
+	virtual void BeginPlay() override;
+
+	virtual void PostInitializeComponents() override;
+
+public:
+	FORCEINLINE class UDK_HUDWidget* GetHUDWidget() { return HUDWidget; }
+
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI)
+	TSubclassOf<class UDK_HUDWidget> HUDWidgetClass;
+	
+	TObjectPtr<class UDK_HUDWidget> HUDWidget;
+
 };

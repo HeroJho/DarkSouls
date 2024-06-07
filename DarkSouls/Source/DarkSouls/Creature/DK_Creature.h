@@ -16,6 +16,8 @@ public:
 	ADK_Creature();
 
 protected:
+	virtual void PostInitializeComponents() override;
+
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
@@ -23,19 +25,12 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
 
 
 	// Common
 public:
 	void AddImpulse(FVector Dir, float Powar);
 
-
-
-	// State
-public:
 	FORCEINLINE float GetBlockSpeed() { return BlockSpeed; }
 
 protected:
@@ -43,6 +38,35 @@ protected:
 	float NormalSpeed = 500.f;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = State)
 	float BlockSpeed = 150.f;
+
+
+
+
+
+
+	// UI
+public:
+	void OnOffSceenHPBar(bool bIsOn);
+
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = UI)
+	TObjectPtr<class UDK_WidgetComponent> WidgetComponent;
+
+
+
+
+
+
+
+	// Stat
+public:
+
+
+protected:
+	//UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Stat)
+	TSoftObjectPtr<class UDK_StatComponent> StatComponent;
+
+
 
 
 

@@ -17,6 +17,9 @@
 #include "Game/DK_GameMode.h"
 #include "Manager/DK_OptionManager.h"
 #include "Manager/DK_ToolManager.h"
+#include "Player/DK_PlayerController.h"
+#include "UI/DK_HUDWidget.h"
+#include "Component/Stat/DK_PlayerStatComponent.h"
 
 
 
@@ -43,6 +46,10 @@ ADK_Player::ADK_Player()
 		GetMesh()->SetSkeletalMesh(CharacterMeshRef.Object);
 	}
 
+
+	// StatComponent
+	PlayerStatComponent = CreateDefaultSubobject<UDK_PlayerStatComponent>(TEXT("PlayerStatComponent"));
+	StatComponent = PlayerStatComponent;
 
 
 	// Input
@@ -114,7 +121,10 @@ void ADK_Player::BeginPlay()
 {
 	Super::BeginPlay();
 
-	APlayerController* PlayerController = Cast<APlayerController>(GetController());
+
+	ADK_PlayerController* PlayerController = Cast<ADK_PlayerController>(GetController());
+
+	//APlayerController* PlayerController = Cast<APlayerController>(GetController());
 	if (PlayerController)
 	{
 		EnableInput(PlayerController);
@@ -129,6 +139,15 @@ void ADK_Player::BeginPlay()
 			}
 		}
 	}
+
+
+	UDK_HPBarWidget* HudHpBarWidget = PlayerController->GetHUDWidget()->GetHpBarWidget();
+	PlayerStatComponent->AddChangeHPDelegateFunc(HudHpBarWidget, FName("UpdateHpBar"));
+	
+	UDK_HPBarWidget* HudSpBarWidget = PlayerController->GetHUDWidget()->GetSpBarWidget();
+	PlayerStatComponent->AddChangeSPDelegateFunc(HudSpBarWidget, FName("UpdateHpBar"));
+	PlayerStatComponent->ResetStat();
+
 
 }
 

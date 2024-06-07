@@ -23,6 +23,10 @@ protected:
 
 	virtual void PostInitializeComponents() override;
 
+	// Stat Section
 protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+	TObjectPtr<class UDK_MonsterStatComponent> MonsterStatComponent;
+
 
 };

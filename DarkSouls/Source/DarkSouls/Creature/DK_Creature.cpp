@@ -10,6 +10,11 @@
 #include "Tool/Struct.h"
 #include "Component/Combo/DK_ComboComponent.h"
 #include "Component/Collision/DK_CollisionManagerComponent.h"
+#include "Component/Stat/DK_StatComponent.h"
+#include "UI/DK_WidgetComponent.h"
+#include "UI/DK_HPBarWidget.h"
+
+
 
 // Sets default values
 ADK_Creature::ADK_Creature()
@@ -41,7 +46,23 @@ ADK_Creature::ADK_Creature()
 
 
 	// CollisionManagerComponent
-	CollisionManagerComponent = CreateDefaultSubobject<UDK_CollisionManagerComponent>("CollisionManagerComponent");
+	CollisionManagerComponent = CreateDefaultSubobject<UDK_CollisionManagerComponent>(TEXT("CollisionManagerComponent"));
+
+
+	//// StatComponent
+	//StatComponent = CreateDefaultSubobject<UDK_StatComponent>(TEXT("StatComponent"));
+
+
+	// Widget
+	WidgetComponent = CreateDefaultSubobject<UDK_WidgetComponent>(TEXT("WidgetComponent"));
+	WidgetComponent->SetupAttachment(RootComponent);
+	WidgetComponent->SetCollisionProfileName(TEXT("NoCollision"));
+}
+
+void ADK_Creature::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
 
 }
 
@@ -49,7 +70,10 @@ ADK_Creature::ADK_Creature()
 void ADK_Creature::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+
+	StatComponent->AddChangeHPDelegateFunc(WidgetComponent->GetWidget(), FName("UpdateHpBar"));
+	StatComponent->ResetStat();
 }
 
 // Called every frame
@@ -63,13 +87,6 @@ void ADK_Creature::Tick(float DeltaTime)
 		SmoothTurnTick();
 	}
 
-
-}
-
-// Called to bind functionality to input
-void ADK_Creature::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 }
 
@@ -88,6 +105,11 @@ void ADK_Creature::AddImpulse(FVector Dir, float Powar)
 
 
 
+
+void ADK_Creature::OnOffSceenHPBar(bool bIsOn)
+{
+	WidgetComponent->SetHiddenInGame(!bIsOn);
+}
 
 void ADK_Creature::Attack()
 {
@@ -158,6 +180,7 @@ void ADK_Creature::OnDamaged(const FAttackDamagedInfo& AttackDamagedInfo, AActor
 	}
 
 
+	// 스턴 여부
 	FVector TargetToMeDir = GetActorLocation() - CauserPos;
 	TargetToMeDir.Normalize();
 
@@ -175,6 +198,8 @@ void ADK_Creature::OnDamaged(const FAttackDamagedInfo& AttackDamagedInfo, AActor
 	}
 
 
+	// 스탯
+	StatComponent->DecreaseHP(AttackDamagedInfo.Damage);
 
 }
 

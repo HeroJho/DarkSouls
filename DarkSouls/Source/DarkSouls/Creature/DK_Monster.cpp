@@ -2,13 +2,18 @@
 
 
 #include "Creature/DK_Monster.h"
-
 #include "Components/ArrowComponent.h"
+
+#include "Component/Stat/DK_MonsterStatComponent.h"
+
 
 
 ADK_Monster::ADK_Monster()
 {
-	
+	// StatComponent
+	MonsterStatComponent = CreateDefaultSubobject<UDK_MonsterStatComponent>(TEXT("MonsterStatComponent"));
+	StatComponent = MonsterStatComponent;
+
 }
 
 
