@@ -96,6 +96,9 @@ void UDK_CollisionManagerComponent::TurnBlockCol(const TArray<FString>& CapsuleN
 {
 	for (int32 i = 0; i < CapsuleNames.Num(); ++i)
 	{
+		if (Capsules[CapsuleNames[i]]->ComponentHasTag(TEXT("NoBlock")))
+			continue;
+
 		Capsules[CapsuleNames[i]]->SetCollisionProfileName(COL_BLOCK);
 		// Capsules[CapsuleNames[i]]->bHiddenInGame = true;
 	}
@@ -154,12 +157,16 @@ void UDK_CollisionManagerComponent::OnOverlapBegin(UPrimitiveComponent* Overlapp
 		return;
 
 	FString ColName = OverlappedComp->GetName();
+
+
 	// 공격 판정 콜라이더라면 
 	if (CheckIsAttackCol(ColName))
 	{
 		// 중복 공격 방지
 		if (CheckAttackedActor(OtherActor))
 			return;
+
+
 		ActorTemps.Add(OtherActor);
 
 

@@ -501,8 +501,9 @@ void ADK_Player::BlockAttack(AActor* Attacker, float PushBackPowar)
 
 
 	// TODO : 스테미나에 따라 위크 호출
-	/*HitBlock();*/
-	HitWeakBlock();
+	HitBlock();
+	
+	/*HitWeakBlock();*/
 
 
 	AddImpulse(GetActorForwardVector() * -1, PushBackPowar);

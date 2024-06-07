@@ -33,6 +33,8 @@ ADK_Creature::ADK_Creature()
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->MaxWalkSpeed = NormalSpeed;
 
+	GetCharacterMovement()->GroundFriction = 8.f;
+	GetCharacterMovement()->FallingLateralFriction = 5.f;
 
 	// ComboComponent
 	ComboComponent = CreateDefaultSubobject<UDK_ComboComponent>(TEXT("ComboComponent"));
@@ -79,6 +81,7 @@ void ADK_Creature::AddImpulse(FVector Dir, float Powar)
 {
 	Dir.Normalize();
 	GetCharacterMovement()->AddImpulse(Dir * Powar, true);
+	LaunchCharacter(Dir * Powar, true, true);
 }
 
 
