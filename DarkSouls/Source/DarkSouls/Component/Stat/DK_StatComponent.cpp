@@ -26,16 +26,6 @@ void UDK_StatComponent::BeginPlay()
 }
 
 
-// Called every frame
-void UDK_StatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
-}
-
-
-
 
 
 void UDK_StatComponent::ResetStat()
@@ -44,10 +34,20 @@ void UDK_StatComponent::ResetStat()
 
 }
 
-
-void UDK_StatComponent::AddChangeHPDelegateFunc(UObject* Object, FName FuncName)
+void UDK_StatComponent::BroadcastStat()
 {
-	Delegate_ChangeHP.AddUFunction(Object, FuncName);
+	Delegate_ChangeHP.Broadcast(CurHP, MaxHP);
+}
+
+
+FDelegateHandle UDK_StatComponent::AddChangeHPDelegateFunc(UObject* Object, FName FuncName)
+{
+	return Delegate_ChangeHP.AddUFunction(Object, FuncName);
+}
+
+void UDK_StatComponent::RemoveChangeHPDelegateFunc(FDelegateHandle Handle)
+{
+	Delegate_ChangeHP.Remove(Handle);
 }
 
 void UDK_StatComponent::AddZeroHPDelegateFunc(UObject* Object, FName FuncName)

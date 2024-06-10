@@ -21,15 +21,17 @@ public:
 
 
 public:
-	UFUNCTION(BlueprintCallable)
 	FORCEINLINE class UDK_OptionManager* GetOptionManager() { return OptionManager; }
-	UFUNCTION(BlueprintCallable)
 	FORCEINLINE class UDK_ToolManager* GetToolManager() { return ToolManager; }
+	FORCEINLINE class UDK_UIManager* GetUIManager() { return UIManager; }
+
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Manager)
 	TObjectPtr<class UDK_OptionManager> OptionManager;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Manager)
 	TObjectPtr<class UDK_ToolManager> ToolManager;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Manager)
+	TObjectPtr<class UDK_UIManager> UIManager;
 
 };

@@ -7,8 +7,8 @@
 #include "DK_StatComponent.generated.h"
 
 
-DECLARE_MULTICAST_DELEGATE_TwoParams(FOnChangeHPDelegate, uint32, uint32);
-DECLARE_MULTICAST_DELEGATE(FOnZeroHPDelegate);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnChangeDelegate, int32, int32);
+DECLARE_MULTICAST_DELEGATE(FOnZeroDelegate);
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -24,20 +24,15 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
-
 
 public:
 	virtual void ResetStat();
 
-	FORCEINLINE uint32 GetMaxHP() { return MaxHP; }
-	FORCEINLINE uint32 GetCurHP() { return CurHP; }
+	virtual void BroadcastStat();
 
+	FDelegateHandle AddChangeHPDelegateFunc(UObject* Object, FName FuncName);
+	void RemoveChangeHPDelegateFunc(FDelegateHandle Handle);
 
-	void AddChangeHPDelegateFunc(UObject* Object, FName FuncName);
 	void AddZeroHPDelegateFunc(UObject* Object, FName FuncName);
 
 
@@ -47,12 +42,12 @@ public:
 
 
 protected:
-	FOnChangeHPDelegate Delegate_ChangeHP;
-	FOnZeroHPDelegate Delegate_ZeroHP;
+	FOnChangeDelegate Delegate_ChangeHP;
+	FOnZeroDelegate Delegate_ZeroHP;
 
 
-	int32 MaxHP = 100.f;
-	int32 CurHP = 0.f;
+	int32 MaxHP = 400;
+	int32 CurHP = 0;
 
 
 };

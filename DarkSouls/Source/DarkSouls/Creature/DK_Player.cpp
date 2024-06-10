@@ -17,7 +17,7 @@
 #include "Game/DK_GameMode.h"
 #include "Manager/DK_OptionManager.h"
 #include "Manager/DK_ToolManager.h"
-#include "Player/DK_PlayerController.h"
+#include "Manager/DK_UIManager.h"
 #include "UI/DK_SmoothBarWidget.h"
 #include "Component/Stat/DK_PlayerStatComponent.h"
 
@@ -122,7 +122,7 @@ void ADK_Player::BeginPlay()
 	Super::BeginPlay();
 
 
-	ADK_PlayerController* PlayerController = Cast<ADK_PlayerController>(GetController());
+	APlayerController* PlayerController = Cast<APlayerController>(GetController());
 
 	//APlayerController* PlayerController = Cast<APlayerController>(GetController());
 	if (PlayerController)
@@ -141,12 +141,12 @@ void ADK_Player::BeginPlay()
 	}
 
 
-	UDK_SmoothBarWidget* HudHpBarWidget = PlayerController->GetHUDWidget()->GetHpBarWidget();
-	PlayerStatComponent->AddChangeHPDelegateFunc(HudHpBarWidget, FName("UpdateHpBar"));
 	
-	UDK_SmoothBarWidget* HudSpBarWidget = PlayerController->GetHUDWidget()->GetSpBarWidget();
-	PlayerStatComponent->AddChangeSPDelegateFunc(HudSpBarWidget, FName("UpdateHpBar"));
-	PlayerStatComponent->ResetStat();
+	ADK_GameMode* GameMode = Cast<ADK_GameMode>(GetWorld()->GetAuthGameMode());
+	GameMode->GetUIManager()->BindEventForHUD(PlayerStatComponent);
+
+	PlayerStatComponent->AddReleaseTPDelegateFunc(this, FName("GenRecoveryHP"));
+	PlayerStatComponent->ResetStat(NormalRecoverySPPerSec, DecreaseTPPerSec);
 
 
 }
@@ -346,20 +346,26 @@ void ADK_Player::Dodge()
 
 	Super::Dodge();
 
+	// 키 입력 방향으로 바로 회피
 	FVector Dir(MoveInputDir.X, MoveInputDir.Y, 0.f);
-
 	FRotator DirRot = UKismetMathLibrary::FindLookAtRotation(FVector::Zero(), Dir);
 	DirRot.Pitch = 0.f;
 	DirRot.Roll = 0.f;
-
 
 	FRotator CamRot = GetController()->GetControlRotation();
 	DirRot.Yaw = CamRot.Yaw + DirRot.Yaw;
 
 	SetActorRotation(DirRot);
 
+
+	// SP 소모
 	PlayerStatComponent->DelayRecoverySP(DelaySPTimeAfterActting);
 	PlayerStatComponent->DecreaseSP(DodgeSP);
+}
+
+void ADK_Player::PerfectDodge()
+{
+	PlayerStatComponent->IncreaseTP(IncreaseTPPer);
 }
 
 
@@ -496,8 +502,6 @@ void ADK_Player::Block()
 
 	ResetInfoOnBlock();
 
-	GetCharacterMovement()->bOrientRotationToMovement = false;
-	GetCharacterMovement()->MaxWalkSpeed = BlockSpeed;
 
 	// 락온일 때는 적 방향으로 공격
 	if (bIsTargetLockOn && IsValid(TargetLockedOn.Get()))
@@ -511,7 +515,20 @@ void ADK_Player::Block()
 		StartPerfectBlock();
 	}
 
+	GetCharacterMovement()->bOrientRotationToMovement = false;
+	GetCharacterMovement()->MaxWalkSpeed = BlockSpeed;
+
+	PlayerStatComponent->SetRecoverySPPerSecSpeed(SlowRecoverySPPerSec);
+
 	bIsBlock = true;
+}
+
+void ADK_Player::EndBlock()
+{
+	Super::EndBlock();
+
+	PlayerStatComponent->SetRecoverySPPerSecSpeed(NormalRecoverySPPerSec);
+
 }
 
 
@@ -596,6 +613,16 @@ void ADK_Player::HitWeakBlock()
 }
 
 
+
+
+
+
+void ADK_Player::GenRecoveryHP()
+{
+	// TODO: 몬스터 위치 때리면 회복하는 스킬
+
+	PRINT_TEXT(TEXT("GenRecoveryHP!!!"));
+}
 
 
 
@@ -730,13 +757,14 @@ void ADK_Player::ResetInfoOnStun()
 	// 차지중에 스턴 걸리면 차지 리셋
 	ResetChargeAttack();
 	// 공격도중에 스턴 걸리면 노티 끊기니까
-	bIsAttacking = false;
+	CheckAttack_Notify();
 
 	EndPerfectBlock();
 }
 
 void ADK_Player::ResetInfoOnKnockDown()
 {
+	// 스턴의 리셋까지 호출해 줌
 	Super::ResetInfoOnKnockDown();
 
 	EndPerfectBlock();
@@ -746,6 +774,11 @@ void ADK_Player::ResetInfoOnDodge()
 {
 	Super::ResetInfoOnDodge();
 
+	// 차지중에 스턴 걸리면 차지 리셋
+	ResetChargeAttack();
+	// 공격도중에 스턴 걸리면 노티 끊기니까
+	CheckAttack_Notify();
+
 	EndPerfectBlock();
 }
 
@@ -753,12 +786,14 @@ void ADK_Player::ResetInfoOnBlock()
 {
 	Super::ResetInfoOnBlock();
 
-	
+	// 블락 중에는 차지, 공격 가능
+
 }
 
 void ADK_Player::ResetInfoOnHitBlock()
 {
 	Super::ResetInfoOnHitBlock();
+
 
 }
 

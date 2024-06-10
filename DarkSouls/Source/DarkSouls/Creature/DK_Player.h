@@ -73,6 +73,10 @@ protected:
 	TObjectPtr<class UDK_PlayerStatComponent> PlayerStatComponent;
 
 	UPROPERTY(EditAnywhere, Category = Stat)
+	int32 NormalRecoverySPPerSec = 5.f;
+	UPROPERTY(EditAnywhere, Category = Stat)
+	int32 SlowRecoverySPPerSec = 2.f;
+	UPROPERTY(EditAnywhere, Category = Stat)
 	float DelaySPTimeAfterActting = 0.5f;
 
 	UPROPERTY(EditAnywhere, Category = Stat)
@@ -91,6 +95,11 @@ protected:
 	int32 BlockSP = 10.f;
 	UPROPERTY(EditAnywhere, Category = Stat)
 	int32 BlockSPThreshould = 10.f;
+
+	UPROPERTY(EditAnywhere, Category = Stat)
+	int32 IncreaseTPPer = 40.f;
+	UPROPERTY(EditAnywhere, Category = Stat)
+	int32 DecreaseTPPerSec = 5.f;
 
 
 
@@ -162,11 +171,13 @@ protected:
 protected:
 	virtual void Dodge() override;
 
+	virtual void PerfectDodge() override;
 
 
 	// Block Secion
 public:
 	virtual void Block() override;
+	virtual void EndBlock() override;
 	
 	FORCEINLINE bool IsPerfectBlock() { return bIsPerfectBlock; }
 
@@ -188,6 +199,12 @@ protected:
 
 
 
+	// TPRelease Section
+public:
+	UFUNCTION()
+	void GenRecoveryHP();
+
+
 	// Condition Section
 protected:
 	bool CanMove();
@@ -202,7 +219,7 @@ protected:
 	
 
 	// 상태에 들어가면 초기화해야할 작업들
-// 공격 시,
+	// 공격 시,
 	virtual void ResetInfoOnAttack() override;
 	// 스턴 시, 
 	virtual void ResetInfoOnStun() override;

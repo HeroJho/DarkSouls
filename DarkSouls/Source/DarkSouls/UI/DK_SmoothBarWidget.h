@@ -22,20 +22,23 @@ protected:
 
 public:
 	UFUNCTION()
-	void UpdateHpBar(uint32 IN_CurHP, uint32 IN_MaxHP);
+	virtual void UpdateBar(uint32 IN_Cur, uint32 IN_Max);
+
+	FORCEINLINE class UProgressBar* GetProgressBar() { return ProgressBar; }
 
 protected:
-	void TickHpBar();
+	void TickBar();
+
 
 protected:
-	float HPAcc = 0.f;
+	float Acc = 0.f;
 
-	float CurHP = 0.f;
-	float MaxHP = 0.f;
+	float Cur = 0.f;
+	float Max = 0.f;
 
 	UPROPERTY()
-	TObjectPtr<class UProgressBar> HpProgressBar;
+	TObjectPtr<class UProgressBar> ProgressBar;
 
-	FTimerHandle HpBarTimerHandle;
+	FTimerHandle BarTimerHandle;
 
 };

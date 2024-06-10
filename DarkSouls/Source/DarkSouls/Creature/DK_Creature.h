@@ -46,15 +46,22 @@ protected:
 
 	// UI
 public:
-	void OnOffSceenHPBar(bool bIsOn);
+	void OnOffScreenHPBar(bool bIsOn);
+
+	UFUNCTION(BlueprintCallable)
+	void OnOffHUDHPBar(bool bIsOn);
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = UI)
 	TObjectPtr<class UDK_WidgetComponent> WidgetComponent;
 
+	UPROPERTY()
+	TWeakObjectPtr<class UDK_SmoothBarWidget> BossSmoothBarWidget;
 
+	FDelegateHandle BossHpBarDelegateHandle;
 
-
+	//UPROPERTY(EditAnywhere, Category = BossHpBar)
+	//TSubclassOf<class UDK_SmoothBarWidget> BossHpBarWidgetClass;
 
 
 
@@ -63,8 +70,7 @@ public:
 
 
 protected:
-	//UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Stat)
-	TSoftObjectPtr<class UDK_StatComponent> StatComponent;
+	TWeakObjectPtr<class UDK_StatComponent> StatComponent;
 
 
 
@@ -171,11 +177,14 @@ protected:
 
 	// Dodge
 public:
+	virtual void BeginDodgeSkip_Notify();
+	virtual void EndDodgeSkip_Notify();
+
+protected:
 	virtual void Dodge();
 	void EndDoge(UAnimMontage* TargetMontage, bool IsProperlyEnded);
 
-	virtual void BeginDodgeSkip_Notify();
-	virtual void EndDodgeSkip_Notify();
+	virtual void PerfectDodge();
 
 
 protected:
@@ -196,7 +205,7 @@ public:
 	FORCEINLINE FVector2D GetBlockMoveDir() { return BlockMoveDir; }
 
 	virtual void Block();
-	void EndBlock();
+	virtual void EndBlock();
 
 	void HitBlock();
 	void EndHitBlock();

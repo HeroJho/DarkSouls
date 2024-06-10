@@ -3,6 +3,7 @@
 
 #include "UI/DK_SmoothBarWidget.h"
 #include "Components/ProgressBar.h"
+//#include "Components/CanvasPanel.h"
 
 #include "Tool/Define.h"
 
@@ -16,47 +17,45 @@ void UDK_SmoothBarWidget::NativeConstruct()
 	Super::NativeConstruct();
 
 	// 블루프린트에서 작업한 오브젝트들이 생성되는 시점
-
-	HpProgressBar = Cast<UProgressBar>(GetWidgetFromName(TEXT("PbBar")));
-	ensure(HpProgressBar);
-
+	ProgressBar = Cast<UProgressBar>(GetWidgetFromName(TEXT("PbBar")));
 
 }
 
-void UDK_SmoothBarWidget::UpdateHpBar(uint32 IN_CurHP, uint32 IN_MaxHP)
+void UDK_SmoothBarWidget::UpdateBar(uint32 IN_Cur, uint32 IN_Max)
 {
-	CurHP = (float)IN_CurHP;
-	MaxHP = (float)IN_MaxHP;
+	Cur = (float)IN_Cur;
+	Max = (float)IN_Max;
 
-	GetWorld()->GetTimerManager().ClearTimer(HpBarTimerHandle);
-	GetWorld()->GetTimerManager().SetTimer(HpBarTimerHandle, this, &UDK_SmoothBarWidget::TickHpBar, 1/60.f, true);
+	GetWorld()->GetTimerManager().ClearTimer(BarTimerHandle);
+	GetWorld()->GetTimerManager().SetTimer(BarTimerHandle, this, &UDK_SmoothBarWidget::TickBar, 1/60.f, true);
 
 }
 
-void UDK_SmoothBarWidget::TickHpBar()
+void UDK_SmoothBarWidget::TickBar()
 {
 	const float StatAdjSpeed = 5.f;
 
-	float DisHP = CurHP - HPAcc;
+	float DisHP = Cur - Acc;
 
-	// TODO : DeltaTime이 엄청 커지면 어떻게 되지?
+
 	if (DisHP > 0.f)
 	{
-		HPAcc = FMath::Clamp(HPAcc + DisHP * GetWorld()->DeltaTimeSeconds * StatAdjSpeed, 0.f, CurHP);
+		Acc = FMath::Clamp(Acc + DisHP * GetWorld()->DeltaTimeSeconds * StatAdjSpeed, 0.f, Cur);
 	}
 	else
 	{
-		HPAcc = FMath::Clamp(HPAcc + DisHP * GetWorld()->DeltaTimeSeconds * StatAdjSpeed, CurHP, MaxHP);
+		Acc = FMath::Clamp(Acc + DisHP * GetWorld()->DeltaTimeSeconds * StatAdjSpeed, Cur, Max);
 	}
 
 	
-	if (FMath::IsNearlyEqual(HPAcc, CurHP, 1.f))
+	if (FMath::IsNearlyEqual(Acc, Cur, 1.f))
 	{
-		HPAcc = CurHP;
-		GetWorld()->GetTimerManager().ClearTimer(HpBarTimerHandle);
+		Acc = Cur;
+		GetWorld()->GetTimerManager().ClearTimer(BarTimerHandle);
 	}
 
-	HpProgressBar->SetPercent(HPAcc/MaxHP);
 
-	// GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Green, FString::Printf(TEXT("CurHP: %f / HPAcc: %f"), CurHP, HPAcc));
+
+	ProgressBar->SetPercent(Acc/Max);
+
 }

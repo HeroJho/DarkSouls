@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Creature/DK_Creature.h"
@@ -8,11 +8,15 @@
 
 #include "Tool/Define.h"
 #include "Tool/Struct.h"
+#include "Game/DK_GameMode.h"
+#include "Manager/DK_UIManager.h"
 #include "Component/Combo/DK_ComboComponent.h"
 #include "Component/Collision/DK_CollisionManagerComponent.h"
 #include "Component/Stat/DK_StatComponent.h"
-#include "UI/DK_WidgetComponent.h"
 
+#include "UI/DK_WidgetComponent.h"
+#include "UI/DK_HUDWidget.h"
+#include "UI/DK_SmoothBarWidget.h"
 
 
 // Sets default values
@@ -56,6 +60,7 @@ ADK_Creature::ADK_Creature()
 	WidgetComponent = CreateDefaultSubobject<UDK_WidgetComponent>(TEXT("WidgetComponent"));
 	WidgetComponent->SetupAttachment(RootComponent);
 	WidgetComponent->SetCollisionProfileName(TEXT("NoCollision"));
+
 }
 
 void ADK_Creature::PostInitializeComponents()
@@ -71,7 +76,7 @@ void ADK_Creature::BeginPlay()
 	Super::BeginPlay();
 
 
-	StatComponent->AddChangeHPDelegateFunc(WidgetComponent->GetWidget(), FName("UpdateHpBar"));
+	StatComponent->AddChangeHPDelegateFunc(WidgetComponent->GetWidget(), FName("UpdateBar"));
 	StatComponent->ResetStat();
 }
 
@@ -80,7 +85,7 @@ void ADK_Creature::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	// Å¸ÀÌ¸Ó·Î ÇÒ·Á°íÇß´Âµ¥, Ä«¸Þ¶ó°¡ Èçµé¸®´Â ¹®Á¦°¡ »ý±è
+	// íƒ€ì´ë¨¸ë¡œ í• ë ¤ê³ í–ˆëŠ”ë°, ì¹´ë©”ë¼ê°€ í”ë“¤ë¦¬ëŠ” ë¬¸ì œê°€ ìƒê¹€
 	if (bIsSmoothTurn)
 	{
 		SmoothTurnTick();
@@ -104,11 +109,50 @@ void ADK_Creature::AddImpulse(FVector Dir, float Powar)
 
 
 
-
-void ADK_Creature::OnOffSceenHPBar(bool bIsOn)
+void ADK_Creature::OnOffScreenHPBar(bool bIsOn)
 {
 	WidgetComponent->SetHiddenInGame(!bIsOn);
 }
+
+void ADK_Creature::OnOffHUDHPBar(bool bIsOn)
+{
+	ADK_GameMode* GameMode = Cast<ADK_GameMode>(GetWorld()->GetAuthGameMode());
+	UDK_HUDWidget* HUDWidget = GameMode->GetUIManager()->GetHUD();
+
+	if (bIsOn)
+	{
+		if (BossSmoothBarWidget.Get() != nullptr)
+			return;
+
+		UDK_SmoothBarWidget* BossHpBarWidget = nullptr;
+		// ê½‰ ì°»ë‹¤
+		FString Str;
+		Str = Str.Printf(TEXT("ê°€ë‚˜ë‹¤ë¼"));
+		FText Name = FText::FromString(Str);
+		if (!HUDWidget->MakeBossHpBar(&BossHpBarWidget, Name))
+			return;
+
+
+		BossSmoothBarWidget = BossHpBarWidget;
+		BossHpBarDelegateHandle = StatComponent->AddChangeHPDelegateFunc(BossSmoothBarWidget.Get(), FName("UpdateBar"));
+
+		StatComponent->BroadcastStat();
+
+		
+	}
+	else
+	{
+		HUDWidget->RemoveBossHpBar(BossSmoothBarWidget.Get());
+		StatComponent->RemoveChangeHPDelegateFunc(BossHpBarDelegateHandle);
+		
+		BossHpBarDelegateHandle.Reset();
+		BossSmoothBarWidget = nullptr;
+	}
+	
+}
+
+
+
 
 void ADK_Creature::Attack()
 {
@@ -142,7 +186,7 @@ void ADK_Creature::EndColRange_Notify()
 {
 	CollisionManagerComponent->TurnBlockAllCol();
 
-	// Dodge ¹«È¿ µ¨¸®°ÔÀÌÆ® È£Ãâ
+	// Dodge ë¬´íš¨ ë¸ë¦¬ê²Œì´íŠ¸ í˜¸ì¶œ
 }
 
 FAttackDamagedInfo ADK_Creature::GetCurrentAttackInfos()
@@ -168,9 +212,16 @@ void ADK_Creature::OnDamaged(const FAttackDamagedInfo& AttackDamagedInfo, AActor
 	if (!CanDamaged())
 		return;
 
+	// íšŒí”¼ì— ì„±ê³µ
+	if (bCanDodgeSkip)
+	{
+		PerfectDodge();
+		return;
+	}
+
 
 	FVector CauserPos = DamageCauser->GetActorLocation();
-	// °¡µå ¿©ºÎ
+	// ê°€ë“œ ì—¬ë¶€
 	if (CheckBlock(CauserPos))
 	{
 		BlockAttack(DamageCauser, AttackDamagedInfo.BlockPushPowar);
@@ -179,7 +230,7 @@ void ADK_Creature::OnDamaged(const FAttackDamagedInfo& AttackDamagedInfo, AActor
 	}
 
 
-	// ½ºÅÏ ¿©ºÎ
+	// ìŠ¤í„´ ì—¬ë¶€
 	FVector TargetToMeDir = GetActorLocation() - CauserPos;
 	TargetToMeDir.Normalize();
 
@@ -197,7 +248,7 @@ void ADK_Creature::OnDamaged(const FAttackDamagedInfo& AttackDamagedInfo, AActor
 	}
 
 
-	// ½ºÅÈ
+	// ìŠ¤íƒ¯
 	StatComponent->DecreaseHP(AttackDamagedInfo.Damage);
 
 }
@@ -258,7 +309,7 @@ void ADK_Creature::KnockDown(float KnockDownTime)
 
 	bIsKnockDown = true;
 
-	// TODO : ÀÏ¾î¼­´Â ¸ð¼Ç ½Ã°£À» ÇÏµåÄÚµùÀ¸·Î ÇßÀ½, ½Ã°£µÇ¸é 
+	// TODO : ì¼ì–´ì„œëŠ” ëª¨ì…˜ ì‹œê°„ì„ í•˜ë“œì½”ë”©ìœ¼ë¡œ í–ˆìŒ, ì‹œê°„ë˜ë©´ 
 	GetWorldTimerManager().ClearTimer(KnockDownTimerHandle);
 	GetWorldTimerManager().SetTimer(KnockDownTimerHandle, this, &ADK_Creature::EndKnockDown, KnockDownTime, false);
 
@@ -271,7 +322,7 @@ void ADK_Creature::KnockDown(float KnockDownTime)
 
 void ADK_Creature::EndKnockDown()
 {
-	// ÀÏ¾î¼­´Â ¸ð¼Ç¿¡¼­ EndKnockDown_Notify È£Ãâ
+	// ì¼ì–´ì„œëŠ” ëª¨ì…˜ì—ì„œ EndKnockDown_Notify í˜¸ì¶œ
 	bIsPlayEndKnockDown = true;
 }
 
@@ -368,6 +419,10 @@ void ADK_Creature::BeginDodgeSkip_Notify()
 void ADK_Creature::EndDodgeSkip_Notify()
 {
 	bCanDodgeSkip = false;
+}
+
+void ADK_Creature::PerfectDodge()
+{
 }
 
 
@@ -538,9 +593,6 @@ bool ADK_Creature::CanKnockDown()
 
 bool ADK_Creature::CanDamaged()
 {
-	if (bCanDodgeSkip)
-		return false;
-
 	if (bIsKnockDown)
 		return false;
 
@@ -569,16 +621,18 @@ bool ADK_Creature::CanBlock()
 void ADK_Creature::ResetInfoOnAttack()
 {
 	EndBlock();
+	
+	EndDodgeSkip_Notify();
 
 }
 
 void ADK_Creature::ResetInfoOnStun()
 {
-	EndColRange_Notify(); // °ø°Ý ÄÝ¶óÀÌ´õ
-	EndAttackRange_Notify(); // °ø°Ý ¾Ö´Ï¸ÞÀÌ¼Ç ¹üÀ§
-	ComboComponent->ResetComboInfo(); // ÄÞº¸
+	EndColRange_Notify(); // ê³µê²© ì½œë¼ì´ë”
+	EndAttackRange_Notify(); // ê³µê²© ì• ë‹ˆë©”ì´ì…˜ ë²”ìœ„
+	ComboComponent->ResetComboInfo(); // ì½¤ë³´
 
-	EndDodgeSkip_Notify(); // ¹«Àû½Ã°£ (È¤½Ã¸ð¸£´Ï)
+	EndDodgeSkip_Notify(); // ë¬´ì ì‹œê°„ (í˜¹ì‹œëª¨ë¥´ë‹ˆ)
 
 	StopSmoothTurn();
 
@@ -591,20 +645,37 @@ void ADK_Creature::ResetInfoOnKnockDown()
 
 	EndStun();
 
-	EndBlock();
 }
 
 void ADK_Creature::ResetInfoOnDodge()
 {
+	// ê³µê²© ì¤‘ì—ëŠ” ë¸”ë½ì„ í•  ìˆ˜ ì—†ì§€ë§Œ, í˜¹ì‹œ ëª¨ë¥´ë‹ˆ 
+	EndColRange_Notify();
+	EndAttackRange_Notify();
+	ComboComponent->ResetComboInfo();
+
 	EndBlock();
 
 }
 
 void ADK_Creature::ResetInfoOnBlock()
 {
+	// ê³µê²© ì¤‘ì—ëŠ” íšŒí”¼ë¥¼ í•  ìˆ˜ ì—†ì§€ë§Œ, í˜¹ì‹œ ëª¨ë¥´ë‹ˆ 
+	EndColRange_Notify();
+	EndAttackRange_Notify();
+	ComboComponent->ResetComboInfo();
+
+	EndDodgeSkip_Notify();
+
 }
 
 void ADK_Creature::ResetInfoOnHitBlock()
 {
+	EndColRange_Notify();
+	EndAttackRange_Notify();
+	ComboComponent->ResetComboInfo();
+
+	EndDodgeSkip_Notify();
+
 	StopSmoothTurn();
 }

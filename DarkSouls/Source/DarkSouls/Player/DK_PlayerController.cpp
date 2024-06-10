@@ -3,8 +3,8 @@
 
 #include "Player/DK_PlayerController.h"
 
-#include "UI/DK_HUDWidget.h"
-
+#include "Game/DK_GameMode.h"
+#include "Manager/DK_UIManager.h"
 
 ADK_PlayerController::ADK_PlayerController()
 {
@@ -15,17 +15,8 @@ void ADK_PlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	HUDWidget = CreateWidget<UDK_HUDWidget>(this, HUDWidgetClass);
-	if (HUDWidget)
-	{
-		HUDWidget->AddToViewport();
-	}
+	ADK_GameMode* GameMode = Cast<ADK_GameMode>(GetWorld()->GetAuthGameMode());
+	GameMode->GetUIManager()->MakeHUD(this);
 
 }
 
-void ADK_PlayerController::PostInitializeComponents()
-{
-	Super::PostInitializeComponents();
-
-
-}
