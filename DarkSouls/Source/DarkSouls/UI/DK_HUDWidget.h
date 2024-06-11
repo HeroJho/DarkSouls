@@ -45,9 +45,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = BossHpBar)
 	TSubclassOf<class UDK_SmoothBarWidget> BossHpBarWidgetClass;
 	UPROPERTY(EditAnywhere, Category = BossHpBar)
-	int32 MaxBossHpBarCnt = 0;
+	int32 MaxBossHpBarCnt = 4;
 
 	TObjectPtr<class UVerticalBox> BossHpList;
-	
+	FVector2D BossHpListInitPos;
 
 };

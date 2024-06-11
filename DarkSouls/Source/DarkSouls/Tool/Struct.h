@@ -5,6 +5,7 @@
 struct FAttackDamagedInfo
 {
 	float Damage;
+	int32 GPValue;
 
 	bool bIsDown;
 

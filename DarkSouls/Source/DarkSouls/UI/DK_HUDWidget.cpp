@@ -24,6 +24,9 @@ void UDK_HUDWidget::NativeConstruct()
 	
 	BossHpList = Cast<UVerticalBox>(GetWidgetFromName(TEXT("BossHpList")));
 
+	UCanvasPanelSlot* Canvas = Cast<UCanvasPanelSlot>(BossHpList->Slot);
+	BossHpListInitPos = Canvas->GetPosition();
+	
 }
 
 void UDK_HUDWidget::UpdateHpBar(uint32 IN_Cur, uint32 IN_Max)
@@ -70,6 +73,17 @@ bool UDK_HUDWidget::MakeBossHpBar(UDK_SmoothBarWidget** OUT_BossHpBar, FText Bos
 	BossHpList->AddChildToVerticalBox(BossHpBarWidget);
 	BossHpBarWidget->SetBossName(BossName);
 
+
+	// 3개 이상이면 변화 x
+	if (BossHpList->GetChildrenCount() <= 3)
+	{
+		UCanvasPanelSlot* Canvas = Cast<UCanvasPanelSlot>(BossHpList->Slot);
+		FVector2D CurPos = Canvas->GetPosition();
+		CurPos.Y -= 40;
+		Canvas->SetPosition(CurPos);
+	}
+	
+
 	*OUT_BossHpBar = BossHpBarWidget;
 
 	return true;
@@ -78,4 +92,17 @@ bool UDK_HUDWidget::MakeBossHpBar(UDK_SmoothBarWidget** OUT_BossHpBar, FText Bos
 void UDK_HUDWidget::RemoveBossHpBar(UDK_SmoothBarWidget* BossHpBar)
 {
 	BossHpList->RemoveChild(BossHpBar);
+
+	UCanvasPanelSlot* Canvas = Cast<UCanvasPanelSlot>(BossHpList->Slot);
+
+	if (BossHpList->GetChildrenCount() == 0)
+	{
+		Canvas->SetPosition(BossHpListInitPos);
+	}
+	else if (BossHpList->GetChildrenCount() < 3)
+	{
+		FVector2D CurPos = Canvas->GetPosition();
+		CurPos.Y += 40;
+		Canvas->SetPosition(CurPos);
+	}
 }

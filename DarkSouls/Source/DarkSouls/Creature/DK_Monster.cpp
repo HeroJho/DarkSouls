@@ -5,6 +5,7 @@
 #include "Components/ArrowComponent.h"
 
 #include "Component/Stat/DK_MonsterStatComponent.h"
+#include "UI/DK_WidgetComponent.h"
 
 
 
@@ -22,13 +23,49 @@ void ADK_Monster::BeginPlay()
 	Super::BeginPlay();
 
 
+	MonsterStatComponent->AddMaxGPDelegateFunc(this, FName("StartGroggy"));
+	MonsterStatComponent->AddChangeHPDelegateFunc(WidgetComponent->GetWidget(), FName("UpdateBar"));
+	OnOffScreenHPBar(true);
+	OnOffHUDHPBar(true);
+
+	MonsterStatComponent->ResetStat(RecoveryGPPerSec);
 }
 
 void ADK_Monster::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 
+}
 
+void ADK_Monster::StartGroggy()
+{
+	KnockDown(5.f);
+}
+
+void ADK_Monster::DamagedByGPAttacked(int32 GPValue)
+{
+	MonsterStatComponent->IncreaseGP(GPValue);
+}
+
+
+void ADK_Monster::BeBlockedPerfectly(int32 GPValue)
+{
+	Super::BeBlockedPerfectly(GPValue);
+
+	MonsterStatComponent->IncreaseGP(GPValue);
+
+}
+
+bool ADK_Monster::CanKnockDown()
+{
+	if (!Super::CanKnockDown())
+		return false;
+
+	if (bIsKnockDown)
+		return false;
+
+
+	return true;
 }
 
 

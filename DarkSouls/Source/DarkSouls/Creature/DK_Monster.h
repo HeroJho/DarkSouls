@@ -23,10 +23,33 @@ protected:
 
 	virtual void PostInitializeComponents() override;
 
+	// Common Section
+protected:
+	UFUNCTION()
+	void StartGroggy();
+	
+	virtual void DamagedByGPAttacked(int32 GPValue) override;
+
+
+
 	// Stat Section
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
 	TObjectPtr<class UDK_MonsterStatComponent> MonsterStatComponent;
+
+	UPROPERTY(EditAnywhere, Category = Stat)
+	int32 RecoveryGPPerSec = 1.f;
+
+
+	// Block Section
+public:
+	virtual void BeBlockedPerfectly(int32 GPValue) override;
+
+
+	
+	// Condition Section
+protected:
+	virtual bool CanKnockDown() override;
 
 
 };

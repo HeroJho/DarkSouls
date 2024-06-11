@@ -75,9 +75,9 @@ void ADK_Creature::BeginPlay()
 {
 	Super::BeginPlay();
 
+	OnOffHUDHPBar(false);
+	OnOffScreenHPBar(false);
 
-	StatComponent->AddChangeHPDelegateFunc(WidgetComponent->GetWidget(), FName("UpdateBar"));
-	StatComponent->ResetStat();
 }
 
 // Called every frame
@@ -108,7 +108,6 @@ void ADK_Creature::AddImpulse(FVector Dir, float Powar)
 
 
 
-
 void ADK_Creature::OnOffScreenHPBar(bool bIsOn)
 {
 	WidgetComponent->SetHiddenInGame(!bIsOn);
@@ -118,6 +117,8 @@ void ADK_Creature::OnOffHUDHPBar(bool bIsOn)
 {
 	ADK_GameMode* GameMode = Cast<ADK_GameMode>(GetWorld()->GetAuthGameMode());
 	UDK_HUDWidget* HUDWidget = GameMode->GetUIManager()->GetHUD();
+	if (HUDWidget == nullptr)
+		return;
 
 	if (bIsOn)
 	{
@@ -196,32 +197,25 @@ FAttackDamagedInfo ADK_Creature::GetCurrentAttackInfos()
 
 
 
-//float ADK_Creature::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
-//{
-//	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-//
-//	OnDamaged();
-//
-//	return 0.0f;
-//}
+
 
 void ADK_Creature::OnDamaged(const FAttackDamagedInfo& AttackDamagedInfo, AActor* DamageCauser)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Blue, FString::Printf(TEXT("%s is Attacked"), *GetName()));
 
+	// 대미지 입을 수 있는 상태 여부
 	if (!CanDamaged())
 		return;
 
-	// 회피에 성공
+	// 회피 여부
 	if (bCanDodgeSkip)
 	{
 		PerfectDodge();
 		return;
 	}
 
-
-	FVector CauserPos = DamageCauser->GetActorLocation();
 	// 가드 여부
+	FVector CauserPos = DamageCauser->GetActorLocation();
 	if (CheckBlock(CauserPos))
 	{
 		BlockAttack(DamageCauser, AttackDamagedInfo.BlockPushPowar);
@@ -230,13 +224,20 @@ void ADK_Creature::OnDamaged(const FAttackDamagedInfo& AttackDamagedInfo, AActor
 	}
 
 
+
+
+	// ================ 대미지를 입는다 =========================
+
+
 	// 스턴 여부
 	FVector TargetToMeDir = GetActorLocation() - CauserPos;
 	TargetToMeDir.Normalize();
 
 	if (!AttackDamagedInfo.bIsDown)
 	{
-		Stun(AttackDamagedInfo.StunTime, AttackDamagedInfo.bSetStunTimeToHitAnim);
+		if(!FMath::IsNearlyEqual(AttackDamagedInfo.StunTime, 0.f, 0.1f))
+			Stun(AttackDamagedInfo.StunTime, AttackDamagedInfo.bSetStunTimeToHitAnim);
+		
 		AddImpulse(TargetToMeDir, AttackDamagedInfo.HitPushPowar);
 	}
 	else
@@ -247,10 +248,17 @@ void ADK_Creature::OnDamaged(const FAttackDamagedInfo& AttackDamagedInfo, AActor
 		SmoothTurnByCallOnce(CauserPos, 10.f);
 	}
 
+	// GP 여부
+	DamagedByGPAttacked(AttackDamagedInfo.GPValue);
 
 	// 스탯
 	StatComponent->DecreaseHP(AttackDamagedInfo.Damage);
 
+}
+
+void ADK_Creature::DamagedByGPAttacked(int32 GPValue)
+{
+	// 가상 함수
 }
 
 
@@ -515,6 +523,11 @@ void ADK_Creature::EndHitBlock()
 
 }
 
+void ADK_Creature::BeBlockedPerfectly(int32 GPValue)
+{
+
+}
+
 
 
 
@@ -678,4 +691,18 @@ void ADK_Creature::ResetInfoOnHitBlock()
 	EndDodgeSkip_Notify();
 
 	StopSmoothTurn();
+}
+
+
+
+
+
+
+void ADK_Creature::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	OnOffHUDHPBar(false);
+
+
 }

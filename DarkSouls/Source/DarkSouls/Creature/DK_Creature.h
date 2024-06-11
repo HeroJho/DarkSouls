@@ -34,6 +34,10 @@ public:
 	FORCEINLINE float GetBlockSpeed() { return BlockSpeed; }
 
 protected:
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
+
+protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = State)
 	float NormalSpeed = 500.f;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = State)
@@ -43,12 +47,9 @@ protected:
 
 
 
-
 	// UI
 public:
 	void OnOffScreenHPBar(bool bIsOn);
-
-	UFUNCTION(BlueprintCallable)
 	void OnOffHUDHPBar(bool bIsOn);
 
 protected:
@@ -107,9 +108,10 @@ protected:
 
 	// Collsion
 public:
-	/*virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser);*/
-
 	virtual void OnDamaged(const FAttackDamagedInfo& AttackDamagedInfo, AActor* DamageCauser);
+
+protected:
+	virtual void DamagedByGPAttacked(int32 GPValue);
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Collision)
@@ -122,12 +124,13 @@ protected:
 
 	// Stun
 public:
-	FORCEINLINE bool IsStun() { return bIsStun; }
 	virtual void Stun(float StunTime, bool bSetAnimTime = false);
+	FORCEINLINE bool IsStun() { return bIsStun; }
+	
 
+	virtual void KnockDown(float KnockDownTime);
 	FORCEINLINE bool IsKnockDown() { return bIsKnockDown; }
 	FORCEINLINE bool IsPlayEndKnockDown() { return bIsPlayEndKnockDown; }
-	virtual void KnockDown(float KnockDownTime);
 	void EndKnockDown_Notify();
 	
 protected:
@@ -209,6 +212,10 @@ public:
 
 	void HitBlock();
 	void EndHitBlock();
+
+	// 퍼펙트 가드 당했을 때 호출되는 함수
+	virtual void BeBlockedPerfectly(int32 GPValue);
+
 
 protected:
 	virtual void BlockAttack(AActor* Attacker, float PushBackPowar);

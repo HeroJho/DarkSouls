@@ -4,6 +4,7 @@
 #include "Component/Stat/DK_StatComponent.h"
 
 #include "Tool/Define.h"
+#include "StatData/DK_StatDataAsset.h"
 
 // Sets default values for this component's properties
 UDK_StatComponent::UDK_StatComponent()
@@ -30,8 +31,8 @@ void UDK_StatComponent::BeginPlay()
 
 void UDK_StatComponent::ResetStat()
 {
+	MaxHP = StatData->MaxHP;
 	IncreaseHP(MaxHP);
-
 }
 
 void UDK_StatComponent::BroadcastStat()

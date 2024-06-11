@@ -40,14 +40,14 @@ public:
 	void DecreaseHP(int32 Value);
 
 
-
 protected:
+	UPROPERTY(EditAnywhere, Category = StatData)
+	TObjectPtr<class UDK_StatDataAsset> StatData;
+
 	FOnChangeDelegate Delegate_ChangeHP;
 	FOnZeroDelegate Delegate_ZeroHP;
 
-
-	int32 MaxHP = 400;
+	int32 MaxHP = 100;
 	int32 CurHP = 0;
-
 
 };

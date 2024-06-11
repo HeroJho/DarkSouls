@@ -3,6 +3,8 @@
 
 #include "Component/Stat/DK_PlayerStatComponent.h"
 
+#include "StatData/DK_PlayerStatDataAsset.h"
+
 UDK_PlayerStatComponent::UDK_PlayerStatComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
@@ -31,15 +33,20 @@ void UDK_PlayerStatComponent::ResetStat(int32 RecoverySPSpeed, int32 DecoveryTPS
 
 	SetRecoverySPPerSecSpeed(RecoverySPSpeed);
 	SetDecreaseTPPerSecSpeed(DecoveryTPSpeed);
-	
-	IncreaseSP(MaxSP);
+
 	bIsRecoveringSP = true;
+
+	UDK_PlayerStatDataAsset* PlayerStatData = Cast<UDK_PlayerStatDataAsset>(StatData);
+
+	MaxSP = PlayerStatData->MaxSP;
+	MaxTP = PlayerStatData->MaxTP;
+
+	IncreaseSP(MaxSP);
+	DecreaseTP(0);
 
 	// UI 크기 바꾸는 델리게이트 실행
 	ChangeMaxHP(MaxHP); 
 	ChangeMaxSP(MaxSP);
-
-	DecreaseTP(0);
 }
 
 void UDK_PlayerStatComponent::BroadcastStat()

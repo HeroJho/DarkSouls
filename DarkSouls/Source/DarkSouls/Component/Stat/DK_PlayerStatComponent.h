@@ -107,7 +107,7 @@ protected:
 	FOnChangeDelegate Delegate_ChangeTP;
 	FOnZeroDelegate Delegate_ReleaseTP;
 
-	int32 MaxTP = 400;
+	int32 MaxTP = 0;
 	int32 CurTP = 0;
 
 	int32 CurDecoveryTPPerSec = 0;

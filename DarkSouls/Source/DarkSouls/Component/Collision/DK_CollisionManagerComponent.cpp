@@ -83,6 +83,9 @@ void UDK_CollisionManagerComponent::TurnAttackCol(const TArray<FString>& Capsule
 
 	for (int32 i = 0; i < CapsuleNames.Num(); ++i)
 	{
+		if (!Capsules[CapsuleNames[i]].IsValid())
+			continue;
+
 		Capsules[CapsuleNames[i]]->SetCollisionProfileName(COL_ATTACK);
 		// Capsules[CapsuleNames[i]]->bHiddenInGame = false;
 
@@ -96,7 +99,11 @@ void UDK_CollisionManagerComponent::TurnBlockCol(const TArray<FString>& CapsuleN
 {
 	for (int32 i = 0; i < CapsuleNames.Num(); ++i)
 	{
+		
 		if (Capsules[CapsuleNames[i]]->ComponentHasTag(TEXT("NoBlock")))
+			continue;
+
+		if (!Capsules[CapsuleNames[i]].IsValid())
 			continue;
 
 		Capsules[CapsuleNames[i]]->SetCollisionProfileName(COL_BLOCK);
@@ -108,6 +115,9 @@ void UDK_CollisionManagerComponent::TurnBlockAllCol()
 {
 	for (auto Iter : Capsules)
 	{
+		if (!Iter.Value.IsValid())
+			continue;
+
 		if (Iter.Value->ComponentHasTag(TEXT("NoBlock")))
 			continue;
 
@@ -118,9 +128,9 @@ void UDK_CollisionManagerComponent::TurnBlockAllCol()
 
 bool UDK_CollisionManagerComponent::CheckIsAttackCol(FString Name)
 {
-	TObjectPtr<UCapsuleComponent>* Capsule = Capsules.Find(Name);
+	TWeakObjectPtr<UCapsuleComponent>* Capsule = Capsules.Find(Name);
 	
-	if (Capsule)
+	if (Capsule != nullptr && (*Capsule).IsValid())
 	{
 		if ((*Capsule)->GetCollisionProfileName() == COL_ATTACK)
 		{

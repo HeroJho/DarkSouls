@@ -3,28 +3,24 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Engine/DataAsset.h"
-#include "DK_StatDataAsset.generated.h"
+#include "Component/Stat/StatData/DK_StatDataAsset.h"
+#include "DK_PlayerStatDataAsset.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class DARKSOULS_API UDK_StatDataAsset : public UPrimaryDataAsset
+class DARKSOULS_API UDK_PlayerStatDataAsset : public UDK_StatDataAsset
 {
 	GENERATED_BODY()
-	
-public:
-	UDK_StatDataAsset();
-
 
 public:
-	UPROPERTY(EditAnywhere, Category = Stat)
-	float MaxHP;
-	UPROPERTY(EditAnywhere, Category = Stat)
-	float MaxSP;
-	UPROPERTY(EditAnywhere, Category = Stat)
-	float MaxEY;
+	UDK_PlayerStatDataAsset();
 
+public:
+	UPROPERTY(EditAnywhere, Category = Stat)
+	int32 MaxSP;
+	UPROPERTY(EditAnywhere, Category = Stat)
+	int32 MaxTP;
 
 };

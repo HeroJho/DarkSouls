@@ -20,6 +20,8 @@ public:
 	UPROPERTY(EditAnywhere, Category = Attack)
 	float Damage;
 	UPROPERTY(EditAnywhere, Category = Attack)
+	int32 GPValue;
+	UPROPERTY(EditAnywhere, Category = Attack)
 	uint8 bIsDown : 1;
 	UPROPERTY(EditAnywhere, Category = Attack)
 	uint8 bSetStunTimeToHitAnim : 1;

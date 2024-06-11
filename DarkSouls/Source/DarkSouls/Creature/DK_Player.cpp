@@ -20,6 +20,7 @@
 #include "Manager/DK_UIManager.h"
 #include "UI/DK_SmoothBarWidget.h"
 #include "Component/Stat/DK_PlayerStatComponent.h"
+#include "Component/Combo/DK_ComboComponent.h"
 
 
 
@@ -282,6 +283,8 @@ void ADK_Player::EndChargeAttack(const FInputActionValue& Value)
 
 void ADK_Player::SmallAttack()
 {
+	ComboComponent->ChangeComboActionData(0);
+
 	bIsAttacking = true;
 
 	PlayAnimMontage(SmallAttackAnim);
@@ -294,6 +297,8 @@ void ADK_Player::SmallAttack()
 
 void ADK_Player::PowarAttack()
 {
+	ComboComponent->ChangeComboActionData(1);
+
 	bIsAttacking = true;
 
 	PlayAnimMontage(PowarAttackAnim);
@@ -539,8 +544,9 @@ void ADK_Player::BlockAttack(AActor* Attacker, float PushBackPowar)
 		ADK_Creature* AttackerCreature = Cast<ADK_Creature>(Attacker);
 		if (AttackerCreature)
 		{
-			// TODO : Àû ±×·Î±â ¼öÄ¡ ½×±â, ½ºÅ×¹Ì³ª ´ú ±ð±â
-			AttackerCreature->Stun(0.f, true);
+			// TODO
+			const int32 BlockGPValue = 200;
+			AttackerCreature->BeBlockedPerfectly(BlockGPValue);
 		}
 
 	}

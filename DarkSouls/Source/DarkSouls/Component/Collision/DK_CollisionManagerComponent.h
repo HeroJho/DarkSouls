@@ -47,8 +47,8 @@ protected:
 
 
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	TMap<FString, TObjectPtr<class UCapsuleComponent>> Capsules;
+	UPROPERTY(VisibleAnywhere)
+	TMap<FString, TWeakObjectPtr<class UCapsuleComponent>> Capsules;
 
 	UPROPERTY()
 	TObjectPtr<class ADK_Creature> CreatureOwner;

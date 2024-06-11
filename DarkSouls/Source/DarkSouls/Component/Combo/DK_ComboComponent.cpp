@@ -181,6 +181,7 @@ FAttackDamagedInfo UDK_ComboComponent::GetCurrentAttackInfos()
 	FAttackDamagedInfo Result;
 
 	Result.Damage = AttackInfo.Damage;
+	Result.GPValue = AttackInfo.GPValue;
 	Result.bIsDown = AttackInfo.bIsDown;
 	Result.bSetStunTimeToHitAnim = AttackInfo.bSetStunTimeToHitAnim;
 	Result.StunTime = AttackInfo.StunTime;
