@@ -56,6 +56,11 @@ void ADK_Monster::BeBlockedPerfectly(int32 GPValue)
 
 }
 
+bool ADK_Monster::CanDamaged()
+{
+	return true;
+}
+
 bool ADK_Monster::CanKnockDown()
 {
 	if (!Super::CanKnockDown())
