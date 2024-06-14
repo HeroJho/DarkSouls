@@ -49,7 +49,8 @@ public:
 	
 	// Condition Section
 protected:
+	virtual bool CanDamaged() override;
 	virtual bool CanKnockDown() override;
-
+	
 
 };

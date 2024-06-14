@@ -510,7 +510,7 @@ void ADK_Creature::HitBlock()
 
 		PlayAnimMontage(BlockHitMontage, 1.f);
 	}
-
+	
 	GetWorldTimerManager().ClearTimer(HitBlockTimerHandle);
 	GetWorldTimerManager().SetTimer(HitBlockTimerHandle, this, &ADK_Creature::EndHitBlock, HitDelayTime, false);
 
@@ -608,7 +608,7 @@ bool ADK_Creature::CanDamaged()
 {
 	if (bIsKnockDown)
 		return false;
-
+	
 	return true;
 }
 
