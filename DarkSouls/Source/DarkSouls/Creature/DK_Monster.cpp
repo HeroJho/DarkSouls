@@ -63,11 +63,11 @@ bool ADK_Monster::CanDamaged()
 
 bool ADK_Monster::CanKnockDown()
 {
-	if (!Super::CanKnockDown())
-		return false;
+	//if (!Super::CanKnockDown())
+	//	return false;
 
-	if (bIsKnockDown)
-		return false;
+	//if (bIsKnockDown)
+	//	return false;
 
 
 	return true;

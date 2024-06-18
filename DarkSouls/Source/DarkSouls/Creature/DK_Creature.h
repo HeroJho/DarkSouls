@@ -33,6 +33,9 @@ public:
 
 	FORCEINLINE float GetBlockSpeed() { return BlockSpeed; }
 
+	FORCEINLINE class UPlayMontageCallbackProxy* GetMontageCallbackProxy() { return PlayMontageCallbackProxy; }
+	void SetMontageCallbackProxyWithIntrrupted(class UPlayMontageCallbackProxy* Proxy);
+
 protected:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
@@ -44,7 +47,8 @@ protected:
 	float BlockSpeed = 150.f;
 
 
-
+	UPROPERTY()
+	TObjectPtr<class UPlayMontageCallbackProxy> PlayMontageCallbackProxy;
 
 
 	// UI
@@ -92,6 +96,10 @@ public:
 	void EndColRange_Notify();
 
 	FAttackDamagedInfo GetCurrentAttackInfos();
+
+
+	UFUNCTION()
+	void InterruptedAttack(FName NotifyName);
 
 
 protected:
@@ -183,9 +191,11 @@ public:
 	virtual void BeginDodgeSkip_Notify();
 	virtual void EndDodgeSkip_Notify();
 
+	UFUNCTION()
+	void EndDoge(FName NotifyName);
+
 protected:
 	virtual void Dodge();
-	void EndDoge(UAnimMontage* TargetMontage, bool IsProperlyEnded);
 
 	virtual void PerfectDodge();
 

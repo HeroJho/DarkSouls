@@ -10,7 +10,7 @@ public class DarkSouls : ModuleRules
 
 		PublicIncludePaths.AddRange(new string[] { "DarkSouls" });
 
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "AnimGraphRuntime" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 

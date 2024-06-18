@@ -287,7 +287,12 @@ void ADK_Player::SmallAttack()
 
 	bIsAttacking = true;
 
-	PlayAnimMontage(SmallAttackAnim);
+	if (IsValid(PlayMontageCallbackProxy))
+		PlayMontageCallbackProxy->OnInterrupted.Broadcast(NAME_None);
+	PlayMontageCallbackProxy = UPlayMontageCallbackProxy::CreateProxyObjectForPlayMontage(GetMesh(), SmallAttackAnim, 1.f, 0.f);
+	PlayMontageCallbackProxy->OnCompleted.AddDynamic(this, &ADK_Player::StopAttack);
+	PlayMontageCallbackProxy->OnInterrupted.AddDynamic(this, &ADK_Player::StopAttack);
+
 
 	ResetChargeAttack();
 
@@ -301,7 +306,12 @@ void ADK_Player::PowarAttack()
 
 	bIsAttacking = true;
 
-	PlayAnimMontage(PowarAttackAnim);
+	if (IsValid(PlayMontageCallbackProxy))
+		PlayMontageCallbackProxy->OnInterrupted.Broadcast(NAME_None);
+	PlayMontageCallbackProxy = UPlayMontageCallbackProxy::CreateProxyObjectForPlayMontage(GetMesh(), PowarAttackAnim, 1.f, 0.f);
+	PlayMontageCallbackProxy->OnCompleted.AddDynamic(this, &ADK_Player::StopAttack);
+	PlayMontageCallbackProxy->OnInterrupted.AddDynamic(this, &ADK_Player::StopAttack);
+
 
 	ResetChargeAttack();
 
@@ -313,6 +323,12 @@ void ADK_Player::ResetChargeAttack()
 {
 	ChargePowarTimeAcc = 0.f;
 	bIsCharging = false;
+}
+
+void ADK_Player::StopAttack(FName NotifyName)
+{
+	CheckAttack_Notify();
+	ResetChargeAttack();
 }
 
 

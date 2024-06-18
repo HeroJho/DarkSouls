@@ -118,6 +118,8 @@ protected:
 	void PowarAttack();
 	void ResetChargeAttack();
 
+	void StopAttack(FName NotifyName);
+
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Attack, Meta = (AllowPrivateAccess = "true"))

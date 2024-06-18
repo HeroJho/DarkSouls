@@ -5,6 +5,7 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "PlayMontageCallbackProxy.h"
 
 #include "Tool/Define.h"
 #include "Tool/Struct.h"
@@ -187,7 +188,6 @@ void ADK_Creature::EndColRange_Notify()
 {
 	CollisionManagerComponent->TurnBlockAllCol();
 
-	// Dodge 무효 델리게이트 호출
 }
 
 FAttackDamagedInfo ADK_Creature::GetCurrentAttackInfos()
@@ -195,8 +195,11 @@ FAttackDamagedInfo ADK_Creature::GetCurrentAttackInfos()
 	return ComboComponent->GetCurrentAttackInfos();
 }
 
-
-
+void ADK_Creature::InterruptedAttack(FName NotifyName)
+{
+	EndAttackRange_Notify();
+	EndColRange_Notify();
+}
 
 
 void ADK_Creature::OnDamaged(const FAttackDamagedInfo& AttackDamagedInfo, AActor* DamageCauser)
@@ -235,7 +238,7 @@ void ADK_Creature::OnDamaged(const FAttackDamagedInfo& AttackDamagedInfo, AActor
 
 	if (!AttackDamagedInfo.bIsDown)
 	{
-		if(!FMath::IsNearlyEqual(AttackDamagedInfo.StunTime, 0.f, 0.1f))
+		if(AttackDamagedInfo.bSetStunTimeToHitAnim || !FMath::IsNearlyEqual(AttackDamagedInfo.StunTime, 0.f, 0.1f))
 			Stun(AttackDamagedInfo.StunTime, AttackDamagedInfo.bSetStunTimeToHitAnim);
 		
 		AddImpulse(TargetToMeDir, AttackDamagedInfo.HitPushPowar);
@@ -317,7 +320,6 @@ void ADK_Creature::KnockDown(float KnockDownTime)
 
 	bIsKnockDown = true;
 
-	// TODO : 일어서는 모션 시간을 하드코딩으로 했음, 시간되면 
 	GetWorldTimerManager().ClearTimer(KnockDownTimerHandle);
 	GetWorldTimerManager().SetTimer(KnockDownTimerHandle, this, &ADK_Creature::EndKnockDown, KnockDownTime, false);
 
@@ -404,19 +406,21 @@ void ADK_Creature::Dodge()
 
 	bIsDodge = true;
 
-	PlayAnimMontage(DodgeMontage);
+	if (IsValid(PlayMontageCallbackProxy))
+		PlayMontageCallbackProxy->OnInterrupted.Broadcast(NAME_None);
 
-	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	FOnMontageEnded EndDelegate;
-	EndDelegate.BindUObject(this, &ADK_Creature::EndDoge);
-	AnimInstance->Montage_SetEndDelegate(EndDelegate, DodgeMontage);
+	PlayMontageCallbackProxy = UPlayMontageCallbackProxy::CreateProxyObjectForPlayMontage(
+		GetMesh(), DodgeMontage, 1.f, 0.f);
+
+	PlayMontageCallbackProxy->OnCompleted.AddDynamic(this, &ADK_Creature::EndDoge);
+	PlayMontageCallbackProxy->OnInterrupted.AddDynamic(this, &ADK_Creature::EndDoge);
+
 }
 
-void ADK_Creature::EndDoge(UAnimMontage* TargetMontage, bool IsProperlyEnded)
+void ADK_Creature::EndDoge(FName NotifyName)
 {
 	bIsDodge = false;
-
-
+	EndDodgeSkip_Notify();
 }
 
 void ADK_Creature::BeginDodgeSkip_Notify()
@@ -432,6 +436,7 @@ void ADK_Creature::EndDodgeSkip_Notify()
 void ADK_Creature::PerfectDodge()
 {
 }
+
 
 
 
@@ -635,17 +640,17 @@ void ADK_Creature::ResetInfoOnAttack()
 {
 	EndBlock();
 	
-	EndDodgeSkip_Notify();
+	//EndDodgeSkip_Notify();
 
 }
 
 void ADK_Creature::ResetInfoOnStun()
 {
-	EndColRange_Notify(); // 공격 콜라이더
-	EndAttackRange_Notify(); // 공격 애니메이션 범위
-	ComboComponent->ResetComboInfo(); // 콤보
+	//EndColRange_Notify(); // 공격 콜라이더
+	//EndAttackRange_Notify(); // 공격 애니메이션 범위
+	// ComboComponent->ResetComboInfo(); // 콤보
 
-	EndDodgeSkip_Notify(); // 무적시간 (혹시모르니)
+	//EndDodgeSkip_Notify(); // 무적시간 (혹시 모르니)
 
 	StopSmoothTurn();
 
@@ -663,9 +668,9 @@ void ADK_Creature::ResetInfoOnKnockDown()
 void ADK_Creature::ResetInfoOnDodge()
 {
 	// 공격 중에는 블락을 할 수 없지만, 혹시 모르니 
-	EndColRange_Notify();
-	EndAttackRange_Notify();
-	ComboComponent->ResetComboInfo();
+	//EndColRange_Notify();
+	//EndAttackRange_Notify();
+	//ComboComponent->ResetComboInfo();
 
 	EndBlock();
 
@@ -674,9 +679,9 @@ void ADK_Creature::ResetInfoOnDodge()
 void ADK_Creature::ResetInfoOnBlock()
 {
 	// 공격 중에는 회피를 할 수 없지만, 혹시 모르니 
-	EndColRange_Notify();
-	EndAttackRange_Notify();
-	ComboComponent->ResetComboInfo();
+	//EndColRange_Notify();
+	//EndAttackRange_Notify();
+	//ComboComponent->ResetComboInfo();
 
 	EndDodgeSkip_Notify();
 
@@ -684,11 +689,11 @@ void ADK_Creature::ResetInfoOnBlock()
 
 void ADK_Creature::ResetInfoOnHitBlock()
 {
-	EndColRange_Notify();
-	EndAttackRange_Notify();
-	ComboComponent->ResetComboInfo();
+	//EndColRange_Notify();
+	//EndAttackRange_Notify();
+	//ComboComponent->ResetComboInfo();
 
-	EndDodgeSkip_Notify();
+	//EndDodgeSkip_Notify();
 
 	StopSmoothTurn();
 }
@@ -697,6 +702,14 @@ void ADK_Creature::ResetInfoOnHitBlock()
 
 
 
+
+void ADK_Creature::SetMontageCallbackProxyWithIntrrupted(UPlayMontageCallbackProxy* Proxy)
+{
+	if (IsValid(PlayMontageCallbackProxy))
+		PlayMontageCallbackProxy->OnInterrupted.Broadcast(NAME_None);
+
+	PlayMontageCallbackProxy = Proxy;
+}
 
 void ADK_Creature::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {

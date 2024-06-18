@@ -37,10 +37,15 @@ public:
 
 protected:	
 	void ComboActionBegin();
-	void ComboActionEnd(class UAnimMontage* TargetMontage, bool IsProperlyEnded);
 	
-	void UnBindEndDelegate();
-	void BindEndDelegate();
+	void BindEventFunc();
+	
+	UFUNCTION()
+	void ComboActionInterrupted(FName NotifyName);
+	UFUNCTION()
+	void ComboActionEnd(FName NotifyName);
+
+
 
 protected:
 	UPROPERTY()
@@ -54,9 +59,7 @@ protected:
 	
 	int32 CurrentCombo = 0;
 	bool bHasNextComboCommand = false;
-	bool bIsCallEnd = false;
 
 	int8 ReserveComboActionDataIndex = -1;
 
-		
 };

@@ -4,9 +4,12 @@
 #include "Component/Combo/DK_ComboComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Animation/AnimMontage.h"
+#include "PlayMontageCallbackProxy.h"
 
 #include "Creature/DK_Creature.h"
 #include "Component/Combo/DK_ComboActionData.h"
+
+
 
 // Sets default values for this component's properties
 UDK_ComboComponent::UDK_ComboComponent()
@@ -56,38 +59,76 @@ void UDK_ComboComponent::ComboActionBegin()
 	// Combo Status
 	CurrentCombo = 1;
 	bHasNextComboCommand = false;
-	bIsCallEnd = true;
 
-	// Movement Setting
-	// Owner->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
-	// Animation Setting
-	// AnimInstance->Montage_Play(ComboActionDatas[CurComboActionDataIndex]->ComboActionMontage, AttackSpeedRate);
+	UDK_ComboActionData* CurData = ComboActionDatas[CurComboActionDataIndex];
+	FName NextSection = *FString::Printf(TEXT("%s%d"), *CurData->MontageSectionNamePrefix, CurrentCombo);
 
-	UnBindEndDelegate();
 
-	Owner->PlayAnimMontage(ComboActionDatas[CurComboActionDataIndex]->ComboActionMontage);
+	Owner->SetMontageCallbackProxyWithIntrrupted(UPlayMontageCallbackProxy::CreateProxyObjectForPlayMontage(
+		Owner->GetMesh(), CurData->ComboActionMontage, 1.f, 0.f, NextSection));
+	
+	BindEventFunc();
+}
 
-	BindEndDelegate();
+void UDK_ComboComponent::ComboCheck()
+{
+	if (bHasNextComboCommand)
+	{
+		bHasNextComboCommand = false;
+
+		UDK_ComboActionData* CurData = ComboActionDatas[CurComboActionDataIndex];
+
+		CurrentCombo = FMath::Clamp(CurrentCombo + 1, 1, CurData->MaxComboCount);
+		FName NextSection = *FString::Printf(TEXT("%s%d"), *CurData->MontageSectionNamePrefix, CurrentCombo);
+
+
+		Owner->SetMontageCallbackProxyWithIntrrupted(UPlayMontageCallbackProxy::CreateProxyObjectForPlayMontage(
+			Owner->GetMesh(), CurData->ComboActionMontage, 1.f, 0.f, NextSection));
+
+		BindEventFunc();
+	}
+
 
 }
 
-void UDK_ComboComponent::ComboActionEnd(UAnimMontage* TargetMontage, bool IsProperlyEnded)
-{
 
-	// 스킵해야하는 상황 (마지막 콤보가 아니고, 키입력을 받았을 때)
-	uint8 MaxCount = ComboActionDatas[CurComboActionDataIndex]->MaxComboCount;
-	if (CurrentCombo != MaxCount && !bIsCallEnd)
+void UDK_ComboComponent::BindEventFunc()
+{
+	UPlayMontageCallbackProxy* Proxy = Owner->GetMontageCallbackProxy();
+
+	Proxy->OnCompleted.AddDynamic(this, &UDK_ComboComponent::ComboActionEnd);
+	Proxy->OnInterrupted.AddDynamic(this, &UDK_ComboComponent::ComboActionInterrupted);
+	Proxy->OnInterrupted.AddDynamic(Owner, &ADK_Creature::InterruptedAttack);
+
+}
+
+void UDK_ComboComponent::ComboActionInterrupted(FName NotifyName)
+{
+	UAnimInstance* AnimInstance = Owner->GetMesh()->GetAnimInstance();
+	UAnimMontage* PlayMontage = AnimInstance->GetCurrentActiveMontage();
+
+	UDK_ComboActionData* CurData = ComboActionDatas[CurComboActionDataIndex];
+	
+	// 다른 몽타주로 Interrupte 됐다면 스탑
+	if (PlayMontage != CurData->ComboActionMontage)
 	{
-		return;
+		CurrentCombo = 0;
+		bHasNextComboCommand = false;
+
+		if (ReserveComboActionDataIndex != -1)
+		{
+			CurComboActionDataIndex = ReserveComboActionDataIndex;
+			ReserveComboActionDataIndex = -1;
+		}
+
 	}
 
-	ensure(CurrentCombo != 0);
+}
 
+void UDK_ComboComponent::ComboActionEnd(FName NotifyName)
+{
 	CurrentCombo = 0;
 	bHasNextComboCommand = false;
-	bIsCallEnd = true;
-
-	// Owner->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 
 	if (ReserveComboActionDataIndex != -1)
 	{
@@ -95,61 +136,14 @@ void UDK_ComboComponent::ComboActionEnd(UAnimMontage* TargetMontage, bool IsProp
 		ReserveComboActionDataIndex = -1;
 	}
 
-	
 }
 
-void UDK_ComboComponent::BindEndDelegate()
-{
-	UAnimInstance* AnimInstance = Owner->GetMesh()->GetAnimInstance();
-	FOnMontageEnded EndDelegate;
-	EndDelegate.BindUObject(this, &UDK_ComboComponent::ComboActionEnd);
-	AnimInstance->Montage_SetEndDelegate(EndDelegate, ComboActionDatas[CurComboActionDataIndex]->ComboActionMontage);
-}
 
-void UDK_ComboComponent::UnBindEndDelegate()
-{
-	UAnimInstance* AnimInstance = Owner->GetMesh()->GetAnimInstance(); 
-	FOnMontageEnded* PreEndDelegate = AnimInstance->Montage_GetEndedDelegate();
-	if (PreEndDelegate)
-		PreEndDelegate->Unbind();
-
-}
-
-void UDK_ComboComponent::ComboCheck()
-{
-	if (bHasNextComboCommand)
-	{
-		UDK_ComboActionData* CurData = ComboActionDatas[CurComboActionDataIndex];
-
-		CurrentCombo = FMath::Clamp(CurrentCombo + 1, 1, CurData->MaxComboCount);
-		FName NextSection = *FString::Printf(TEXT("%s%d"), *CurData->MontageSectionNamePrefix, CurrentCombo);
-
-
-		// *PlayAnimMontage를 하고 등록한 델리게이트가 해당 섹션에서 적용이 되는 뜻.
-		UnBindEndDelegate();
-		
-		// * JumpToSection은 Section 사이에 블랜딩이 안됨.
-		// AnimInstance->Montage_JumpToSection(NextSection, CurData->ComboActionMontage);
-		Owner->PlayAnimMontage(ComboActionDatas[CurComboActionDataIndex]->ComboActionMontage, 1.f, NextSection);
-
-		BindEndDelegate();
-
-		bHasNextComboCommand = false;
-		bIsCallEnd = false;
-	}
-	else
-	{
-		// 콤보가 넘어가는거면 이번 애니메이션의 End는 호출하지 않는다
-		bIsCallEnd = true;
-	}
-
-}
 
 void UDK_ComboComponent::ChangeComboActionData(uint8 DataIndex)
 {
 	CurrentCombo = 0;
 	bHasNextComboCommand = false;
-	bIsCallEnd = true;
 
 	UAnimInstance* AnimInstance = Owner->GetMesh()->GetAnimInstance();
 
@@ -198,7 +192,6 @@ void UDK_ComboComponent::ResetComboInfo()
 	// 이 인덱스에 따라 콤보가 실행됨
 	CurrentCombo = 0;
 	bHasNextComboCommand = false;
-	bIsCallEnd = false; // EndDelegate 호출 여부
 
 	ReserveComboActionDataIndex = -1;
 }
