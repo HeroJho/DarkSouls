@@ -24,7 +24,6 @@ protected:
 
 public:
 	void ProcessComboCommand();
-	void ComboCheck();
 
 	UFUNCTION(BlueprintCallable)
 	void ChangeComboActionData(uint8 DataIndex);
@@ -37,15 +36,17 @@ public:
 
 protected:	
 	void ComboActionBegin();
-	
+	void ComboCheck_Notify();
 	void BindEventFunc();
 	
 	UFUNCTION()
-	void ComboActionInterrupted(FName NotifyName);
+	void InterruptedComboAction(FName NotifyName);
 	UFUNCTION()
-	void ComboActionEnd(FName NotifyName);
-
-
+	void EndComboAction(FName NotifyName);
+	UFUNCTION()
+	void BeginNotifyComboAction(FName NotifyName);
+	UFUNCTION()
+	void EndNotifyComboAction(FName NotifyName);
 
 protected:
 	UPROPERTY()

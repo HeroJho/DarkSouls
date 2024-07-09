@@ -4,11 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Struct/S_DamageInfo.h"
 #include "DK_StatComponent.generated.h"
 
 
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnChangeDelegate, int32, int32);
 DECLARE_MULTICAST_DELEGATE(FOnZeroDelegate);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnBlockDelegate, bool, AActor*);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnDamageResponse, EDamageResponse, AActor*);
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -17,14 +20,13 @@ class DARKSOULS_API UDK_StatComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:	
-	// Sets default values for this component's properties
 	UDK_StatComponent();
 
 protected:
-	// Called when the game starts
 	virtual void BeginPlay() override;
 
 
+	// Stat
 public:
 	virtual void ResetStat();
 
@@ -36,18 +38,46 @@ public:
 	void AddZeroHPDelegateFunc(UObject* Object, FName FuncName);
 
 
-	void IncreaseHP(int32 Value);
-	void DecreaseHP(int32 Value);
-
-
 protected:
 	UPROPERTY(EditAnywhere, Category = StatData)
 	TObjectPtr<class UDK_StatDataAsset> StatData;
 
-	FOnChangeDelegate Delegate_ChangeHP;
-	FOnZeroDelegate Delegate_ZeroHP;
-
 	int32 MaxHP = 100;
 	int32 CurHP = 0;
+	bool bIsDead = false;
+
+
+	// TakeDamage
+public:
+	FORCEINLINE bool GetIsInterruptible() { return bIsInterruptible; }
+	FORCEINLINE bool GetIsInvincible() { return bIsInvincible; }
+	FORCEINLINE bool GetIsBlocking() { return bIsBlocking; }
+
+	FORCEINLINE void SetIsInterruptible(bool bValue) { bIsInterruptible = bValue; }
+	FORCEINLINE void SetIsInvincible(bool bValue) { bIsInvincible = bValue; }
+	FORCEINLINE void SetIsBlocking(bool bValue) { bIsBlocking = bValue; }
+
+public:
+	bool TakeDamage(FS_DamageInfo DamageInfo, AActor* DamageCauser);
+
+protected:
+	void IncreaseHP(int32 Value);
+
+
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = DamageOption)
+	uint8 bIsInterruptible : 1;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = DamageOption)
+	uint8 bIsInvincible : 1;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = DamageOption)
+	uint8 bIsBlocking : 1;
+
+	// Delegate
+protected:
+	FOnChangeDelegate Delegate_ChangeHP;
+
+	FOnZeroDelegate Delegate_OnDeath;
+	FOnBlockDelegate Delegate_OnBlock;
+	FOnDamageResponse Delegate_OnDamageResponse;
 
 };

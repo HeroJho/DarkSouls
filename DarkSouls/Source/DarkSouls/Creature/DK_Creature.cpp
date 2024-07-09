@@ -195,7 +195,7 @@ FAttackDamagedInfo ADK_Creature::GetCurrentAttackInfos()
 	return ComboComponent->GetCurrentAttackInfos();
 }
 
-void ADK_Creature::InterruptedAttack(FName NotifyName)
+void ADK_Creature::InterruptedAttack_Notify()
 {
 	EndAttackRange_Notify();
 	EndColRange_Notify();
@@ -255,7 +255,15 @@ void ADK_Creature::OnDamaged(const FAttackDamagedInfo& AttackDamagedInfo, AActor
 	DamagedByGPAttacked(AttackDamagedInfo.GPValue);
 
 	// 스탯
-	StatComponent->DecreaseHP(AttackDamagedInfo.Damage);
+	// StatComponent->DecreaseHP(AttackDamagedInfo.Damage);
+	FS_DamageInfo DamageInfo;
+	DamageInfo.Amount = AttackDamagedInfo.Damage;
+	DamageInfo.DamageType = EDamageType::Melee;
+	DamageInfo.bCanBeBlocked = false;
+	DamageInfo.bCanBeParried = false;
+	DamageInfo.bShouldForceInterrupt = false;
+	DamageInfo.bShouldDamageInvincible = false;
+	StatComponent->TakeDamage(DamageInfo, DamageCauser);
 
 }
 
@@ -406,14 +414,11 @@ void ADK_Creature::Dodge()
 
 	bIsDodge = true;
 
-	if (IsValid(PlayMontageCallbackProxy))
-		PlayMontageCallbackProxy->OnInterrupted.Broadcast(NAME_None);
-
-	PlayMontageCallbackProxy = UPlayMontageCallbackProxy::CreateProxyObjectForPlayMontage(
-		GetMesh(), DodgeMontage, 1.f, 0.f);
-
+	PlayMontageCallbackProxy = UPlayMontageCallbackProxy::CreateProxyObjectForPlayMontage(GetMesh(), DodgeMontage, 1.f, 0.f);
 	PlayMontageCallbackProxy->OnCompleted.AddDynamic(this, &ADK_Creature::EndDoge);
 	PlayMontageCallbackProxy->OnInterrupted.AddDynamic(this, &ADK_Creature::EndDoge);
+	PlayMontageCallbackProxy->OnNotifyBegin.AddDynamic(this, &ADK_Creature::BeginNotifyDoge);
+	PlayMontageCallbackProxy->OnNotifyEnd.AddDynamic(this, &ADK_Creature::EndNotifyDoge);
 
 }
 
@@ -421,6 +426,24 @@ void ADK_Creature::EndDoge(FName NotifyName)
 {
 	bIsDodge = false;
 	EndDodgeSkip_Notify();
+}
+
+void ADK_Creature::BeginNotifyDoge(FName NotifyName)
+{
+	if (NotifyName == FName("SkipDodge"))
+	{
+		BeginDodgeSkip_Notify();
+	}
+
+}
+
+void ADK_Creature::EndNotifyDoge(FName NotifyName)
+{
+	if (NotifyName == FName("SkipDodge"))
+	{
+		EndDodgeSkip_Notify();
+	}
+
 }
 
 void ADK_Creature::BeginDodgeSkip_Notify()

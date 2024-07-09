@@ -287,17 +287,19 @@ void ADK_Player::SmallAttack()
 
 	bIsAttacking = true;
 
-	if (IsValid(PlayMontageCallbackProxy))
-		PlayMontageCallbackProxy->OnInterrupted.Broadcast(NAME_None);
+	// CHECK: 가비지가 지우도록 넘기는데, 곧바로 직접 지워주는게 나은지 확인 필요. 
 	PlayMontageCallbackProxy = UPlayMontageCallbackProxy::CreateProxyObjectForPlayMontage(GetMesh(), SmallAttackAnim, 1.f, 0.f);
-	PlayMontageCallbackProxy->OnCompleted.AddDynamic(this, &ADK_Player::StopAttack);
-	PlayMontageCallbackProxy->OnInterrupted.AddDynamic(this, &ADK_Player::StopAttack);
+	PlayMontageCallbackProxy->OnCompleted.AddDynamic(this, &ADK_Player::EndAttack);
+	PlayMontageCallbackProxy->OnInterrupted.AddDynamic(this, &ADK_Player::EndAttack);
+	PlayMontageCallbackProxy->OnNotifyBegin.AddDynamic(this, &ADK_Player::BeginNotifyAttack);
+	PlayMontageCallbackProxy->OnNotifyEnd.AddDynamic(this, &ADK_Player::EndNotifyAttack);
 
 
 	ResetChargeAttack();
 
 	PlayerStatComponent->DelayRecoverySP(DelaySPTimeAfterActting);
 	PlayerStatComponent->DecreaseSP(SmallAttackSP);
+
 }
 
 void ADK_Player::PowarAttack()
@@ -306,17 +308,18 @@ void ADK_Player::PowarAttack()
 
 	bIsAttacking = true;
 
-	if (IsValid(PlayMontageCallbackProxy))
-		PlayMontageCallbackProxy->OnInterrupted.Broadcast(NAME_None);
 	PlayMontageCallbackProxy = UPlayMontageCallbackProxy::CreateProxyObjectForPlayMontage(GetMesh(), PowarAttackAnim, 1.f, 0.f);
-	PlayMontageCallbackProxy->OnCompleted.AddDynamic(this, &ADK_Player::StopAttack);
-	PlayMontageCallbackProxy->OnInterrupted.AddDynamic(this, &ADK_Player::StopAttack);
+	PlayMontageCallbackProxy->OnCompleted.AddDynamic(this, &ADK_Player::EndAttack);
+	PlayMontageCallbackProxy->OnInterrupted.AddDynamic(this, &ADK_Player::EndAttack);
+	PlayMontageCallbackProxy->OnNotifyBegin.AddDynamic(this, &ADK_Player::BeginNotifyAttack);
+	PlayMontageCallbackProxy->OnNotifyEnd.AddDynamic(this, &ADK_Player::EndNotifyAttack);
 
-
+	
 	ResetChargeAttack();
 
 	PlayerStatComponent->DelayRecoverySP(DelaySPTimeAfterActting);
 	PlayerStatComponent->DecreaseSP(PowarAttackSP);
+
 }
 
 void ADK_Player::ResetChargeAttack()
@@ -325,13 +328,33 @@ void ADK_Player::ResetChargeAttack()
 	bIsCharging = false;
 }
 
-void ADK_Player::StopAttack(FName NotifyName)
+void ADK_Player::EndAttack(FName NotifyName)
 {
-	CheckAttack_Notify();
 	ResetChargeAttack();
+	bIsInAttackRange = false;
+	bIsAttacking = false;
 }
 
+void ADK_Player::BeginNotifyAttack(FName NotifyName)
+{
+	if(NotifyName == TEXT("Check"))
+	{
+		bIsAttacking = false;
+	}
+	else if (NotifyName == FName("AttackRange"))
+	{
+		BeginAttackRange_Notify();
+	}
 
+}
+
+void ADK_Player::EndNotifyAttack(FName NotifyName)
+{
+	if (NotifyName == FName("AttackRange"))
+	{
+		EndAttackRange_Notify();
+	}
+}
 
 
 
@@ -348,14 +371,6 @@ void ADK_Player::EndStun()
 
 }
 
-
-
-
-void ADK_Player::CheckAttack_Notify()
-{
-	bIsAttacking = false;
-
-}
 
 
 
@@ -778,8 +793,6 @@ void ADK_Player::ResetInfoOnStun()
 
 	// 차지중에 스턴 걸리면 차지 리셋
 	ResetChargeAttack();
-	// 공격도중에 스턴 걸리면 노티 끊기니까
-	CheckAttack_Notify();
 
 	EndPerfectBlock();
 }
@@ -798,8 +811,6 @@ void ADK_Player::ResetInfoOnDodge()
 
 	// 차지중에 스턴 걸리면 차지 리셋
 	ResetChargeAttack();
-	// 공격도중에 스턴 걸리면 노티 끊기니까
-	CheckAttack_Notify();
 
 	EndPerfectBlock();
 }

@@ -70,7 +70,7 @@ void UDK_ComboComponent::ComboActionBegin()
 	BindEventFunc();
 }
 
-void UDK_ComboComponent::ComboCheck()
+void UDK_ComboComponent::ComboCheck_Notify()
 {
 	if (bHasNextComboCommand)
 	{
@@ -96,13 +96,42 @@ void UDK_ComboComponent::BindEventFunc()
 {
 	UPlayMontageCallbackProxy* Proxy = Owner->GetMontageCallbackProxy();
 
-	Proxy->OnCompleted.AddDynamic(this, &UDK_ComboComponent::ComboActionEnd);
-	Proxy->OnInterrupted.AddDynamic(this, &UDK_ComboComponent::ComboActionInterrupted);
-	Proxy->OnInterrupted.AddDynamic(Owner, &ADK_Creature::InterruptedAttack);
+	Proxy->OnCompleted.AddDynamic(this, &UDK_ComboComponent::EndComboAction);
+	Proxy->OnInterrupted.AddDynamic(this, &UDK_ComboComponent::InterruptedComboAction);
+	Proxy->OnNotifyBegin.AddDynamic(this, &UDK_ComboComponent::BeginNotifyComboAction);
+	Proxy->OnNotifyEnd.AddDynamic(this, &UDK_ComboComponent::EndNotifyComboAction);
+}
+
+void UDK_ComboComponent::BeginNotifyComboAction(FName NotifyName)
+{
+	if (NotifyName == FName("ComboCheck"))
+	{
+		ComboCheck_Notify();
+	}
+	else if (NotifyName == FName("AttackRange"))
+	{
+		Owner->BeginAttackRange_Notify();
+	}
+	else if (NotifyName == FName("ColRange"))
+	{
+		Owner->BeginColRange_Notify();
+	}
 
 }
 
-void UDK_ComboComponent::ComboActionInterrupted(FName NotifyName)
+void UDK_ComboComponent::EndNotifyComboAction(FName NotifyName)
+{
+	if (NotifyName == FName("AttackRange"))
+	{
+		Owner->EndAttackRange_Notify();
+	}
+	else if (NotifyName == FName("ColRange"))
+	{
+		Owner->EndColRange_Notify();
+	}
+}
+
+void UDK_ComboComponent::InterruptedComboAction(FName NotifyName)
 {
 	UAnimInstance* AnimInstance = Owner->GetMesh()->GetAnimInstance();
 	UAnimMontage* PlayMontage = AnimInstance->GetCurrentActiveMontage();
@@ -123,9 +152,11 @@ void UDK_ComboComponent::ComboActionInterrupted(FName NotifyName)
 
 	}
 
+	Owner->InterruptedAttack_Notify();
+
 }
 
-void UDK_ComboComponent::ComboActionEnd(FName NotifyName)
+void UDK_ComboComponent::EndComboAction(FName NotifyName)
 {
 	CurrentCombo = 0;
 	bHasNextComboCommand = false;

@@ -108,8 +108,6 @@ public:
 	FORCEINLINE float GetChargePowarTimeAcc() { return ChargePowarTimeAcc; }
 	FORCEINLINE bool GetIsCharging() { return bIsCharging; }
 
-	void CheckAttack_Notify();
-
 protected:
 	void ChargeAttack(const FInputActionValue& Value);
 	void EndChargeAttack(const FInputActionValue& Value);
@@ -118,7 +116,12 @@ protected:
 	void PowarAttack();
 	void ResetChargeAttack();
 
-	void StopAttack(FName NotifyName);
+	UFUNCTION()
+	void EndAttack(FName NotifyName);
+	UFUNCTION()
+	void BeginNotifyAttack(FName NotifyName);
+	UFUNCTION()
+	void EndNotifyAttack(FName NotifyName);
 
 
 protected:

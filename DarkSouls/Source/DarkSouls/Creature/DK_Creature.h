@@ -98,8 +98,7 @@ public:
 	FAttackDamagedInfo GetCurrentAttackInfos();
 
 
-	UFUNCTION()
-	void InterruptedAttack(FName NotifyName);
+	void InterruptedAttack_Notify();
 
 
 protected:
@@ -187,18 +186,19 @@ protected:
 
 
 	// Dodge
-public:
-	virtual void BeginDodgeSkip_Notify();
-	virtual void EndDodgeSkip_Notify();
+protected:
+	virtual void Dodge();
+	virtual void PerfectDodge();
 
 	UFUNCTION()
 	void EndDoge(FName NotifyName);
+	UFUNCTION()
+	void BeginNotifyDoge(FName NotifyName);
+	UFUNCTION()
+	void EndNotifyDoge(FName NotifyName);
 
-protected:
-	virtual void Dodge();
-
-	virtual void PerfectDodge();
-
+	virtual void BeginDodgeSkip_Notify();
+	virtual void EndDodgeSkip_Notify();
 
 protected:
 	bool bIsDodge = false;

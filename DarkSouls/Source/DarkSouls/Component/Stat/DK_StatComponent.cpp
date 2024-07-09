@@ -14,6 +14,10 @@ UDK_StatComponent::UDK_StatComponent()
 	PrimaryComponentTick.bCanEverTick = false;
 
 	// ...
+	bIsInterruptible = true;
+	bIsInvincible = false;
+	bIsBlocking = false;
+
 }
 
 
@@ -53,7 +57,7 @@ void UDK_StatComponent::RemoveChangeHPDelegateFunc(FDelegateHandle Handle)
 
 void UDK_StatComponent::AddZeroHPDelegateFunc(UObject* Object, FName FuncName)
 {
-	Delegate_ZeroHP.AddUFunction(Object, FuncName);
+	Delegate_OnDeath.AddUFunction(Object, FuncName);
 }
 
 
@@ -69,20 +73,54 @@ void UDK_StatComponent::IncreaseHP(int32 Value)
 	Delegate_ChangeHP.Broadcast(CurHP, MaxHP);
 }
 
-void UDK_StatComponent::DecreaseHP(int32 Value)
+
+bool UDK_StatComponent::TakeDamage(FS_DamageInfo DamageInfo, AActor* DamageCauser)
 {
-	CurHP = FMath::Clamp(CurHP - Value, 0, MaxHP);
-	
-
-	if (CurHP == 0)
+	// 대미지를 입을 수 있는 상태냐
+	if (!bIsDead && (!bIsInvincible || DamageInfo.bShouldDamageInvincible))
 	{
-		// 사망 델리게이트
+		// 블락 상태냐
+		if (bIsBlocking && DamageInfo.bCanBeBlocked)
+		{
+			// Block
+			Delegate_OnBlock.Broadcast(DamageInfo.bCanBeParried, DamageCauser);
+			return false;
+		}
+		else
+		{
+			// Do Damage
+			int32 Value = DamageInfo.Amount;
 
-		Delegate_ZeroHP.Broadcast();
+			CurHP = FMath::Clamp(CurHP - Value, 0, MaxHP);
+
+			// 죽었냐 안 죽었냐
+			if (CurHP <= 0)
+			{
+				CurHP = 0;
+				bIsDead = true;
+				Delegate_OnDeath.Broadcast();
+			}
+			else
+			{
+				// 인터럽트 여부
+				if (bIsInterruptible || DamageInfo.bShouldForceInterrupt)
+				{
+					Delegate_OnDamageResponse.Broadcast(DamageInfo.DamageResponse, DamageCauser);
+				}
+			}
+
+			Delegate_ChangeHP.Broadcast(CurHP, MaxHP);
+
+			return true;
+		}
+
+	}
+	else
+	{
+		// No Damage
+		return false;
 	}
 
-
-	Delegate_ChangeHP.Broadcast(CurHP, MaxHP);
 }
 
 
