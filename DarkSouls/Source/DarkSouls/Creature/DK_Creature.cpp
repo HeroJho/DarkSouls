@@ -156,16 +156,6 @@ void ADK_Creature::OnOffHUDHPBar(bool bIsOn)
 
 
 
-void ADK_Creature::Attack()
-{
-	if (!CanAttack())
-		return;
-
-	ResetInfoOnAttack();
-
-	ComboComponent->ProcessComboCommand();
-}
-
 void ADK_Creature::BeginAttackRange_Notify()
 {
 	bIsInAttackRange = true;

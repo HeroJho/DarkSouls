@@ -6,6 +6,8 @@
 #include "Creature/DK_Monster.h"
 #include "DK_Greater_Spider.generated.h"
 
+
+
 /**
  * 
  */
@@ -21,7 +23,19 @@ protected:
 	virtual void BeginPlay() override;
 
 
-protected:
+public:
+	void Skill_Combo0();
 
+protected:
+	void BindFunction_Skill_Combo0();
+
+	UFUNCTION()
+	void BeginNotify_Skill_Combo0(FName NotifyName);
+	UFUNCTION()
+	void EndNotify_Skill_Combo0(FName NotifyName);
+	UFUNCTION()
+	void End_Skill_Combo0(FName NotifyName);
+
+	void AttackAOESmash(AActor* HitActor);
 
 };

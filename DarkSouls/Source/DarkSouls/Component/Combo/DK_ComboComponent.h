@@ -7,6 +7,7 @@
 #include "Tool/Struct.h"
 #include "DK_ComboComponent.generated.h"
 
+DECLARE_MULTICAST_DELEGATE(FOnSectionEndDelegate);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class DARKSOULS_API UDK_ComboComponent : public UActorComponent
@@ -23,7 +24,7 @@ protected:
 
 
 public:
-	void ProcessComboCommand();
+	void ProcessComboCommand(bool InbIsAllProcess);
 
 	UFUNCTION(BlueprintCallable)
 	void ChangeComboActionData(uint8 DataIndex);
@@ -62,5 +63,12 @@ protected:
 	bool bHasNextComboCommand = false;
 
 	int8 ReserveComboActionDataIndex = -1;
+
+	bool bIsAllProcess = false;
+
+
+	// Delegate
+public:
+	FOnSectionEndDelegate OnSectionEndDelegate;
 
 };

@@ -16,21 +16,26 @@ UBTT_GreaterSpiderAttack::UBTT_GreaterSpiderAttack()
 
 EBTNodeResult::Type UBTT_GreaterSpiderAttack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
+	BTComponentOwner = OwnerComp;
+
 	APawn* Owner = OwnerComp.GetAIOwner()->GetPawn();
 	ADK_Greater_Spider* SpiderOwner = Cast<ADK_Greater_Spider>(Owner);
 	if (IsValid(SpiderOwner) == false)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Blue, FString::Printf(TEXT("%f"), Owner));
 		return EBTNodeResult::Failed;
 	}
 
+	////	 *인자있는 함수 Delay
+	//FTimerDelegate TimerDelegate;
+	//TimerDelegate.BindUFunction(this, FName("FinishTask"), &OwnerComp, EBTNodeResult::Succeeded);
+	//FTimerHandle UnusedHandle;
+	//SpiderOwner->GetWorldTimerManager().SetTimer(
+	//	UnusedHandle, TimerDelegate, 20.f, false);
 
-	// *인자있는 함수 Delay
-	FTimerDelegate TimerDelegate;
-	TimerDelegate.BindUFunction(this, FName("TestEnd"), &OwnerComp);
-	FTimerHandle UnusedHandle;
-	SpiderOwner->GetWorldTimerManager().SetTimer(
-		UnusedHandle, TimerDelegate, 20.f, false);
+	SpiderOwner->Skill_Combo0();
+	SpiderOwner->OnAttackEnd.AddUObject(this, &UBTT_GreaterSpiderAttack::FinishTask);
+
+
 
 	return EBTNodeResult::InProgress;
 }
@@ -44,7 +49,7 @@ void UBTT_GreaterSpiderAttack::TickTask(UBehaviorTreeComponent& OwnerComp, uint8
 {
 }
 
-void UBTT_GreaterSpiderAttack::TestEnd(UBehaviorTreeComponent* OwnerComp)
+void UBTT_GreaterSpiderAttack::FinishTask()
 {
-	FinishLatentTask(*OwnerComp, EBTNodeResult::Succeeded);
+	FinishLatentTask(*BTComponentOwner, EBTNodeResult::Succeeded);
 }

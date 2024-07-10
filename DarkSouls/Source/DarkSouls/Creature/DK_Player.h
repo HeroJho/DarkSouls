@@ -138,7 +138,6 @@ protected:
 	float ChargePowarTimeAcc = 0.f;
 	bool bIsCharging = false;
 	bool bIsHoldingAttackKey = false;
-	bool bIsAttacking = false;
 
 
 	// State Section

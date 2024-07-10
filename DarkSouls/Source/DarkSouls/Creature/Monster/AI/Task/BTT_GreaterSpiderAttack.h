@@ -24,7 +24,12 @@ protected:
 
 
 protected:
-	UFUNCTION()
-	void TestEnd(UBehaviorTreeComponent* OwnerComp);
+	void FinishTask();
+
+
+
+protected:
+	UPROPERTY()
+	TObjectPtr<UBehaviorTreeComponent> BTComponentOwner;
 
 };

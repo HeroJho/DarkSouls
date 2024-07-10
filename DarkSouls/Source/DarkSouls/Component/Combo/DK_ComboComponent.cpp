@@ -34,8 +34,10 @@ void UDK_ComboComponent::BeginPlay()
 }
 
 
-void UDK_ComboComponent::ProcessComboCommand()
+void UDK_ComboComponent::ProcessComboCommand(bool InbIsAllProcess)
 {
+	bIsAllProcess = InbIsAllProcess;
+
 	// 예약 상태라면 기존 재생하던 섹션만 재생한다
 	if (ReserveComboActionDataIndex != -1)
 	{
@@ -53,6 +55,7 @@ void UDK_ComboComponent::ProcessComboCommand()
 	}
 
 }
+
 
 void UDK_ComboComponent::ComboActionBegin()
 {
@@ -72,7 +75,7 @@ void UDK_ComboComponent::ComboActionBegin()
 
 void UDK_ComboComponent::ComboCheck_Notify()
 {
-	if (bHasNextComboCommand)
+	if (bIsAllProcess || bHasNextComboCommand)
 	{
 		bHasNextComboCommand = false;
 
@@ -86,6 +89,7 @@ void UDK_ComboComponent::ComboCheck_Notify()
 			Owner->GetMesh(), CurData->ComboActionMontage, 1.f, 0.f, NextSection));
 
 		BindEventFunc();
+		
 	}
 
 
@@ -94,6 +98,8 @@ void UDK_ComboComponent::ComboCheck_Notify()
 
 void UDK_ComboComponent::BindEventFunc()
 {
+	OnSectionEndDelegate.Broadcast();
+
 	UPlayMontageCallbackProxy* Proxy = Owner->GetMontageCallbackProxy();
 
 	Proxy->OnCompleted.AddDynamic(this, &UDK_ComboComponent::EndComboAction);
@@ -108,27 +114,13 @@ void UDK_ComboComponent::BeginNotifyComboAction(FName NotifyName)
 	{
 		ComboCheck_Notify();
 	}
-	else if (NotifyName == FName("AttackRange"))
-	{
-		Owner->BeginAttackRange_Notify();
-	}
-	else if (NotifyName == FName("ColRange"))
-	{
-		Owner->BeginColRange_Notify();
-	}
+
 
 }
 
 void UDK_ComboComponent::EndNotifyComboAction(FName NotifyName)
 {
-	if (NotifyName == FName("AttackRange"))
-	{
-		Owner->EndAttackRange_Notify();
-	}
-	else if (NotifyName == FName("ColRange"))
-	{
-		Owner->EndColRange_Notify();
-	}
+
 }
 
 void UDK_ComboComponent::InterruptedComboAction(FName NotifyName)
@@ -141,18 +133,9 @@ void UDK_ComboComponent::InterruptedComboAction(FName NotifyName)
 	// 다른 몽타주로 Interrupte 됐다면 스탑
 	if (PlayMontage != CurData->ComboActionMontage)
 	{
-		CurrentCombo = 0;
-		bHasNextComboCommand = false;
-
-		if (ReserveComboActionDataIndex != -1)
-		{
-			CurComboActionDataIndex = ReserveComboActionDataIndex;
-			ReserveComboActionDataIndex = -1;
-		}
+		EndComboAction(FName());
 
 	}
-
-	Owner->InterruptedAttack_Notify();
 
 }
 
@@ -160,6 +143,7 @@ void UDK_ComboComponent::EndComboAction(FName NotifyName)
 {
 	CurrentCombo = 0;
 	bHasNextComboCommand = false;
+	bIsAllProcess = false;
 
 	if (ReserveComboActionDataIndex != -1)
 	{
@@ -167,6 +151,8 @@ void UDK_ComboComponent::EndComboAction(FName NotifyName)
 		ReserveComboActionDataIndex = -1;
 	}
 
+	// 공격 끝났다는 Delegate 호출
+	Owner->OnAttackEnd.Broadcast();
 }
 
 
@@ -175,6 +161,7 @@ void UDK_ComboComponent::ChangeComboActionData(uint8 DataIndex)
 {
 	CurrentCombo = 0;
 	bHasNextComboCommand = false;
+	bIsAllProcess = false;
 
 	UAnimInstance* AnimInstance = Owner->GetMesh()->GetAnimInstance();
 
@@ -223,6 +210,7 @@ void UDK_ComboComponent::ResetComboInfo()
 	// 이 인덱스에 따라 콤보가 실행됨
 	CurrentCombo = 0;
 	bHasNextComboCommand = false;
+	bIsAllProcess = false;
 
 	ReserveComboActionDataIndex = -1;
 }

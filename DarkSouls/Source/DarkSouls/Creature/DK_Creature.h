@@ -6,6 +6,10 @@
 #include "GameFramework/Character.h"
 #include "DK_Creature.generated.h"
 
+
+DECLARE_MULTICAST_DELEGATE(FOnNoParDelegate);
+
+
 UCLASS()
 class DARKSOULS_API ADK_Creature : public ACharacter
 {
@@ -84,9 +88,6 @@ protected:
 
 	// Combo && Attack
 public:
-	UFUNCTION(BlueprintCallable)
-	void Attack();
-
 	FORCEINLINE bool IsInAttackRange() { return bIsInAttackRange; }
 
 	void BeginAttackRange_Notify();
@@ -105,6 +106,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Combo)
 	TObjectPtr<class UDK_ComboComponent> ComboComponent;
 
+	bool bIsAttacking = false;
 	bool bIsInAttackRange = false;
 
 
@@ -274,5 +276,14 @@ protected:
 	virtual void ResetInfoOnBlock();
 	// °¡µå Èý ½Ã,
 	virtual void ResetInfoOnHitBlock();
+
+
+
+
+
+
+	// Delegate
+public:
+	FOnNoParDelegate OnAttackEnd;
 
 };
