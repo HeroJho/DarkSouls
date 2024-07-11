@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Interface/DK_DamageableInterface.h"
 #include "DK_Creature.generated.h"
 
 
@@ -11,7 +12,7 @@ DECLARE_MULTICAST_DELEGATE(FOnNoParDelegate);
 
 
 UCLASS()
-class DARKSOULS_API ADK_Creature : public ACharacter
+class DARKSOULS_API ADK_Creature : public ACharacter, public IDK_DamageableInterface
 {
 	GENERATED_BODY()
 
@@ -83,9 +84,6 @@ protected:
 
 
 
-
-
-
 	// Combo && Attack
 public:
 	FORCEINLINE bool IsInAttackRange() { return bIsInAttackRange; }
@@ -133,18 +131,20 @@ protected:
 
 	// Stun
 public:
-	virtual void Stun(float StunTime, bool bSetAnimTime = false);
 	FORCEINLINE bool IsStun() { return bIsStun; }
-	
-
-	virtual void KnockDown(float KnockDownTime);
 	FORCEINLINE bool IsKnockDown() { return bIsKnockDown; }
 	FORCEINLINE bool IsPlayEndKnockDown() { return bIsPlayEndKnockDown; }
+
+public:	
+	virtual void Stun(float StunTime, bool bSetAnimTime = false);
+	virtual void KnockDown(float KnockDownTime);
+
 	void EndKnockDown_Notify();
 	
 protected:
-	virtual void EndStun();
+	virtual void OnHitReaction_Notify(EDamageResponse DamageResponseType, AActor* DamageCauser);
 
+	virtual void EndStun();
 	virtual void EndKnockDown();
 
 
@@ -259,7 +259,6 @@ protected:
 	virtual bool CanSmoothTurn();
 	virtual bool CanStun();
 	virtual bool CanKnockDown();
-	virtual bool CanDamaged();
 	virtual bool CanBlock();
 
 
@@ -282,8 +281,17 @@ protected:
 
 
 
-	// Delegate
+	// ===== Delegate ======
 public:
 	FOnNoParDelegate OnAttackEnd;
+
+
+
+	// ======  Inteface ======
+
+	// Damageable
+public:
+	virtual bool TakeDamage(FS_DamageInfo DamageInfo, AActor* DamageCauser) override;
+
 
 };

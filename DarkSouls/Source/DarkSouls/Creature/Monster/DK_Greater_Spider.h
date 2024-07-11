@@ -23,6 +23,11 @@ protected:
 	virtual void BeginPlay() override;
 
 
+//protected:
+//	virtual void OnHitReaction_Notify(EDamageResponse DamageResponseType, AActor* DamageCauser) override;
+
+
+	// Skill Section
 public:
 	void Skill_Combo0();
 

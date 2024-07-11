@@ -29,6 +29,8 @@ public:
 
 
 protected:
+	TObjectPtr<USceneComponent> SceneRootComponent;
+
 	float Radius;
 	bool bIgnoreInstigator;
 	bool bDrawDebugSphere;

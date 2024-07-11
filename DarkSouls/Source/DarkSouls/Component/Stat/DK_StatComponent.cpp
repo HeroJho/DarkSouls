@@ -41,26 +41,8 @@ void UDK_StatComponent::ResetStat()
 
 void UDK_StatComponent::BroadcastStat()
 {
-	Delegate_ChangeHP.Broadcast(CurHP, MaxHP);
+	OnChangeHPDelegate.Broadcast(CurHP, MaxHP);
 }
-
-
-FDelegateHandle UDK_StatComponent::AddChangeHPDelegateFunc(UObject* Object, FName FuncName)
-{
-	return Delegate_ChangeHP.AddUFunction(Object, FuncName);
-}
-
-void UDK_StatComponent::RemoveChangeHPDelegateFunc(FDelegateHandle Handle)
-{
-	Delegate_ChangeHP.Remove(Handle);
-}
-
-void UDK_StatComponent::AddZeroHPDelegateFunc(UObject* Object, FName FuncName)
-{
-	Delegate_OnDeath.AddUFunction(Object, FuncName);
-}
-
-
 
 
 
@@ -70,7 +52,7 @@ void UDK_StatComponent::IncreaseHP(int32 Value)
 {
 	CurHP = FMath::Clamp(CurHP + Value, 0, MaxHP);
 
-	Delegate_ChangeHP.Broadcast(CurHP, MaxHP);
+	OnChangeHPDelegate.Broadcast(CurHP, MaxHP);
 }
 
 
@@ -83,7 +65,7 @@ bool UDK_StatComponent::TakeDamage(FS_DamageInfo DamageInfo, AActor* DamageCause
 		if (bIsBlocking && DamageInfo.bCanBeBlocked)
 		{
 			// Block
-			Delegate_OnBlock.Broadcast(DamageInfo.bCanBeParried, DamageCauser);
+			OnBlockDelegate.Broadcast(DamageInfo.bCanBeParried, DamageCauser);
 			return false;
 		}
 		else
@@ -98,18 +80,18 @@ bool UDK_StatComponent::TakeDamage(FS_DamageInfo DamageInfo, AActor* DamageCause
 			{
 				CurHP = 0;
 				bIsDead = true;
-				Delegate_OnDeath.Broadcast();
+				OnDeathDelegate.Broadcast();
 			}
 			else
 			{
 				// 인터럽트 여부
 				if (bIsInterruptible || DamageInfo.bShouldForceInterrupt)
 				{
-					Delegate_OnDamageResponse.Broadcast(DamageInfo.DamageResponse, DamageCauser);
+					OnDamageResponseDelegate.Broadcast(DamageInfo.DamageResponse, DamageCauser);
 				}
 			}
 
-			Delegate_ChangeHP.Broadcast(CurHP, MaxHP);
+			OnChangeHPDelegate.Broadcast(CurHP, MaxHP);
 
 			return true;
 		}

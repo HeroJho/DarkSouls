@@ -36,22 +36,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void ChangeMaxSP(int32 Value);
 	
-	void AddChangeMaxHPDelegateFunc(UObject* Object, FName FuncName);
-	void AddChangeMaxSPDelegateFunc(UObject* Object, FName FuncName);
-
-protected:
-	FOnChangeDelegate Delegate_ChangeMaxHP;
-	FOnChangeDelegate Delegate_ChangeMaxSP;
-
-
-
-
 
 	// SP Section
 public:
 	FORCEINLINE void SetRecoverySPPerSecSpeed(int32 Speed) { CurRecoverySPPerSec = Speed; }
-
-	void AddChangeSPDelegateFunc(UObject* Object, FName FuncName);	
 
 	void IncreaseSP(int32 Value);
 	void DecreaseSP(int32 Value);
@@ -72,8 +60,6 @@ protected:
 
 
 protected:
-	FOnChangeDelegate Delegate_ChangeSP;
-
 	int32 MaxSP = 400;
 	int32 CurSP = 0;
 
@@ -91,9 +77,6 @@ protected:
 public:
 	void IncreaseTP(int32 Value);
 
-	void AddChangeTPDelegateFunc(UObject* Object, FName FuncName);
-	void AddReleaseTPDelegateFunc(UObject* Object, FName FuncName);
-
 
 protected:
 	void DecoveryTPTick(float DeltaTime);
@@ -104,9 +87,6 @@ protected:
 
 
 protected:
-	FOnChangeDelegate Delegate_ChangeTP;
-	FOnZeroDelegate Delegate_ReleaseTP;
-
 	int32 MaxTP = 0;
 	int32 CurTP = 0;
 
@@ -114,6 +94,18 @@ protected:
 
 	FTimerHandle DecoveryTPTimerHandle;
 	float DecoveryTPTimeAcc = 0.f;
+
+
+
+	// Delegate
+public:
+	FOnChangeDelegate OnChangeMaxHPDelegate;
+	FOnChangeDelegate OnChangeMaxSPDelegate;
+	
+	FOnChangeDelegate OnChangeTPDelegate;
+	FOnZeroDelegate OnReleaseTPDelegate;
+
+	FOnChangeDelegate OnChangeSPDelegate;
 
 
 };

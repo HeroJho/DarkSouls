@@ -146,7 +146,7 @@ void ADK_Player::BeginPlay()
 	ADK_GameMode* GameMode = Cast<ADK_GameMode>(GetWorld()->GetAuthGameMode());
 	GameMode->GetUIManager()->BindEventForHUD(PlayerStatComponent);
 
-	PlayerStatComponent->AddReleaseTPDelegateFunc(this, FName("GenRecoveryHP"));
+	PlayerStatComponent->OnReleaseTPDelegate.AddUObject(this, &ADK_Player::GenRecoveryHP_Notify);
 	PlayerStatComponent->ResetStat(NormalRecoverySPPerSec, DecreaseTPPerSec);
 
 
@@ -654,7 +654,7 @@ void ADK_Player::HitWeakBlock()
 
 
 
-void ADK_Player::GenRecoveryHP()
+void ADK_Player::GenRecoveryHP_Notify()
 {
 	// TODO: 몬스터 위치 때리면 회복하는 스킬
 
@@ -769,13 +769,6 @@ bool ADK_Player::CanKnockDown()
 	return true;
 }
 
-bool ADK_Player::CanDamaged()
-{
-	if (!Super::CanDamaged())
-		return false;
-
-	return true;
-}
 
 
 

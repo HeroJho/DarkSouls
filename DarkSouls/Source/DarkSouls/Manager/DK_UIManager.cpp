@@ -41,12 +41,12 @@ void UDK_UIManager::MakeHUD(APlayerController* PlayerController)
 
 void UDK_UIManager::BindEventForHUD(UDK_PlayerStatComponent* PlayerStatComponent)
 {
-	PlayerStatComponent->AddChangeHPDelegateFunc(HUDWidget, FName("UpdateHpBar"));
-	PlayerStatComponent->AddChangeSPDelegateFunc(HUDWidget, FName("UpdateSpBar"));
-	PlayerStatComponent->AddChangeTPDelegateFunc(HUDWidget, FName("UpdateTpBar"));
+	PlayerStatComponent->OnChangeHPDelegate.AddUFunction(HUDWidget, FName("UpdateHpBar"));
+	PlayerStatComponent->OnChangeSPDelegate.AddUFunction(HUDWidget, FName("UpdateSpBar"));
+	PlayerStatComponent->OnChangeTPDelegate.AddUFunction(HUDWidget, FName("UpdateTpBar"));
 
-	PlayerStatComponent->AddChangeMaxHPDelegateFunc(HUDWidget, FName("UpdateMaxHpBar"));
-	PlayerStatComponent->AddChangeMaxSPDelegateFunc(HUDWidget, FName("UpdateMaxSpBar"));
+	PlayerStatComponent->OnChangeMaxHPDelegate.AddUFunction(HUDWidget, FName("UpdateMaxHpBar"));
+	PlayerStatComponent->OnChangeMaxSPDelegate.AddUFunction(HUDWidget, FName("UpdateMaxSpBar"));
 
 }
 

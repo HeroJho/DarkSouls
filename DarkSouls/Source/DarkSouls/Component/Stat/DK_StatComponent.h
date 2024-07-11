@@ -29,13 +29,7 @@ protected:
 	// Stat
 public:
 	virtual void ResetStat();
-
 	virtual void BroadcastStat();
-
-	FDelegateHandle AddChangeHPDelegateFunc(UObject* Object, FName FuncName);
-	void RemoveChangeHPDelegateFunc(FDelegateHandle Handle);
-
-	void AddZeroHPDelegateFunc(UObject* Object, FName FuncName);
 
 
 protected:
@@ -72,12 +66,14 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = DamageOption)
 	uint8 bIsBlocking : 1;
 
-	// Delegate
-protected:
-	FOnChangeDelegate Delegate_ChangeHP;
 
-	FOnZeroDelegate Delegate_OnDeath;
-	FOnBlockDelegate Delegate_OnBlock;
-	FOnDamageResponse Delegate_OnDamageResponse;
+
+	// Delegate
+public:
+	FOnChangeDelegate OnChangeHPDelegate;
+
+	FOnZeroDelegate OnDeathDelegate;
+	FOnBlockDelegate OnBlockDelegate;
+	FOnDamageResponse OnDamageResponseDelegate;
 
 };

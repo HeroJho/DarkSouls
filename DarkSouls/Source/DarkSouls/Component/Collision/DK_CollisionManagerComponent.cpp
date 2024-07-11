@@ -8,6 +8,7 @@
 #include "Tool/Struct.h"
 #include "Components/CapsuleComponent.h"
 #include "Creature/DK_Creature.h"
+#include "Interface/DK_DamageableInterface.h"
 
 // Sets default values for this component's properties
 UDK_CollisionManagerComponent::UDK_CollisionManagerComponent()
@@ -159,6 +160,10 @@ bool UDK_CollisionManagerComponent::CheckAttackedActor(AActor* InCreature)
 
 void UDK_CollisionManagerComponent::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	IDK_DamageableInterface* OtherDamageable = Cast<IDK_DamageableInterface>(OtherActor);
+	if (OtherDamageable == nullptr)
+		return;
+
 	if (OtherActor == GetOwner())
 		return;
 
@@ -176,16 +181,18 @@ void UDK_CollisionManagerComponent::OnOverlapBegin(UPrimitiveComponent* Overlapp
 		if (CheckAttackedActor(OtherActor))
 			return;
 
-
 		ActorTemps.Add(OtherActor);
 
+		//ADK_Creature* OtherCreature = Cast<ADK_Creature>(OtherActor);
 
-		ADK_Creature* OtherCreature = Cast<ADK_Creature>(OtherActor);
+		//// 섹션 공격 정보
+		//const FAttackDamagedInfo& AttackDamagedInfo = CreatureOwner->GetCurrentAttackInfos();
+		//OtherCreature->OnDamaged(AttackDamagedInfo, CreatureOwner);
 
 		// 섹션 공격 정보
-		const FAttackDamagedInfo& AttackDamagedInfo = CreatureOwner->GetCurrentAttackInfos();
-		OtherCreature->OnDamaged(AttackDamagedInfo, CreatureOwner);
-
+		FS_DamageInfo DamageInfo(10, EDamageType::Melee, EDamageResponse::Stun, false, false, true, true);
+		OtherDamageable->TakeDamage(DamageInfo, CreatureOwner);
+		
 	}
 
 }

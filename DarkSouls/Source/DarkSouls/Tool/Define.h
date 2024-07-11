@@ -2,6 +2,8 @@
 
 #define COL_ATTACK TEXT("AttackCreatureCol")
 #define COL_BLOCK TEXT("BlockCreatureCol")
+
+#define CCHANNEL_CREATURE ECC_GameTraceChannel1
 #define CCHANNEL_LOCKTARGET ECC_GameTraceChannel2
 
 

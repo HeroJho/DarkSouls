@@ -4,13 +4,17 @@
 #include "AOE/DK_AOE_Base.h"
 
 #include "Kismet/KismetSystemLibrary.h"
-
+#include "Tool/Define.h"
 
 
 // Sets default values
 ADK_AOE_Base::ADK_AOE_Base()
 {
  	PrimaryActorTick.bCanEverTick = false;
+
+
+	SceneRootComponent = CreateDefaultSubobject<USceneComponent>("RootSceneComponent");
+	RootComponent = SceneRootComponent;
 
 	Radius = 100.f;
 	bIgnoreInstigator = true;
@@ -25,7 +29,6 @@ void ADK_AOE_Base::InitOption(float InRadius, bool InbDrawDebugSphere, bool InbI
 	bDrawDebugSphere = InbDrawDebugSphere;
 	bIgnoreInstigator = InbIgnoreInstigator;
 	bTriggerOnBeginPlay = InbTriggerOnBeginPlay;
-
 }
 
 // Called when the game starts or when spawned
@@ -49,7 +52,7 @@ void ADK_AOE_Base::Trigger()
 	}
 
 	TArray<TEnumAsByte<EObjectTypeQuery>> ColObjectTypes;
-	ColObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Pawn));
+	ColObjectTypes.Add(UEngineTypes::ConvertToObjectType(CCHANNEL_CREATURE));
 
 	TArray<AActor*> IgnoreActors;
 	if (bIgnoreInstigator)

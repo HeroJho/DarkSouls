@@ -30,9 +30,6 @@ public:
 
 	virtual void BroadcastStat() override;
 
-	FDelegateHandle AddChangeGPDelegateFunc(UObject* Object, FName FuncName);
-	void AddMaxGPDelegateFunc(UObject* Object, FName FuncName);
-
 	void IncreaseGP(int32 Value);
 	void DecreaseGP(int32 Value);
 
@@ -46,9 +43,6 @@ protected:
 
 
 protected:
-	FOnChangeDelegate Delegate_ChangeGP;
-	FOnZeroDelegate Delegate_MaxGP;
-
 	int32 MaxGP = 400;
 	int32 CurGP = 0;
 
@@ -57,6 +51,13 @@ protected:
 	bool bIsRecoveringGP = false;
 	FTimerHandle RecoveryGPTimerHandle;
 	float RecoveryGPTimeAcc = 0.f;
+
+
+
+	// Delegate
+public:
+	FOnChangeDelegate OnChangeGPDelegate;
+	FOnZeroDelegate OnMaxGPDelegate;
 
 
 };

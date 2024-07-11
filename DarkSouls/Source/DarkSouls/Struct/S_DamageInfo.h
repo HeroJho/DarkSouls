@@ -9,6 +9,13 @@ USTRUCT(BlueprintType)
 struct FS_DamageInfo
 {
 	GENERATED_USTRUCT_BODY()
+
+public:
+	FS_DamageInfo();
+	FS_DamageInfo(int32 InAmount, EDamageType InDamageType, EDamageResponse InDamageResponse, 
+		uint8 InbShouldForceInterrupt, uint8 InbShouldDamageInvincible, uint8 InbCanBeBlocked, uint8 InbCanBeParried);
+
+
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 Amount = 0;

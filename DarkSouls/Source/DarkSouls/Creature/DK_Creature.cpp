@@ -68,6 +68,7 @@ void ADK_Creature::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 
+	StatComponent->OnDamageResponseDelegate.AddUObject(this, &ADK_Creature::OnHitReaction_Notify);
 
 }
 
@@ -136,7 +137,7 @@ void ADK_Creature::OnOffHUDHPBar(bool bIsOn)
 
 
 		BossSmoothBarWidget = BossHpBarWidget;
-		BossHpBarDelegateHandle = StatComponent->AddChangeHPDelegateFunc(BossSmoothBarWidget.Get(), FName("UpdateBar"));
+		BossHpBarDelegateHandle = StatComponent->OnChangeHPDelegate.AddUFunction(BossSmoothBarWidget.Get(), FName("UpdateBar"));
 
 		StatComponent->BroadcastStat();
 
@@ -145,7 +146,7 @@ void ADK_Creature::OnOffHUDHPBar(bool bIsOn)
 	else
 	{
 		HUDWidget->RemoveBossHpBar(BossSmoothBarWidget.Get());
-		StatComponent->RemoveChangeHPDelegateFunc(BossHpBarDelegateHandle);
+		StatComponent->OnChangeHPDelegate.Remove(BossHpBarDelegateHandle);
 		
 		BossHpBarDelegateHandle.Reset();
 		BossSmoothBarWidget = nullptr;
@@ -196,9 +197,9 @@ void ADK_Creature::OnDamaged(const FAttackDamagedInfo& AttackDamagedInfo, AActor
 {
 	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Blue, FString::Printf(TEXT("%s is Attacked"), *GetName()));
 
-	// 대미지 입을 수 있는 상태 여부
-	if (!CanDamaged())
-		return;
+	//// 대미지 입을 수 있는 상태 여부
+	//if (!CanDamaged())
+	//	return;
 
 	// 회피 여부
 	if (bCanDodgeSkip)
@@ -222,38 +223,39 @@ void ADK_Creature::OnDamaged(const FAttackDamagedInfo& AttackDamagedInfo, AActor
 	// ================ 대미지를 입는다 =========================
 
 
-	// 스턴 여부
-	FVector TargetToMeDir = GetActorLocation() - CauserPos;
-	TargetToMeDir.Normalize();
+	//// 스턴 여부
+	//FVector TargetToMeDir = GetActorLocation() - CauserPos;
+	//TargetToMeDir.Normalize();
 
-	if (!AttackDamagedInfo.bIsDown)
-	{
-		if(AttackDamagedInfo.bSetStunTimeToHitAnim || !FMath::IsNearlyEqual(AttackDamagedInfo.StunTime, 0.f, 0.1f))
-			Stun(AttackDamagedInfo.StunTime, AttackDamagedInfo.bSetStunTimeToHitAnim);
-		
-		AddImpulse(TargetToMeDir, AttackDamagedInfo.HitPushPowar);
-	}
-	else
-	{
-		KnockDown(AttackDamagedInfo.StunTime);
-		AddImpulse(TargetToMeDir, AttackDamagedInfo.KnockDownPushPowar);
+	//if (!AttackDamagedInfo.bIsDown)
+	//{
+	//	if(AttackDamagedInfo.bSetStunTimeToHitAnim || !FMath::IsNearlyEqual(AttackDamagedInfo.StunTime, 0.f, 0.1f))
+	//		Stun(AttackDamagedInfo.StunTime, AttackDamagedInfo.bSetStunTimeToHitAnim);
+	//	
+	//	AddImpulse(TargetToMeDir, AttackDamagedInfo.HitPushPowar);
+	//}
+	//else
+	//{
+	//	KnockDown(AttackDamagedInfo.StunTime);
 
-		SmoothTurnByCallOnce(CauserPos, 10.f);
-	}
+	//	AddImpulse(TargetToMeDir, AttackDamagedInfo.KnockDownPushPowar);
 
-	// GP 여부
-	DamagedByGPAttacked(AttackDamagedInfo.GPValue);
+	//	SmoothTurnByCallOnce(CauserPos, 10.f);
+	//}
 
-	// 스탯
-	// StatComponent->DecreaseHP(AttackDamagedInfo.Damage);
-	FS_DamageInfo DamageInfo;
-	DamageInfo.Amount = AttackDamagedInfo.Damage;
-	DamageInfo.DamageType = EDamageType::Melee;
-	DamageInfo.bCanBeBlocked = false;
-	DamageInfo.bCanBeParried = false;
-	DamageInfo.bShouldForceInterrupt = false;
-	DamageInfo.bShouldDamageInvincible = false;
-	StatComponent->TakeDamage(DamageInfo, DamageCauser);
+	//// GP 여부
+	//DamagedByGPAttacked(AttackDamagedInfo.GPValue);
+
+	//// 스탯
+	//// StatComponent->DecreaseHP(AttackDamagedInfo.Damage);
+	//FS_DamageInfo DamageInfo;
+	//DamageInfo.Amount = AttackDamagedInfo.Damage;
+	//DamageInfo.DamageType = EDamageType::Melee;
+	//DamageInfo.bCanBeBlocked = false;
+	//DamageInfo.bCanBeParried = false;
+	//DamageInfo.bShouldForceInterrupt = false;
+	//DamageInfo.bShouldDamageInvincible = false;
+	//StatComponent->TakeDamage(DamageInfo, DamageCauser);
 
 }
 
@@ -261,8 +263,6 @@ void ADK_Creature::DamagedByGPAttacked(int32 GPValue)
 {
 	// 가상 함수
 }
-
-
 
 
 
@@ -296,6 +296,7 @@ void ADK_Creature::Stun(float StunTime, bool bSetAnimTime)
 	}
 	
 }
+
 
 void ADK_Creature::EndStun()
 {
@@ -622,14 +623,6 @@ bool ADK_Creature::CanKnockDown()
 	return true;
 }
 
-bool ADK_Creature::CanDamaged()
-{
-	if (bIsKnockDown)
-		return false;
-	
-	return true;
-}
-
 bool ADK_Creature::CanBlock()
 {
 	if (bIsDodge)
@@ -731,4 +724,52 @@ void ADK_Creature::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	OnOffHUDHPBar(false);
 
 
+}
+
+
+
+
+
+
+
+
+
+void ADK_Creature::OnHitReaction_Notify(EDamageResponse DamageResponseType, AActor* DamageCauser)
+{
+	// 그로기 수치 
+	// DamagedByGPAttacked(AttackDamagedInfo.GPValue);
+
+	switch (DamageResponseType)
+	{
+	case EDamageResponse::None:
+		break;
+	case EDamageResponse::HitReaction:
+		Stun(0.f, true);
+		//AddImpulse(TargetToMeDir, AttackDamagedInfo.HitPushPowar);
+		break;
+	case EDamageResponse::Stagger:
+		break;
+	case EDamageResponse::Stun:
+		Stun(3.f, false);
+		//AddImpulse(TargetToMeDir, AttackDamagedInfo.HitPushPowar);
+		break;
+	case EDamageResponse::KnockBack:
+		KnockDown(10.f);
+		//AddImpulse(TargetToMeDir, AttackDamagedInfo.KnockDownPushPowar);
+		break;
+	default:
+		break;
+	}
+
+}
+
+
+
+
+
+bool ADK_Creature::TakeDamage(FS_DamageInfo DamageInfo, AActor* DamageCauser)
+{
+	StatComponent->TakeDamage(DamageInfo, DamageCauser);
+
+	return false;
 }

@@ -46,18 +46,6 @@ void UDK_MonsterStatComponent::BroadcastStat()
 }
 
 
-FDelegateHandle UDK_MonsterStatComponent::AddChangeGPDelegateFunc(UObject* Object, FName FuncName)
-{
-	return Delegate_ChangeGP.AddUFunction(Object, FuncName);
-}
-
-void UDK_MonsterStatComponent::AddMaxGPDelegateFunc(UObject* Object, FName FuncName)
-{
-	Delegate_MaxGP.AddUFunction(Object, FuncName);
-}
-
-
-
 void UDK_MonsterStatComponent::IncreaseGP(int32 Value)
 {
 	CurGP = FMath::Clamp(CurGP + Value, 0, MaxGP);
@@ -65,17 +53,17 @@ void UDK_MonsterStatComponent::IncreaseGP(int32 Value)
 	if (CurGP >= MaxGP)
 	{
 		CurGP = 0;
-		Delegate_MaxGP.Broadcast();
+		OnMaxGPDelegate.Broadcast();
 	}
 
-	Delegate_ChangeGP.Broadcast(CurGP, MaxGP);
+	OnChangeGPDelegate.Broadcast(CurGP, MaxGP);
 }
 
 void UDK_MonsterStatComponent::DecreaseGP(int32 Value)
 {
 	CurGP = FMath::Clamp(CurGP - Value, 0, MaxGP);
 
-	Delegate_ChangeGP.Broadcast(CurGP, MaxGP);
+	OnChangeGPDelegate.Broadcast(CurGP, MaxGP);
 }
 
 

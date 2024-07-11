@@ -204,9 +204,8 @@ protected:
 
 
 	// TPRelease Section
-public:
-	UFUNCTION()
-	void GenRecoveryHP();
+protected:
+	void GenRecoveryHP_Notify();
 
 
 	// Condition Section
@@ -219,7 +218,6 @@ protected:
 	virtual bool CanSmoothTurn() override;
 	virtual bool CanStun() override;
 	virtual bool CanKnockDown() override;
-	virtual bool CanDamaged() override;
 	
 
 	// 상태에 들어가면 초기화해야할 작업들

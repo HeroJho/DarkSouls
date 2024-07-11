@@ -53,8 +53,8 @@ void UDK_PlayerStatComponent::BroadcastStat()
 {
 	Super::BroadcastStat();
 
-	Delegate_ChangeSP.Broadcast(CurSP, MaxSP);
-	Delegate_ChangeTP.Broadcast(CurTP, MaxTP);
+	OnChangeSPDelegate.Broadcast(CurSP, MaxSP);
+	OnChangeTPDelegate.Broadcast(CurTP, MaxTP);
 }
 
 
@@ -65,7 +65,7 @@ void UDK_PlayerStatComponent::ChangeMaxHP(int32 Value)
 	if (MaxHP < CurHP)
 		CurHP = MaxHP;
 
-	Delegate_ChangeMaxHP.Broadcast(CurHP, MaxHP);
+	OnChangeMaxHPDelegate.Broadcast(CurHP, MaxHP);
 }
 
 void UDK_PlayerStatComponent::ChangeMaxSP(int32 Value)
@@ -74,41 +74,28 @@ void UDK_PlayerStatComponent::ChangeMaxSP(int32 Value)
 	if (MaxSP < CurSP)
 		CurSP = MaxSP;
 
-	Delegate_ChangeMaxSP.Broadcast(CurSP, MaxSP);
-}
-
-void UDK_PlayerStatComponent::AddChangeMaxHPDelegateFunc(UObject* Object, FName FuncName)
-{
-	Delegate_ChangeMaxHP.AddUFunction(Object, FuncName);
-}
-
-void UDK_PlayerStatComponent::AddChangeMaxSPDelegateFunc(UObject* Object, FName FuncName)
-{
-	Delegate_ChangeMaxSP.AddUFunction(Object, FuncName);
+	OnChangeMaxSPDelegate.Broadcast(CurSP, MaxSP);
 }
 
 
 
 
 
-void UDK_PlayerStatComponent::AddChangeSPDelegateFunc(UObject* Object, FName FuncName)
-{
-	Delegate_ChangeSP.AddUFunction(Object, FuncName);
-}
+
 
 
 void UDK_PlayerStatComponent::IncreaseSP(int32 Value)
 {
 	CurSP = FMath::Clamp(CurSP + Value, 0, MaxSP);
 
-	Delegate_ChangeSP.Broadcast(CurSP, MaxSP);
+	OnChangeSPDelegate.Broadcast(CurSP, MaxSP);
 }
 
 void UDK_PlayerStatComponent::DecreaseSP(int32 Value)
 {
 	CurSP = FMath::Clamp(CurSP - Value, 0, MaxSP);
 
-	Delegate_ChangeSP.Broadcast(CurSP, MaxSP);
+	OnChangeSPDelegate.Broadcast(CurSP, MaxSP);
 }
 
 bool UDK_PlayerStatComponent::IsZeroSP()
@@ -161,28 +148,19 @@ void UDK_PlayerStatComponent::IncreaseTP(int32 Value)
 	if (CurTP >= MaxTP)
 	{
 		CurTP = 0;
-		Delegate_ReleaseTP.Broadcast();
+		OnReleaseTPDelegate.Broadcast();
 	}
 
-	Delegate_ChangeTP.Broadcast(CurTP, MaxTP);
+	OnChangeTPDelegate.Broadcast(CurTP, MaxTP);
 }
 
 void UDK_PlayerStatComponent::DecreaseTP(int32 Value)
 {
 	CurTP = FMath::Clamp(CurTP - Value, 0, MaxTP);
 
-	Delegate_ChangeTP.Broadcast(CurTP, MaxTP);
+	OnChangeTPDelegate.Broadcast(CurTP, MaxTP);
 }
 
-void UDK_PlayerStatComponent::AddChangeTPDelegateFunc(UObject* Object, FName FuncName)
-{
-	Delegate_ChangeTP.AddUFunction(Object, FuncName);
-}
-
-void UDK_PlayerStatComponent::AddReleaseTPDelegateFunc(UObject* Object, FName FuncName)
-{
-	Delegate_ReleaseTP.AddUFunction(Object, FuncName);
-}
 
 void UDK_PlayerStatComponent::DecoveryTPTick(float DeltaTime)
 {

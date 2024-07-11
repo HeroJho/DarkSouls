@@ -8,7 +8,6 @@
 #include "UI/DK_WidgetComponent.h"
 
 
-
 ADK_Monster::ADK_Monster()
 {
 	// StatComponent
@@ -23,8 +22,8 @@ void ADK_Monster::BeginPlay()
 	Super::BeginPlay();
 
 
-	MonsterStatComponent->AddMaxGPDelegateFunc(this, FName("StartGroggy"));
-	MonsterStatComponent->AddChangeHPDelegateFunc(WidgetComponent->GetWidget(), FName("UpdateBar"));
+	MonsterStatComponent->OnMaxGPDelegate.AddUObject(this, &ADK_Monster::StartGroggy);
+	MonsterStatComponent->OnChangeHPDelegate.AddUFunction(WidgetComponent->GetWidget(), FName("UpdateBar"));
 	OnOffScreenHPBar(true);
 	OnOffHUDHPBar(true);
 

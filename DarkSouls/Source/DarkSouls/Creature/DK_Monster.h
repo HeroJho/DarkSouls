@@ -25,7 +25,6 @@ protected:
 
 	// Common Section
 protected:
-	UFUNCTION()
 	void StartGroggy();
 	
 	virtual void DamagedByGPAttacked(int32 GPValue) override;
