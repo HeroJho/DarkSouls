@@ -19,11 +19,7 @@ void ADK_Greater_Spider::BeginPlay()
 
 
 }
-//
-//void ADK_Greater_Spider::OnHitReaction_Notify(EDamageResponse DamageResponseType, AActor* DamageCauser)
-//{
-//	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Blue, FString::Printf(TEXT("Spider")));
-//}
+
 
 void ADK_Greater_Spider::Skill_Combo0()
 {
@@ -101,8 +97,7 @@ void ADK_Greater_Spider::AttackAOESmash(AActor* HitActor)
 	IDK_DamageableInterface* HitActorDamageable = Cast<IDK_DamageableInterface>(HitActor);
 	if (HitActorDamageable)
 	{
-		// TODO: DamageInfo 정보 받아와서 넘기기
-		FS_DamageInfo DamageInfo(10, EDamageType::Explosion, EDamageResponse::KnockBack, false, false, true, true);
+		FS_DamageInfo DamageInfo = ComboComponent->GetCurrentAttackInfos();
 		HitActorDamageable->TakeDamage(DamageInfo, this);
 	}
 

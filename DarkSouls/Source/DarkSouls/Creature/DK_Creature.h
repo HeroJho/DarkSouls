@@ -76,8 +76,10 @@ protected:
 
 
 	// Stat
-public:
-
+protected:
+	virtual void OnHitReaction_Notify(EDamageResponse DamageResponseType, int32 GPValue, float StunTime, float KnockBackPowar, AActor* DamageCauser);
+	virtual void OnBlock_Notify(bool bCanParrying, float KnockBackPowar, AActor* DamageCauser);
+	virtual void OnDodgeSkip_Notify();
 
 protected:
 	TWeakObjectPtr<class UDK_StatComponent> StatComponent;
@@ -93,9 +95,6 @@ public:
 
 	void BeginColRange_Notify();
 	void EndColRange_Notify();
-
-	FAttackDamagedInfo GetCurrentAttackInfos();
-
 
 	void InterruptedAttack_Notify();
 
@@ -115,7 +114,9 @@ protected:
 
 	// Collsion
 public:
-	virtual void OnDamaged(const FAttackDamagedInfo& AttackDamagedInfo, AActor* DamageCauser);
+	//virtual void OnDamaged(const FAttackDamagedInfo& AttackDamagedInfo, AActor* DamageCauser);
+
+	virtual void OnColHit_Notify(IDK_DamageableInterface* HitActor);
 
 protected:
 	virtual void DamagedByGPAttacked(int32 GPValue);
@@ -142,8 +143,6 @@ public:
 	void EndKnockDown_Notify();
 	
 protected:
-	virtual void OnHitReaction_Notify(EDamageResponse DamageResponseType, AActor* DamageCauser);
-
 	virtual void EndStun();
 	virtual void EndKnockDown();
 
@@ -190,7 +189,6 @@ protected:
 	// Dodge
 protected:
 	virtual void Dodge();
-	virtual void PerfectDodge();
 
 	UFUNCTION()
 	void EndDoge(FName NotifyName);
@@ -204,8 +202,7 @@ protected:
 
 protected:
 	bool bIsDodge = false;
-	bool bCanDodgeSkip = false;
-
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Dodge, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> DodgeMontage;
 
@@ -216,7 +213,7 @@ protected:
 
 	// Block
 public:
-	FORCEINLINE bool IsBlock() { return bIsBlock; }
+	bool IsBlock();
 	FORCEINLINE FVector2D GetBlockMoveDir() { return BlockMoveDir; }
 
 	virtual void Block();
@@ -232,13 +229,10 @@ public:
 protected:
 	virtual void BlockAttack(AActor* Attacker, float PushBackPowar);
 
-	virtual bool CheckBlock(FVector AttackerPos);
-	
 
 
 
 protected:
-	bool bIsBlock = false;
 	bool bIsHitBlock = false;
 	FVector2D BlockMoveDir;
 
@@ -288,7 +282,6 @@ public:
 
 
 	// ======  Inteface ======
-
 	// Damageable
 public:
 	virtual bool TakeDamage(FS_DamageInfo DamageInfo, AActor* DamageCauser) override;

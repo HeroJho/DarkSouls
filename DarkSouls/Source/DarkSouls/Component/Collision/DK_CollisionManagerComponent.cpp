@@ -5,10 +5,8 @@
 #include "Engine/DamageEvents.h"
 
 #include "Tool/Define.h"
-#include "Tool/Struct.h"
 #include "Components/CapsuleComponent.h"
 #include "Creature/DK_Creature.h"
-#include "Interface/DK_DamageableInterface.h"
 
 // Sets default values for this component's properties
 UDK_CollisionManagerComponent::UDK_CollisionManagerComponent()
@@ -183,16 +181,8 @@ void UDK_CollisionManagerComponent::OnOverlapBegin(UPrimitiveComponent* Overlapp
 
 		ActorTemps.Add(OtherActor);
 
-		//ADK_Creature* OtherCreature = Cast<ADK_Creature>(OtherActor);
+		OnColHitDelegate.Broadcast(OtherDamageable);
 
-		//// 섹션 공격 정보
-		//const FAttackDamagedInfo& AttackDamagedInfo = CreatureOwner->GetCurrentAttackInfos();
-		//OtherCreature->OnDamaged(AttackDamagedInfo, CreatureOwner);
-
-		// 섹션 공격 정보
-		FS_DamageInfo DamageInfo(10, EDamageType::Melee, EDamageResponse::Stun, false, false, true, true);
-		OtherDamageable->TakeDamage(DamageInfo, CreatureOwner);
-		
 	}
 
 }

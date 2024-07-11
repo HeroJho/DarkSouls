@@ -143,7 +143,7 @@ protected:
 	// State Section
 public:
 	virtual void Stun(float StunTime, bool bSetAnimTime = false) override;
-	
+	virtual void OnDodgeSkip_Notify() override;
 
 protected:
 	virtual void EndStun() override;
@@ -174,8 +174,6 @@ protected:
 	// Dodge Section
 protected:
 	virtual void Dodge() override;
-
-	virtual void PerfectDodge() override;
 
 
 	// Block Secion

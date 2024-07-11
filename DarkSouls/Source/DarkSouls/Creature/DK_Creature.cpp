@@ -8,7 +8,6 @@
 #include "PlayMontageCallbackProxy.h"
 
 #include "Tool/Define.h"
-#include "Tool/Struct.h"
 #include "Game/DK_GameMode.h"
 #include "Manager/DK_UIManager.h"
 #include "Component/Combo/DK_ComboComponent.h"
@@ -69,6 +68,10 @@ void ADK_Creature::PostInitializeComponents()
 	Super::PostInitializeComponents();
 
 	StatComponent->OnDamageResponseDelegate.AddUObject(this, &ADK_Creature::OnHitReaction_Notify);
+	StatComponent->OnBlockDelegate.AddUObject(this, &ADK_Creature::OnBlock_Notify);
+	StatComponent->OnDodgSkipDelegate.AddUObject(this, &ADK_Creature::OnDodgeSkip_Notify);
+
+	CollisionManagerComponent->OnColHitDelegate.AddUObject(this, &ADK_Creature::OnColHit_Notify);
 
 }
 
@@ -181,10 +184,6 @@ void ADK_Creature::EndColRange_Notify()
 
 }
 
-FAttackDamagedInfo ADK_Creature::GetCurrentAttackInfos()
-{
-	return ComboComponent->GetCurrentAttackInfos();
-}
 
 void ADK_Creature::InterruptedAttack_Notify()
 {
@@ -193,70 +192,77 @@ void ADK_Creature::InterruptedAttack_Notify()
 }
 
 
-void ADK_Creature::OnDamaged(const FAttackDamagedInfo& AttackDamagedInfo, AActor* DamageCauser)
+//void ADK_Creature::OnDamaged(const FAttackDamagedInfo& AttackDamagedInfo, AActor* DamageCauser)
+//{
+//	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Blue, FString::Printf(TEXT("%s is Attacked"), *GetName()));
+//
+//	//// 대미지 입을 수 있는 상태 여부
+//	//if (!CanDamaged())
+//	//	return;
+//
+//	//// 회피 여부
+//	//if (bCanDodgeSkip)
+//	//{
+//	//	PerfectDodge();
+//	//	return;
+//	//}
+//
+//	//// 가드 여부
+//	//FVector CauserPos = DamageCauser->GetActorLocation();
+//	//if (CheckBlock(CauserPos))
+//	//{
+//	//	BlockAttack(DamageCauser, AttackDamagedInfo.BlockPushPowar);
+//
+//	//	return;
+//	//}
+//
+//
+//
+//
+//	// ================ 대미지를 입는다 =========================
+//
+//
+//	//// 스턴 여부
+//	//FVector TargetToMeDir = GetActorLocation() - CauserPos;
+//	//TargetToMeDir.Normalize();
+//
+//	//if (!AttackDamagedInfo.bIsDown)
+//	//{
+//	//	if(AttackDamagedInfo.bSetStunTimeToHitAnim || !FMath::IsNearlyEqual(AttackDamagedInfo.StunTime, 0.f, 0.1f))
+//	//		Stun(AttackDamagedInfo.StunTime, AttackDamagedInfo.bSetStunTimeToHitAnim);
+//	//	
+//	//	AddImpulse(TargetToMeDir, AttackDamagedInfo.HitPushPowar);
+//	//}
+//	//else
+//	//{
+//	//	KnockDown(AttackDamagedInfo.StunTime);
+//
+//	//	AddImpulse(TargetToMeDir, AttackDamagedInfo.KnockDownPushPowar);
+//
+//	//	SmoothTurnByCallOnce(CauserPos, 10.f);
+//	//}
+//
+//	//// GP 여부
+//	//DamagedByGPAttacked(AttackDamagedInfo.GPValue);
+//
+//	//// 스탯
+//	//// StatComponent->DecreaseHP(AttackDamagedInfo.Damage);
+//	//FS_DamageInfo DamageInfo;
+//	//DamageInfo.Amount = AttackDamagedInfo.Damage;
+//	//DamageInfo.DamageType = EDamageType::Melee;
+//	//DamageInfo.bCanBeBlocked = false;
+//	//DamageInfo.bCanBeParried = false;
+//	//DamageInfo.bShouldForceInterrupt = false;
+//	//DamageInfo.bShouldDamageInvincible = false;
+//	//StatComponent->TakeDamage(DamageInfo, DamageCauser);
+//
+//}
+
+void ADK_Creature::OnColHit_Notify(IDK_DamageableInterface* HitActor)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Blue, FString::Printf(TEXT("%s is Attacked"), *GetName()));
-
-	//// 대미지 입을 수 있는 상태 여부
-	//if (!CanDamaged())
-	//	return;
-
-	// 회피 여부
-	if (bCanDodgeSkip)
-	{
-		PerfectDodge();
-		return;
-	}
-
-	// 가드 여부
-	FVector CauserPos = DamageCauser->GetActorLocation();
-	if (CheckBlock(CauserPos))
-	{
-		BlockAttack(DamageCauser, AttackDamagedInfo.BlockPushPowar);
-
-		return;
-	}
-
-
-
-
-	// ================ 대미지를 입는다 =========================
-
-
-	//// 스턴 여부
-	//FVector TargetToMeDir = GetActorLocation() - CauserPos;
-	//TargetToMeDir.Normalize();
-
-	//if (!AttackDamagedInfo.bIsDown)
-	//{
-	//	if(AttackDamagedInfo.bSetStunTimeToHitAnim || !FMath::IsNearlyEqual(AttackDamagedInfo.StunTime, 0.f, 0.1f))
-	//		Stun(AttackDamagedInfo.StunTime, AttackDamagedInfo.bSetStunTimeToHitAnim);
-	//	
-	//	AddImpulse(TargetToMeDir, AttackDamagedInfo.HitPushPowar);
-	//}
-	//else
-	//{
-	//	KnockDown(AttackDamagedInfo.StunTime);
-
-	//	AddImpulse(TargetToMeDir, AttackDamagedInfo.KnockDownPushPowar);
-
-	//	SmoothTurnByCallOnce(CauserPos, 10.f);
-	//}
-
-	//// GP 여부
-	//DamagedByGPAttacked(AttackDamagedInfo.GPValue);
-
-	//// 스탯
-	//// StatComponent->DecreaseHP(AttackDamagedInfo.Damage);
-	//FS_DamageInfo DamageInfo;
-	//DamageInfo.Amount = AttackDamagedInfo.Damage;
-	//DamageInfo.DamageType = EDamageType::Melee;
-	//DamageInfo.bCanBeBlocked = false;
-	//DamageInfo.bCanBeParried = false;
-	//DamageInfo.bShouldForceInterrupt = false;
-	//DamageInfo.bShouldDamageInvincible = false;
-	//StatComponent->TakeDamage(DamageInfo, DamageCauser);
-
+	FS_DamageInfo DamageInfo = ComboComponent->GetCurrentAttackInfos();
+	
+	HitActor->TakeDamage(DamageInfo, this);
 }
 
 void ADK_Creature::DamagedByGPAttacked(int32 GPValue)
@@ -439,17 +445,15 @@ void ADK_Creature::EndNotifyDoge(FName NotifyName)
 
 void ADK_Creature::BeginDodgeSkip_Notify()
 {
-	bCanDodgeSkip = true;
+	StatComponent->SetIsDodgeSkip(true);
 }
 
 void ADK_Creature::EndDodgeSkip_Notify()
 {
-	bCanDodgeSkip = false;
+	StatComponent->SetIsDodgeSkip(false);
 }
 
-void ADK_Creature::PerfectDodge()
-{
-}
+
 
 
 
@@ -464,6 +468,11 @@ void ADK_Creature::BlockAttack(AActor* Attacker, float PushBackPowar)
 
 }
 
+bool ADK_Creature::IsBlock()
+{
+	return StatComponent->GetIsBlocking();
+}
+
 void ADK_Creature::Block()
 {
 	if (!CanBlock())
@@ -474,7 +483,9 @@ void ADK_Creature::Block()
 	GetCharacterMovement()->bOrientRotationToMovement = false;
 	GetCharacterMovement()->MaxWalkSpeed = BlockSpeed;
 
-	bIsBlock = true;
+	// TODO: 몽타주로 관리하는게 아니라서 false가 안 될 경우가 있는지 확인 필요!
+	// 모든 인터럽트에 EndBlock 호출해 주기
+	StatComponent->SetIsBlocking(true);
 	
 }
 
@@ -484,37 +495,14 @@ void ADK_Creature::EndBlock()
 	GetCharacterMovement()->MaxWalkSpeed = NormalSpeed;
 	StopSmoothTurn();
 
-	bIsBlock = false;
+	StatComponent->SetIsBlocking(false);
+
 }
 
-bool ADK_Creature::CheckBlock(FVector AttackerPos)
-{
-	if (!bIsBlock)
-		return false;
 
-	const float MaxAngle = 90.f;
-
-
-	FVector MeLook = GetActorForwardVector();
-	FVector LookAtTargetVec = AttackerPos - GetActorLocation();
-	LookAtTargetVec.Normalize();
-	MeLook.Normalize();
-	
-	float  DotResult = FVector::DotProduct(MeLook, LookAtTargetVec);
-	float Angle = (FMath::Acos(DotResult) / UE_PI) * 180.f;
-
-	if (FMath::Abs(Angle) > MaxAngle)
-		return false;
-
-
-	return true;
-}
 
 void ADK_Creature::HitBlock()
 {
-	if (!bIsBlock)
-		return;
-
 	ResetInfoOnHitBlock();
 
 	bIsHitBlock = true;
@@ -734,28 +722,38 @@ void ADK_Creature::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 
 
-void ADK_Creature::OnHitReaction_Notify(EDamageResponse DamageResponseType, AActor* DamageCauser)
+void ADK_Creature::OnHitReaction_Notify(EDamageResponse DamageResponseType, int32 GPValue, float StunTime, float KnockBackPowar, AActor* DamageCauser)
 {
 	// 그로기 수치 
-	// DamagedByGPAttacked(AttackDamagedInfo.GPValue);
+	DamagedByGPAttacked(GPValue);
+
+	bool bIsAnimStunTime = false;
+	if (StunTime <= 0.f)
+	{
+		bIsAnimStunTime = true;
+	}
+
+	FVector TargetToMeDir = GetActorLocation() - DamageCauser->GetActorLocation();
+	TargetToMeDir.Normalize();
 
 	switch (DamageResponseType)
 	{
 	case EDamageResponse::None:
 		break;
 	case EDamageResponse::HitReaction:
-		Stun(0.f, true);
-		//AddImpulse(TargetToMeDir, AttackDamagedInfo.HitPushPowar);
+		Stun(0.f, bIsAnimStunTime);
+		AddImpulse(TargetToMeDir, KnockBackPowar);
 		break;
 	case EDamageResponse::Stagger:
 		break;
 	case EDamageResponse::Stun:
-		Stun(3.f, false);
-		//AddImpulse(TargetToMeDir, AttackDamagedInfo.HitPushPowar);
+		Stun(3.f, bIsAnimStunTime);
+		AddImpulse(TargetToMeDir, KnockBackPowar);
 		break;
 	case EDamageResponse::KnockBack:
-		KnockDown(10.f);
-		//AddImpulse(TargetToMeDir, AttackDamagedInfo.KnockDownPushPowar);
+		GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Cyan, FString("sdfsfsdf"));
+		KnockDown(StunTime);
+		AddImpulse(TargetToMeDir, KnockBackPowar);
 		break;
 	default:
 		break;
@@ -763,7 +761,16 @@ void ADK_Creature::OnHitReaction_Notify(EDamageResponse DamageResponseType, AAct
 
 }
 
+void ADK_Creature::OnBlock_Notify(bool bCanParrying, float KnockBackPowar, AActor* DamageCauser)
+{
+	BlockAttack(DamageCauser, KnockBackPowar);
 
+}
+
+void ADK_Creature::OnDodgeSkip_Notify()
+{
+	// 가상함수
+}
 
 
 
@@ -773,3 +780,4 @@ bool ADK_Creature::TakeDamage(FS_DamageInfo DamageInfo, AActor* DamageCauser)
 
 	return false;
 }
+

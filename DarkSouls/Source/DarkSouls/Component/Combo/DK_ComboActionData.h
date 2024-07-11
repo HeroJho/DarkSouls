@@ -4,38 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
+#include "Struct/S_DamageInfo.h"
 #include "DK_ComboActionData.generated.h"
-
-
-USTRUCT()
-struct FAttackInfo
-{
-	GENERATED_BODY()
-
-public:
-	UPROPERTY(EditAnywhere, Category = Collision)
-	TArray<FString> AttackCollisions;
-
-
-	UPROPERTY(EditAnywhere, Category = Attack)
-	float Damage;
-	UPROPERTY(EditAnywhere, Category = Attack)
-	int32 GPValue;
-	UPROPERTY(EditAnywhere, Category = Attack)
-	uint8 bIsDown : 1;
-	UPROPERTY(EditAnywhere, Category = Attack)
-	uint8 bSetStunTimeToHitAnim : 1;
-	UPROPERTY(EditAnywhere, Category = Attack)
-	float StunTime;
-
-	UPROPERTY(EditAnywhere, Category = PushPowar)
-	float HitPushPowar;
-	UPROPERTY(EditAnywhere, Category = PushPowar)
-	float KnockDownPushPowar;
-	UPROPERTY(EditAnywhere, Category = PushPowar)
-	float BlockPushPowar;
-};
-
 
 
 UCLASS()
@@ -57,8 +27,8 @@ public:
 	UPROPERTY(EditAnywhere, Category = Combo)
 	uint8 MaxComboCount;
 
-	UPROPERTY(EditAnywhere, Category = Attack)
-	TArray<FAttackInfo> AttackColInfos;
+	UPROPERTY(EditAnywhere, Category = Damage)
+	TArray<FS_DamageInfo> DamageInfos;
 	
 
 

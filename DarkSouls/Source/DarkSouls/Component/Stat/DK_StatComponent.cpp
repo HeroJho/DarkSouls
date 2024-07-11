@@ -55,17 +55,42 @@ void UDK_StatComponent::IncreaseHP(int32 Value)
 	OnChangeHPDelegate.Broadcast(CurHP, MaxHP);
 }
 
+bool UDK_StatComponent::CheckBlock(FVector AttackerPos)
+{
+	const float BlockAngle = 90.f;
+
+	FVector MeLook = GetOwner()->GetActorForwardVector();
+	FVector LookAtTargetVec = AttackerPos - GetOwner()->GetActorLocation();
+	LookAtTargetVec.Normalize();
+	MeLook.Normalize();
+
+	float  DotResult = FVector::DotProduct(MeLook, LookAtTargetVec);
+	float Angle = (FMath::Acos(DotResult) / UE_PI) * 180.f;
+
+	if (FMath::Abs(Angle) > BlockAngle)
+		return false;
+
+
+	return true;
+}
+
 
 bool UDK_StatComponent::TakeDamage(FS_DamageInfo DamageInfo, AActor* DamageCauser)
 {
 	// 대미지를 입을 수 있는 상태냐
 	if (!bIsDead && (!bIsInvincible || DamageInfo.bShouldDamageInvincible))
 	{
-		// 블락 상태냐
-		if (bIsBlocking && DamageInfo.bCanBeBlocked)
+		// 블락 상태냐 && 블락 가능한 공격이냐 && 블락 각이냐 
+		if (bIsDodgSkip)
+		{
+			// Dodge
+			OnDodgSkipDelegate.Broadcast();
+			return false;
+		}	
+		else if (bIsBlocking && DamageInfo.bCanBeBlocked && CheckBlock(DamageCauser->GetActorLocation()))
 		{
 			// Block
-			OnBlockDelegate.Broadcast(DamageInfo.bCanBeParried, DamageCauser);
+			OnBlockDelegate.Broadcast(DamageInfo.bCanBeParried, DamageInfo.BlockKnockBackPowar, DamageCauser);
 			return false;
 		}
 		else
@@ -87,7 +112,7 @@ bool UDK_StatComponent::TakeDamage(FS_DamageInfo DamageInfo, AActor* DamageCause
 				// 인터럽트 여부
 				if (bIsInterruptible || DamageInfo.bShouldForceInterrupt)
 				{
-					OnDamageResponseDelegate.Broadcast(DamageInfo.DamageResponse, DamageCauser);
+					OnDamageResponseDelegate.Broadcast(DamageInfo.DamageResponse, DamageInfo.GPValue, DamageInfo.StunTime, DamageInfo.HitKnockBackPowar, DamageCauser);
 				}
 			}
 

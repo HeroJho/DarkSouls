@@ -17,21 +17,33 @@ public:
 
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Damage)
 	int32 Amount = 0;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Damage)
 	EDamageType DamageType;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Damage)
 	EDamageResponse DamageResponse;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Damage)
 	uint8 bShouldForceInterrupt : 1 = false;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Damage)
 	uint8 bShouldDamageInvincible : 1 = false;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Damage)
 	uint8 bCanBeBlocked : 1 = false;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Damage)
 	uint8 bCanBeParried : 1 = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hit)
+	int32 GPValue;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hit)
+	float StunTime;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hit)
+	float HitKnockBackPowar;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hit)
+	float BlockKnockBackPowar;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Col)
+	TArray<FString> AttackColInfos;
 
 };

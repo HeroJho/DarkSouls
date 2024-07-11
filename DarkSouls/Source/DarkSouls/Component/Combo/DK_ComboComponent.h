@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "Tool/Struct.h"
 #include "DK_ComboComponent.generated.h"
 
 DECLARE_MULTICAST_DELEGATE(FOnSectionEndDelegate);
@@ -30,7 +29,7 @@ public:
 	void ChangeComboActionData(uint8 DataIndex);
 
 	const TArray<FString>& GetCurrentAttackCollisionInfos();
-	FAttackDamagedInfo GetCurrentAttackInfos();
+	FS_DamageInfo GetCurrentAttackInfos();
 
 	// ex) 스턴이 걸렸을 때 호출
 	void ResetComboInfo();

@@ -4,7 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Interface/DK_DamageableInterface.h"
 #include "DK_CollisionManagerComponent.generated.h"
+
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnColHitDelegete, IDK_DamageableInterface*);
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -55,5 +59,11 @@ protected:
 
 	UPROPERTY()
 	TSet<TSoftObjectPtr<class AActor>> ActorTemps;
+
+
+	// Delegate
+public:
+	FOnColHitDelegete OnColHitDelegate;
+
 
 };

@@ -203,7 +203,7 @@ void ADK_Player::ShoulderMove(const FInputActionValue& Value)
 	AddMovementInput(ForwardDirection, MoveInputDir.X);
 	AddMovementInput(RightDirection, MoveInputDir.Y); 
 
-	if (bIsBlock)
+	if (StatComponent->GetIsBlocking())
 	{
 		// 입력 벡터를 엑터와 컨트롤러의 Yaw 차이 만큼 돌려주는 작업
 		FRotator ActorRot = GetActorRotation();
@@ -399,8 +399,9 @@ void ADK_Player::Dodge()
 	PlayerStatComponent->DecreaseSP(DodgeSP);
 }
 
-void ADK_Player::PerfectDodge()
+void ADK_Player::OnDodgeSkip_Notify()
 {
+	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Cyan, FString(TEXT("sdfsdfsdfd")));
 	PlayerStatComponent->IncreaseTP(IncreaseTPPer);
 }
 
@@ -546,7 +547,7 @@ void ADK_Player::Block()
 	}
 
 	// 처음 블락 진입
-	if (!bIsBlock)
+	if (!StatComponent->GetIsBlocking())
 	{
 		StartPerfectBlock();
 	}
@@ -556,7 +557,7 @@ void ADK_Player::Block()
 
 	PlayerStatComponent->SetRecoverySPPerSecSpeed(SlowRecoverySPPerSec);
 
-	bIsBlock = true;
+	StatComponent->SetIsBlocking(true);
 }
 
 void ADK_Player::EndBlock()
@@ -621,7 +622,7 @@ void ADK_Player::EndPerfectBlock()
 
 void ADK_Player::HitWeakBlock()
 {
-	if (!bIsBlock)
+	if (!StatComponent->GetIsBlocking())
 		return;
 
 	ResetInfoOnHitBlock();

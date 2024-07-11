@@ -183,26 +183,12 @@ void UDK_ComboComponent::ChangeComboActionData(uint8 DataIndex)
 
 const TArray<FString>& UDK_ComboComponent::GetCurrentAttackCollisionInfos()
 {
-	return ComboActionDatas[CurComboActionDataIndex]->AttackColInfos[CurrentCombo].AttackCollisions;
+	return ComboActionDatas[CurComboActionDataIndex]->DamageInfos[CurrentCombo].AttackColInfos;
 }
 
-FAttackDamagedInfo UDK_ComboComponent::GetCurrentAttackInfos()
+FS_DamageInfo UDK_ComboComponent::GetCurrentAttackInfos()
 {
-	const FAttackInfo& AttackInfo = ComboActionDatas[CurComboActionDataIndex]->AttackColInfos[CurrentCombo];
-
-	FAttackDamagedInfo Result;
-
-	Result.Damage = AttackInfo.Damage;
-	Result.GPValue = AttackInfo.GPValue;
-	Result.bIsDown = AttackInfo.bIsDown;
-	Result.bSetStunTimeToHitAnim = AttackInfo.bSetStunTimeToHitAnim;
-	Result.StunTime = AttackInfo.StunTime;
-
-	Result.HitPushPowar = AttackInfo.HitPushPowar;
-	Result.KnockDownPushPowar = AttackInfo.KnockDownPushPowar;
-	Result.BlockPushPowar = AttackInfo.BlockPushPowar;
-
-	return Result;
+	return ComboActionDatas[CurComboActionDataIndex]->DamageInfos[CurrentCombo];
 }
 
 void UDK_ComboComponent::ResetComboInfo()

@@ -10,8 +10,8 @@
 
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnChangeDelegate, int32, int32);
 DECLARE_MULTICAST_DELEGATE(FOnZeroDelegate);
-DECLARE_MULTICAST_DELEGATE_TwoParams(FOnBlockDelegate, bool, AActor*);
-DECLARE_MULTICAST_DELEGATE_TwoParams(FOnDamageResponse, EDamageResponse, AActor*);
+DECLARE_MULTICAST_DELEGATE_ThreeParams(FOnBlockDelegate, bool, float/*KnockBackPowar*/, AActor*);
+DECLARE_MULTICAST_DELEGATE_FiveParams(FOnDamageResponse, EDamageResponse, int32/*GPValue*/, float/*StunTime*/, float/*KnockBackPowar*/, AActor*);
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -41,21 +41,27 @@ protected:
 	bool bIsDead = false;
 
 
+
+
 	// TakeDamage
 public:
 	FORCEINLINE bool GetIsInterruptible() { return bIsInterruptible; }
 	FORCEINLINE bool GetIsInvincible() { return bIsInvincible; }
 	FORCEINLINE bool GetIsBlocking() { return bIsBlocking; }
+	FORCEINLINE bool GetIsDodgSkip() { return bIsDodgSkip; }
 
 	FORCEINLINE void SetIsInterruptible(bool bValue) { bIsInterruptible = bValue; }
 	FORCEINLINE void SetIsInvincible(bool bValue) { bIsInvincible = bValue; }
 	FORCEINLINE void SetIsBlocking(bool bValue) { bIsBlocking = bValue; }
+	FORCEINLINE void SetIsDodgeSkip(bool bValue) { bIsDodgSkip = bValue; }
 
 public:
 	bool TakeDamage(FS_DamageInfo DamageInfo, AActor* DamageCauser);
 
 protected:
 	void IncreaseHP(int32 Value);
+
+	bool CheckBlock(FVector AttackerPos);
 
 
 protected:
@@ -65,6 +71,8 @@ protected:
 	uint8 bIsInvincible : 1;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = DamageOption)
 	uint8 bIsBlocking : 1;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = DamageOption)
+	uint8 bIsDodgSkip : 1;
 
 
 
@@ -75,5 +83,6 @@ public:
 	FOnZeroDelegate OnDeathDelegate;
 	FOnBlockDelegate OnBlockDelegate;
 	FOnDamageResponse OnDamageResponseDelegate;
+	FOnZeroDelegate OnDodgSkipDelegate;
 
 };
