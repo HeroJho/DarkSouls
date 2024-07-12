@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "AIController.h"
+#include "Perception/AIPerceptionComponent.h"
+#include "Enum/E_AIEnum.h"
 #include "DK_AIControllerBase.generated.h"
 
 /**
@@ -18,18 +20,49 @@ public:
 	ADK_AIControllerBase();
 
 
+	// Common Section
 protected:
 	virtual void BeginPlay() override;
 	virtual void OnPossess(APawn* InPawn);
 
 protected:
-	void RunAI();
+	void RunAI(APawn* InPawn);
 	void StopAI();
 
+	// AI Section
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TObjectPtr<UBehaviorTree> BTAsset;
+	EAIState GetCurrentState();
+
+	void SetStateAsPassive();
+	void SetStateAsAttacking(AActor* AttackTarget, bool bUseLastKnownAttack);
+	void SetStateAsInvestigating(FVector Location);
+	void SetStateAsSeeking(FVector Location);
+	void SetStateAsFrozen();
+	void SetStateAsDead();
+
+	// Perception Section
+protected:
+	UFUNCTION()
+	void OnPerceptionUpdated_Notify(const TArray<AActor*>& UpdatedActors);
 	
+	bool CanSenseActor(FAIStimulus& OUT_Stimulus, AActor* Actor, EAISense Sense);
+
+	void HandleSensedSight(AActor* Actor);
+	void HandleLostSight(AActor* Actor);
+	void HandleSensedSound(FVector Location);
+	void HandleSensedDamage(AActor* Actor);
+
+	
+
+
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = AI)
+	TObjectPtr<UAIPerceptionComponent> AIPerceptionComponent;
+
+	// BBKeyName
+protected:
+	static const FName AIStateKey;
+	static const FName AttackTargetKey;
 
 
 };

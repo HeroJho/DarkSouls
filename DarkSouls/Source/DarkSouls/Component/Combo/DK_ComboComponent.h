@@ -50,7 +50,7 @@ protected:
 
 protected:
 	UPROPERTY()
-	TObjectPtr<class ADK_Creature> Owner;
+	TObjectPtr<class ADK_Object> Owner;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Attack, Meta = (AllowPrivateAccess = "true"))
 	TArray<TObjectPtr<class UDK_ComboActionData>> ComboActionDatas;

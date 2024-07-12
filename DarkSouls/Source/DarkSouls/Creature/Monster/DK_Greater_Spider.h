@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Creature/DK_Monster.h"
+#include "Creature/DK_Creature.h"
 #include "DK_Greater_Spider.generated.h"
 
 
@@ -12,7 +12,7 @@
  * 
  */
 UCLASS()
-class DARKSOULS_API ADK_Greater_Spider : public ADK_Monster
+class DARKSOULS_API ADK_Greater_Spider : public ADK_Creature
 {
 	GENERATED_BODY()
 	

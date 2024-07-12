@@ -31,6 +31,7 @@ public:
 	virtual void ResetStat();
 	virtual void BroadcastStat();
 
+	FORCEINLINE bool GetIsDead() { return bIsDead; }
 
 protected:
 	UPROPERTY(EditAnywhere, Category = StatData)

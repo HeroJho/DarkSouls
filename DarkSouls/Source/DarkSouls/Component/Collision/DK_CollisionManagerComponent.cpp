@@ -6,7 +6,7 @@
 
 #include "Tool/Define.h"
 #include "Components/CapsuleComponent.h"
-#include "Creature/DK_Creature.h"
+#include "Creature/DK_Object.h"
 
 // Sets default values for this component's properties
 UDK_CollisionManagerComponent::UDK_CollisionManagerComponent()
@@ -26,7 +26,7 @@ void UDK_CollisionManagerComponent::InitializeComponent()
 	Super::InitializeComponent();
 
 
-	CreatureOwner = Cast<ADK_Creature>(GetOwner());
+	CreatureOwner = Cast<ADK_Object>(GetOwner());
 
 	// Store All CapsuleCollisions
 	TArray<UCapsuleComponent*> Components;

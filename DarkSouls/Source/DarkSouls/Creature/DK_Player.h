@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Creature/DK_Creature.h"
+#include "Creature/DK_Object.h"
 #include "InputActionValue.h"
 #include "DK_Player.generated.h"
 
@@ -11,7 +11,7 @@
  * 
  */
 UCLASS()
-class DARKSOULS_API ADK_Player : public ADK_Creature
+class DARKSOULS_API ADK_Player : public ADK_Object
 {
 	GENERATED_BODY()
 

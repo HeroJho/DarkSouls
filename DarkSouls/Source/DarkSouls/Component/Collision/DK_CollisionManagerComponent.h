@@ -55,7 +55,7 @@ protected:
 	TMap<FString, TWeakObjectPtr<class UCapsuleComponent>> Capsules;
 
 	UPROPERTY()
-	TObjectPtr<class ADK_Creature> CreatureOwner;
+	TObjectPtr<class ADK_Object> CreatureOwner;
 
 	UPROPERTY()
 	TSet<TSoftObjectPtr<class AActor>> ActorTemps;

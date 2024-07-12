@@ -4,18 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "Component/Stat/StatData/DK_StatDataAsset.h"
-#include "DK_MonsterStatDataAsset.generated.h"
+#include "DK_CreatureStatDataAsset.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class DARKSOULS_API UDK_MonsterStatDataAsset : public UDK_StatDataAsset
+class DARKSOULS_API UDK_CreatureStatDataAsset : public UDK_StatDataAsset
 {
 	GENERATED_BODY()
 
 public:
-	UDK_MonsterStatDataAsset();
+	UDK_CreatureStatDataAsset();
 
 public:
 	UPROPERTY(EditAnywhere, Category = Stat)

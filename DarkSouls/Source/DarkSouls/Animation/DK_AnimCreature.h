@@ -25,7 +25,7 @@ protected:
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Creature)
-	TObjectPtr<class ADK_Creature> Owner;
+	TObjectPtr<class ADK_Object> Owner;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Creature)
 	TObjectPtr<class UCharacterMovementComponent> Movement;

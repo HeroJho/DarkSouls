@@ -6,7 +6,7 @@
 #include "Animation/AnimMontage.h"
 #include "PlayMontageCallbackProxy.h"
 
-#include "Creature/DK_Creature.h"
+#include "Creature/DK_Object.h"
 #include "Component/Combo/DK_ComboActionData.h"
 
 
@@ -28,7 +28,7 @@ void UDK_ComboComponent::BeginPlay()
 	Super::BeginPlay();
 
 	// ...
-	Owner = Cast<ADK_Creature>(GetOwner());
+	Owner = Cast<ADK_Object>(GetOwner());
 	
 	ChangeComboActionData(0);
 }

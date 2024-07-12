@@ -4,18 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "Component/Stat/DK_StatComponent.h"
-#include "DK_MonsterStatComponent.generated.h"
+#include "DK_CreatureStatComponent.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class DARKSOULS_API UDK_MonsterStatComponent : public UDK_StatComponent
+class DARKSOULS_API UDK_CreatureStatComponent : public UDK_StatComponent
 {
 	GENERATED_BODY()
 	
 public:
-	UDK_MonsterStatComponent();
+	UDK_CreatureStatComponent();
 
 
 public:

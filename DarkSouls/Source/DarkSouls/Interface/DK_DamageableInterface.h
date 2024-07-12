@@ -25,4 +25,6 @@ class DARKSOULS_API IDK_DamageableInterface
 public:
 	virtual bool TakeDamage(FS_DamageInfo DamageInfo, AActor* DamageCauser) = 0;
 
+	virtual bool IsDead() = 0;
+
 };

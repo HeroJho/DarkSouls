@@ -1,20 +1,20 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Component/Stat/DK_MonsterStatComponent.h"
+#include "Component/Stat/DK_CreatureStatComponent.h"
 
-#include "StatData/DK_MonsterStatDataAsset.h"
-
-
+#include "StatData/DK_CreatureStatDataAsset.h"
 
 
-UDK_MonsterStatComponent::UDK_MonsterStatComponent()
+
+
+UDK_CreatureStatComponent::UDK_CreatureStatComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 
 }
 
-void UDK_MonsterStatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UDK_CreatureStatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
@@ -27,26 +27,26 @@ void UDK_MonsterStatComponent::TickComponent(float DeltaTime, ELevelTick TickTyp
 
 
 
-void UDK_MonsterStatComponent::ResetStat(int32 CurRecoveryGPPerSpeed)
+void UDK_CreatureStatComponent::ResetStat(int32 CurRecoveryGPPerSpeed)
 {
 	Super::ResetStat();
 
 	SetRecoveryGPPerSecSpeed(CurRecoveryGPPerSpeed);
 
-	UDK_MonsterStatDataAsset* MonsterStatData = Cast<UDK_MonsterStatDataAsset>(StatData);
+	UDK_CreatureStatDataAsset* MonsterStatData = Cast<UDK_CreatureStatDataAsset>(StatData);
 
 	MaxGP = MonsterStatData->MaxGP;
 	DecreaseGP(0);
 }
 
-void UDK_MonsterStatComponent::BroadcastStat()
+void UDK_CreatureStatComponent::BroadcastStat()
 {
 	Super::BroadcastStat();
 
 }
 
 
-void UDK_MonsterStatComponent::IncreaseGP(int32 Value)
+void UDK_CreatureStatComponent::IncreaseGP(int32 Value)
 {
 	CurGP = FMath::Clamp(CurGP + Value, 0, MaxGP);
 
@@ -59,7 +59,7 @@ void UDK_MonsterStatComponent::IncreaseGP(int32 Value)
 	OnChangeGPDelegate.Broadcast(CurGP, MaxGP);
 }
 
-void UDK_MonsterStatComponent::DecreaseGP(int32 Value)
+void UDK_CreatureStatComponent::DecreaseGP(int32 Value)
 {
 	CurGP = FMath::Clamp(CurGP - Value, 0, MaxGP);
 
@@ -68,7 +68,7 @@ void UDK_MonsterStatComponent::DecreaseGP(int32 Value)
 
 
 
-void UDK_MonsterStatComponent::RecoveryGPTick(float DeltaTime)
+void UDK_CreatureStatComponent::RecoveryGPTick(float DeltaTime)
 {
 	if (CurGP <= 0)
 	{

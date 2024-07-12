@@ -167,8 +167,8 @@ void ADK_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	EnhancedInputComponent->BindAction(TargetLockAction, ETriggerEvent::Started, this, &ADK_Player::LockTarget);
 	EnhancedInputComponent->BindAction(DodgeAction, ETriggerEvent::Started, this, &ADK_Player::Dodge);
 
-	EnhancedInputComponent->BindAction(BlockAction, ETriggerEvent::Triggered, this, &ADK_Creature::Block);
-	EnhancedInputComponent->BindAction(BlockAction, ETriggerEvent::Completed, this, &ADK_Creature::EndBlock);
+	EnhancedInputComponent->BindAction(BlockAction, ETriggerEvent::Triggered, this, &ADK_Object::Block);
+	EnhancedInputComponent->BindAction(BlockAction, ETriggerEvent::Completed, this, &ADK_Object::EndBlock);
 }
 
 void ADK_Player::Tick(float DeltaTime)
@@ -573,7 +573,7 @@ void ADK_Player::BlockAttack(bool bCanParrying, float KnockBackPowar, AActor* Da
 {
 	if (bCanParrying && bIsPerfectBlock)
 	{
-		ADK_Creature* AttackerCreature = Cast<ADK_Creature>(DamageCauser);
+		ADK_Object* AttackerCreature = Cast<ADK_Object>(DamageCauser);
 		if (AttackerCreature)
 		{
 			// TODO
@@ -640,7 +640,7 @@ void ADK_Player::HitWeakBlock()
 	}
 
 	GetWorldTimerManager().ClearTimer(HitBlockTimerHandle);
-	GetWorldTimerManager().SetTimer(HitBlockTimerHandle, this, &ADK_Creature::EndHitBlock, HitDelayTime, false);
+	GetWorldTimerManager().SetTimer(HitBlockTimerHandle, this, &ADK_Object::EndHitBlock, HitDelayTime, false);
 
 	// 가드 풀기
 	EndBlock();

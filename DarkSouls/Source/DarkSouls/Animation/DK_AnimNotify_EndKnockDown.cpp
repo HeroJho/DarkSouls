@@ -3,7 +3,7 @@
 
 #include "Animation/DK_AnimNotify_EndKnockDown.h"
 
-#include "Creature/DK_Creature.h"
+#include "Creature/DK_Object.h"
 
 void UDK_AnimNotify_EndKnockDown::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
@@ -11,7 +11,7 @@ void UDK_AnimNotify_EndKnockDown::Notify(USkeletalMeshComponent* MeshComp, UAnim
 
 	if (MeshComp)
 	{
-		ADK_Creature* Creature = Cast<ADK_Creature>(MeshComp->GetOwner());
+		ADK_Object* Creature = Cast<ADK_Object>(MeshComp->GetOwner());
 		if (Creature)
 		{
 			Creature->EndKnockDown_Notify();

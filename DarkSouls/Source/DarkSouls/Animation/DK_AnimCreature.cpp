@@ -5,7 +5,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
-#include "Creature/DK_Creature.h"
+#include "Creature/DK_Object.h"
 
 UDK_AnimCreature::UDK_AnimCreature()
 {
@@ -19,7 +19,7 @@ void UDK_AnimCreature::NativeInitializeAnimation()
 	Super::NativeInitializeAnimation();
 
 
-	Owner = Cast<ADK_Creature>(GetOwningActor());
+	Owner = Cast<ADK_Object>(GetOwningActor());
 	if (Owner)
 	{
 		Movement = Owner->GetCharacterMovement();
