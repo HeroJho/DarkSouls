@@ -569,11 +569,11 @@ void ADK_Player::EndBlock()
 }
 
 
-void ADK_Player::BlockAttack(AActor* Attacker, float PushBackPowar)
+void ADK_Player::BlockAttack(bool bCanParrying, float KnockBackPowar, AActor* DamageCauser)
 {
-	if (bIsPerfectBlock)
+	if (bCanParrying && bIsPerfectBlock)
 	{
-		ADK_Creature* AttackerCreature = Cast<ADK_Creature>(Attacker);
+		ADK_Creature* AttackerCreature = Cast<ADK_Creature>(DamageCauser);
 		if (AttackerCreature)
 		{
 			// TODO
@@ -597,18 +597,17 @@ void ADK_Player::BlockAttack(AActor* Attacker, float PushBackPowar)
 	}
 	
 
-	AddImpulse(GetActorForwardVector() * -1, PushBackPowar);
+	AddImpulse(GetActorForwardVector() * -1.f, KnockBackPowar);
 
 }
 
 void ADK_Player::StartPerfectBlock()
 {
-	const float PerfectBlockTime = 0.05f;
+	const float PerfectBlockTime = 0.1f;
 
 	EndPerfectBlock();
 
 	bIsPerfectBlock = true;
-
 	GetWorldTimerManager().SetTimer(PerfectBlockTimerHandle, this, &ADK_Player::EndPerfectBlock, PerfectBlockTime, false);
 
 }

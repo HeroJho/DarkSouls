@@ -38,6 +38,5 @@ protected:
 	UFUNCTION()
 	void End_Skill_Combo0(FName NotifyName);
 
-	void AttackAOESmash(AActor* HitActor);
 
 };

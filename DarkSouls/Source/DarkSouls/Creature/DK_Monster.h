@@ -39,6 +39,12 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Stat)
 	int32 RecoveryGPPerSec = 1.f;
 
+	
+	// Attack Section
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Attack)
+	TObjectPtr<class UDK_AttackComponent> AttackComponent;
+
 
 	// Block Section
 public:

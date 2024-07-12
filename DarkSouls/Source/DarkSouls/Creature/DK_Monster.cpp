@@ -5,6 +5,7 @@
 #include "Components/ArrowComponent.h"
 
 #include "Component/Stat/DK_MonsterStatComponent.h"
+#include "Component/Attack/DK_AttackComponent.h"
 #include "UI/DK_WidgetComponent.h"
 
 
@@ -13,6 +14,9 @@ ADK_Monster::ADK_Monster()
 	// StatComponent
 	MonsterStatComponent = CreateDefaultSubobject<UDK_MonsterStatComponent>(TEXT("MonsterStatComponent"));
 	StatComponent = MonsterStatComponent;
+
+	// AttackComponent
+	AttackComponent = CreateDefaultSubobject<UDK_AttackComponent>(TEXT("AttackComponent"));
 
 }
 

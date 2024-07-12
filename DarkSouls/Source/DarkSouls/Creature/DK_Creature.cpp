@@ -461,10 +461,10 @@ void ADK_Creature::EndDodgeSkip_Notify()
 
 
 
-void ADK_Creature::BlockAttack(AActor* Attacker, float PushBackPowar)
+void ADK_Creature::BlockAttack(bool bCanParrying, float KnockBackPowar, AActor* DamageCauser)
 {
 	HitBlock();
-	AddImpulse(GetActorForwardVector() * -1.f, PushBackPowar);
+	AddImpulse(GetActorForwardVector() * -1.f, KnockBackPowar);
 
 }
 
@@ -751,7 +751,6 @@ void ADK_Creature::OnHitReaction_Notify(EDamageResponse DamageResponseType, int3
 		AddImpulse(TargetToMeDir, KnockBackPowar);
 		break;
 	case EDamageResponse::KnockBack:
-		GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Cyan, FString("sdfsfsdf"));
 		KnockDown(StunTime);
 		AddImpulse(TargetToMeDir, KnockBackPowar);
 		break;
@@ -763,7 +762,7 @@ void ADK_Creature::OnHitReaction_Notify(EDamageResponse DamageResponseType, int3
 
 void ADK_Creature::OnBlock_Notify(bool bCanParrying, float KnockBackPowar, AActor* DamageCauser)
 {
-	BlockAttack(DamageCauser, KnockBackPowar);
+	BlockAttack(bCanParrying, KnockBackPowar, DamageCauser);
 
 }
 
@@ -776,8 +775,6 @@ void ADK_Creature::OnDodgeSkip_Notify()
 
 bool ADK_Creature::TakeDamage(FS_DamageInfo DamageInfo, AActor* DamageCauser)
 {
-	StatComponent->TakeDamage(DamageInfo, DamageCauser);
-
-	return false;
+	return StatComponent->TakeDamage(DamageInfo, DamageCauser);
 }
 

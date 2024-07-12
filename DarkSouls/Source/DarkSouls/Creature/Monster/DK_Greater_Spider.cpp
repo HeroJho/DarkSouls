@@ -2,9 +2,10 @@
 
 
 #include "Creature/Monster/DK_Greater_Spider.h"
+#include "PlayMontageCallbackProxy.h"
 
 #include "Component/Combo/DK_ComboComponent.h"
-#include "PlayMontageCallbackProxy.h"
+#include "Component/Attack/DK_AttackComponent.h"
 #include "AOE/DK_AOE_Base.h"
 #include "Interface/DK_DamageableInterface.h"
 
@@ -60,15 +61,8 @@ void ADK_Greater_Spider::BeginNotify_Skill_Combo0(FName NotifyName)
 	}
 	else if (NotifyName == FName("AOESlash"))
 	{
-		const FTransform SpawnTransform(GetActorLocation());
-
-		ADK_AOE_Base* SlashAOE = GetWorld()->SpawnActorDeferred<ADK_AOE_Base>(ADK_AOE_Base::StaticClass(), SpawnTransform, this, this);
-		SlashAOE->InitOption(300.f, true, true, true);
-
-		// TODO : Edit to Lamda
-		SlashAOE->OnAOEOverlapActorDelegate.AddUObject(this, &ADK_Greater_Spider::AttackAOESmash);
-				
-		SlashAOE->FinishSpawning(SpawnTransform);
+		FVector SlashLocation = GetMesh()->GetSocketLocation(FName("Combo1_Slash"));
+		AttackComponent->AOEDamage(SlashLocation, 200.f, ComboComponent->GetCurrentAttackInfos());
 	}
 
 }
@@ -92,13 +86,3 @@ void ADK_Greater_Spider::End_Skill_Combo0(FName NotifyName)
 
 }
 
-void ADK_Greater_Spider::AttackAOESmash(AActor* HitActor)
-{
-	IDK_DamageableInterface* HitActorDamageable = Cast<IDK_DamageableInterface>(HitActor);
-	if (HitActorDamageable)
-	{
-		FS_DamageInfo DamageInfo = ComboComponent->GetCurrentAttackInfos();
-		HitActorDamageable->TakeDamage(DamageInfo, this);
-	}
-
-}

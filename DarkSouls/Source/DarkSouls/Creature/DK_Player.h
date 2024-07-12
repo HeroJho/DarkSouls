@@ -184,7 +184,7 @@ public:
 	FORCEINLINE bool IsPerfectBlock() { return bIsPerfectBlock; }
 
 protected:
-	virtual void BlockAttack(AActor* Attacker, float PushBackPowar) override;
+	virtual void BlockAttack(bool bCanParrying, float KnockBackPowar, AActor* DamageCauser) override;
 
 	void StartPerfectBlock();
 	void EndPerfectBlock();

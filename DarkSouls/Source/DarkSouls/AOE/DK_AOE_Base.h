@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Struct/S_DamageInfo.h"
 #include "DK_AOE_Base.generated.h"
 
 

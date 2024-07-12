@@ -77,6 +77,9 @@ bool UDK_StatComponent::CheckBlock(FVector AttackerPos)
 
 bool UDK_StatComponent::TakeDamage(FS_DamageInfo DamageInfo, AActor* DamageCauser)
 {
+	if (!IsValid(DamageCauser))
+		return false;
+
 	// 대미지를 입을 수 있는 상태냐
 	if (!bIsDead && (!bIsInvincible || DamageInfo.bShouldDamageInvincible))
 	{

@@ -227,7 +227,7 @@ public:
 
 
 protected:
-	virtual void BlockAttack(AActor* Attacker, float PushBackPowar);
+	virtual void BlockAttack(bool bCanParrying, float KnockBackPowar, AActor* DamageCauser);
 
 
 
@@ -285,6 +285,5 @@ public:
 	// Damageable
 public:
 	virtual bool TakeDamage(FS_DamageInfo DamageInfo, AActor* DamageCauser) override;
-
-
+	
 };
