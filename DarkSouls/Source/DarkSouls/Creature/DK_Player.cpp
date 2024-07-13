@@ -239,6 +239,7 @@ void ADK_Player::ShoulderLook(const FInputActionValue& Value)
 
 void ADK_Player::ChargeAttack(const FInputActionValue& Value)
 {
+
 	if (!CanAttack())
 	{
 		return;

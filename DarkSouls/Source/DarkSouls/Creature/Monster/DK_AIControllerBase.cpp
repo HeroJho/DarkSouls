@@ -16,12 +16,15 @@
 
 const FName ADK_AIControllerBase::AIStateKey(TEXT("AIState"));
 const FName ADK_AIControllerBase::AttackTargetKey(TEXT("AttackTarget"));
+const FName ADK_AIControllerBase::LocationOfInterestKey(TEXT("LocationOfInterest"));
 
 
 ADK_AIControllerBase::ADK_AIControllerBase()
 {
 
 	AIPerceptionComponent = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("PerceptionComponent"));
+	
+	TimetoSeekAfterLosingSight = 2.f;
 
 }
 
@@ -41,6 +44,9 @@ void ADK_AIControllerBase::OnPossess(APawn* InPawn)
 	FScriptDelegate PerceptionUpdatedDelegate;
 	PerceptionUpdatedDelegate.BindUFunction(this, FName("OnPerceptionUpdated_Notify"));
 	AIPerceptionComponent->OnPerceptionUpdated.AddUnique(PerceptionUpdatedDelegate);
+	FScriptDelegate PerceptionPorgottenDelegate;
+	PerceptionPorgottenDelegate.BindUFunction(this, FName("OnPerceptionTargetForgotten_Notify"));
+	AIPerceptionComponent->OnTargetPerceptionForgotten.AddUnique(PerceptionPorgottenDelegate);
 
 	SetStateAsPassive();
 }
@@ -120,6 +126,8 @@ void ADK_AIControllerBase::SetStateAsInvestigating(FVector Location)
 
 void ADK_AIControllerBase::SetStateAsSeeking(FVector Location)
 {
+	Blackboard->SetValueAsVector(LocationOfInterestKey, Location);
+	Blackboard->SetValueAsEnum(AIStateKey, static_cast<int8>(EAIState::Seeking));
 }
 
 void ADK_AIControllerBase::SetStateAsFrozen()
@@ -140,8 +148,6 @@ void ADK_AIControllerBase::SetStateAsDead()
 void ADK_AIControllerBase::OnPerceptionUpdated_Notify(const TArray<AActor*>& UpdatedActors)
 {
 	// 오브젝트가 인식됐거나, 벗어났을 때 호출된다.
-
-	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Cyan, FString(TEXT("sdfsfdsfsfdfs")));
 
 	for (int32 i = 0; i < UpdatedActors.Num(); ++i)
 	{
@@ -173,7 +179,16 @@ void ADK_AIControllerBase::OnPerceptionUpdated_Notify(const TArray<AActor*>& Upd
 
 	}
 
+
 }
+
+void ADK_AIControllerBase::OnPerceptionTargetForgotten_Notify(AActor* Actor)
+{
+	HandleForgetTarget(Actor);
+}
+
+
+
 
 bool ADK_AIControllerBase::CanSenseActor(FAIStimulus& OUT_Stimulus, AActor* Actor, EAISense Sense)
 {
@@ -234,7 +249,15 @@ void ADK_AIControllerBase::HandleSensedSight(AActor* Actor)
 		SetStateAsAttacking(Actor, false);
 		break;
 	case EAIState::Attacking:
-		// TODO: Don't seek target if seen again
+	{
+		// Don't seek target if seen again
+		// 시야에서 벗어낫다 들어왔다를 빠르게 반복하는 경우
+		UObject* CurTarget = Blackboard->GetValueAsObject(AttackTargetKey);
+		if (CurTarget == Actor)
+		{
+			GetWorldTimerManager().ClearTimer(SeekAttackTargetTimerHandle);
+		}
+	}
 		break;
 	case EAIState::Frozen:
 		break;
@@ -252,6 +275,30 @@ void ADK_AIControllerBase::HandleSensedSight(AActor* Actor)
 
 void ADK_AIControllerBase::HandleLostSight(AActor* Actor)
 {
+	UObject* CurTarget = Blackboard->GetValueAsObject(AttackTargetKey);
+	if (CurTarget != Actor)
+	{
+		return;
+	}
+
+	switch (GetCurrentState())
+	{
+	case EAIState::Passive:
+		break;
+	case EAIState::Attacking:
+		SetTimerLosingSight();
+		break;
+	case EAIState::Frozen:
+		SetTimerLosingSight();
+		break;
+	case EAIState::Investigating:
+		SetTimerLosingSight();
+		break;
+	case EAIState::Seeking:
+		break;
+	case EAIState::Dead:
+		break;
+	}
 
 }
 
@@ -261,4 +308,35 @@ void ADK_AIControllerBase::HandleSensedSound(FVector Location)
 
 void ADK_AIControllerBase::HandleSensedDamage(AActor* Actor)
 {
+}
+
+void ADK_AIControllerBase::HandleForgetTarget(AActor* Actor)
+{
+	UObject* CurTarget = Blackboard->GetValueAsObject(AttackTargetKey);
+	if (CurTarget == Actor)
+	{
+		SetStateAsPassive();
+	}
+
+}
+
+void ADK_AIControllerBase::SetTimerLosingSight()
+{
+	GetWorldTimerManager().ClearTimer(SeekAttackTargetTimerHandle);
+	GetWorldTimerManager().SetTimer(SeekAttackTargetTimerHandle, this, &ADK_AIControllerBase::SeekTarget, TimetoSeekAfterLosingSight, false);
+
+}
+
+void ADK_AIControllerBase::SeekTarget()
+{
+	GetWorldTimerManager().ClearTimer(SeekAttackTargetTimerHandle);
+
+	AActor* CurTarget = Cast<AActor>(Blackboard->GetValueAsObject(AttackTargetKey));
+	if (!IsValid(CurTarget))
+	{
+		SetStateAsPassive();
+		return;
+	}
+
+	SetStateAsSeeking(CurTarget->GetActorLocation());
 }

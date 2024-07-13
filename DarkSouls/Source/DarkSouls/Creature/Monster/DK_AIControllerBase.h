@@ -44,25 +44,33 @@ protected:
 protected:
 	UFUNCTION()
 	void OnPerceptionUpdated_Notify(const TArray<AActor*>& UpdatedActors);
-	
+	UFUNCTION()
+	void OnPerceptionTargetForgotten_Notify(AActor* Actor);
+
 	bool CanSenseActor(FAIStimulus& OUT_Stimulus, AActor* Actor, EAISense Sense);
 
 	void HandleSensedSight(AActor* Actor);
 	void HandleLostSight(AActor* Actor);
 	void HandleSensedSound(FVector Location);
 	void HandleSensedDamage(AActor* Actor);
+	void HandleForgetTarget(AActor* Actor);
 
-	
+	void SetTimerLosingSight();
+	UFUNCTION()
+	void SeekTarget();
 
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = AI)
 	TObjectPtr<UAIPerceptionComponent> AIPerceptionComponent;
 
+	FTimerHandle SeekAttackTargetTimerHandle;
+	float TimetoSeekAfterLosingSight;
+
 	// BBKeyName
 protected:
 	static const FName AIStateKey;
 	static const FName AttackTargetKey;
-
+	static const FName LocationOfInterestKey;
 
 };
