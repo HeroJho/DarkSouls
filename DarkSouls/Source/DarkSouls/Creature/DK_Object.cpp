@@ -491,7 +491,7 @@ void ADK_Object::Block()
 
 void ADK_Object::EndBlock()
 {
-	GetCharacterMovement()->bOrientRotationToMovement = true;
+	// GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->MaxWalkSpeed = NormalSpeed;
 	StopSmoothTurn();
 

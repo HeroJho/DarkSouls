@@ -19,12 +19,14 @@ class DARKSOULS_API ADK_AIControllerBase : public AAIController
 public:
 	ADK_AIControllerBase();
 
-
-	// Common Section
 protected:
 	virtual void BeginPlay() override;
 	virtual void OnPossess(APawn* InPawn);
 
+	// Common Section
+public:
+	void SetFocusTarget();
+		
 protected:
 	void RunAI(APawn* InPawn);
 	void StopAI();

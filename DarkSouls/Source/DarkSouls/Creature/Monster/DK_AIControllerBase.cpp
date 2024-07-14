@@ -33,7 +33,10 @@ void ADK_AIControllerBase::BeginPlay()
 {
 	Super::BeginPlay();
 
+
 }
+
+
 
 void ADK_AIControllerBase::OnPossess(APawn* InPawn)
 {
@@ -49,6 +52,22 @@ void ADK_AIControllerBase::OnPossess(APawn* InPawn)
 	AIPerceptionComponent->OnTargetPerceptionForgotten.AddUnique(PerceptionPorgottenDelegate);
 
 	SetStateAsPassive();
+}
+
+
+
+
+
+void ADK_AIControllerBase::SetFocusTarget()
+{
+	AActor* Target = Cast<AActor>(Blackboard->GetValueAsObject(AttackTargetKey));
+	if (!IsValid(Target))
+	{
+		return;
+	}
+
+	SetFocus(Target);
+
 }
 
 void ADK_AIControllerBase::RunAI(APawn* InPawn)
@@ -122,6 +141,8 @@ void ADK_AIControllerBase::SetStateAsAttacking(AActor* AttackTarget, bool bUseLa
 
 void ADK_AIControllerBase::SetStateAsInvestigating(FVector Location)
 {
+	Blackboard->SetValueAsVector(LocationOfInterestKey, Location);
+	Blackboard->SetValueAsEnum(AIStateKey, static_cast<int32>(EAIState::Investigating));
 }
 
 void ADK_AIControllerBase::SetStateAsSeeking(FVector Location)
@@ -132,10 +153,12 @@ void ADK_AIControllerBase::SetStateAsSeeking(FVector Location)
 
 void ADK_AIControllerBase::SetStateAsFrozen()
 {
+	Blackboard->SetValueAsEnum(AIStateKey, static_cast<int32>(EAIState::Frozen));
 }
 
 void ADK_AIControllerBase::SetStateAsDead()
 {
+	Blackboard->SetValueAsEnum(AIStateKey, static_cast<int32>(EAIState::Dead));
 }
 
 
@@ -304,10 +327,50 @@ void ADK_AIControllerBase::HandleLostSight(AActor* Actor)
 
 void ADK_AIControllerBase::HandleSensedSound(FVector Location)
 {
+	switch (GetCurrentState())
+	{
+	case EAIState::Passive:
+		SetStateAsInvestigating(Location);
+		break;
+	case EAIState::Attacking:
+		break;
+	case EAIState::Frozen:
+		break;
+	case EAIState::Investigating:
+		SetStateAsInvestigating(Location);
+		break;
+	case EAIState::Seeking:
+		SetStateAsInvestigating(Location);
+		break;
+	case EAIState::Dead:
+		break;
+	default:
+		break;
+	}
 }
 
 void ADK_AIControllerBase::HandleSensedDamage(AActor* Actor)
 {
+	switch (GetCurrentState())
+	{
+	case EAIState::Passive:
+		SetStateAsAttacking(Actor, false);
+		break;
+	case EAIState::Attacking:
+		break;
+	case EAIState::Frozen:
+		break;
+	case EAIState::Investigating:
+		SetStateAsAttacking(Actor, false);
+		break;
+	case EAIState::Seeking:
+		SetStateAsAttacking(Actor, false);
+		break;
+	case EAIState::Dead:
+		break;
+	default:
+		break;
+	}
 }
 
 void ADK_AIControllerBase::HandleForgetTarget(AActor* Actor)

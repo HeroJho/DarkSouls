@@ -565,6 +565,7 @@ void ADK_Player::EndBlock()
 {
 	Super::EndBlock();
 
+	GetCharacterMovement()->bOrientRotationToMovement = true;
 	PlayerStatComponent->SetRecoverySPPerSecSpeed(NormalRecoverySPPerSec);
 
 }
