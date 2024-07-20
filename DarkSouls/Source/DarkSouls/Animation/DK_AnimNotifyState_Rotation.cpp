@@ -75,4 +75,5 @@ void UDK_AnimNotifyState_Rotation::NotifyEnd(USkeletalMeshComponent* MeshComp, U
 	Movement->bOrientRotationToMovement = true;
 	AIController->ClearFocus(EAIFocusPriority::Gameplay);
 	AIController->SetControlRotation(CharacterOwner->GetActorRotation());
+
 }
