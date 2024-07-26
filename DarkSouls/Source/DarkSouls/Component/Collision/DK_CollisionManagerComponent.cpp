@@ -34,7 +34,7 @@ void UDK_CollisionManagerComponent::InitializeComponent()
 
 	for (int32 i = 0; i < Components.Num(); ++i)
 	{
-		if (Components[i]->ComponentHasTag(TEXT("NoManage")))
+		if (Components[i]->ComponentHasTag(COLTAG_NOMANAGE))
 			continue;
 
 	
@@ -98,14 +98,22 @@ void UDK_CollisionManagerComponent::TurnBlockCol(const TArray<FString>& CapsuleN
 {
 	for (int32 i = 0; i < CapsuleNames.Num(); ++i)
 	{
-		
-		if (Capsules[CapsuleNames[i]]->ComponentHasTag(TEXT("NoBlock")))
-			continue;
-
 		if (!Capsules[CapsuleNames[i]].IsValid())
 			continue;
 
-		Capsules[CapsuleNames[i]]->SetCollisionProfileName(COL_BLOCK);
+		if (Capsules[CapsuleNames[i]]->ComponentHasTag(COLTAG_ONLYATTACK))
+			continue;
+
+
+		if (Capsules[CapsuleNames[i]]->ComponentHasTag(COLTAG_NOBLOCK))
+		{
+			Capsules[CapsuleNames[i]]->SetCollisionProfileName(COL_NONBLOCK);
+		}
+		else
+		{
+			Capsules[CapsuleNames[i]]->SetCollisionProfileName(COL_BLOCK);
+		}
+
 		// Capsules[CapsuleNames[i]]->bHiddenInGame = true;
 	}
 }
@@ -117,11 +125,19 @@ void UDK_CollisionManagerComponent::TurnBlockAllCol()
 		if (!Iter.Value.IsValid())
 			continue;
 
-		if (Iter.Value->ComponentHasTag(TEXT("NoBlock")))
+		if (Iter.Value->ComponentHasTag(COLTAG_ONLYATTACK))
 			continue;
 
-		Iter.Value->SetCollisionProfileName(COL_BLOCK);
-		// Iter.Value->bHiddenInGame = true;
+
+		if (Iter.Value->ComponentHasTag(COLTAG_NOBLOCK))
+		{
+			Iter.Value->SetCollisionProfileName(COL_NONBLOCK);
+		}
+		else
+		{
+			Iter.Value->SetCollisionProfileName(COL_BLOCK);
+		}
+
 	}
 }
 
