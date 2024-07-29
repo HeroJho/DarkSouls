@@ -147,7 +147,8 @@ bool UDK_CollisionManagerComponent::CheckIsAttackCol(FString Name)
 	
 	if (Capsule != nullptr && (*Capsule).IsValid())
 	{
-		if ((*Capsule)->GetCollisionProfileName() == COL_ATTACK)
+		const FName& ProfileName = (*Capsule)->GetCollisionProfileName();
+		if (ProfileName == COL_ATTACK || ProfileName == COL_NONBLOCK)
 		{
 			return true;
 		}
@@ -186,8 +187,6 @@ void UDK_CollisionManagerComponent::OnOverlapBegin(UPrimitiveComponent* Overlapp
 		return;
 
 	FString ColName = OverlappedComp->GetName();
-
-
 	// 공격 판정 콜라이더라면 
 	if (CheckIsAttackCol(ColName))
 	{
