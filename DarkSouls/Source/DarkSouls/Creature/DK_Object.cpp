@@ -326,7 +326,7 @@ void ADK_Object::KnockDown(float KnockDownTime)
 	bIsKnockDown = true;
 
 	GetWorldTimerManager().ClearTimer(KnockDownTimerHandle);
-	GetWorldTimerManager().SetTimer(KnockDownTimerHandle, this, &ADK_Object::EndKnockDown, KnockDownTime, false);
+	GetWorldTimerManager().SetTimer(KnockDownTimerHandle, this, &ADK_Object::StartEndKnockDown, KnockDownTime, false);
 
 	if (StartKnockDownMontage)
 	{
@@ -335,16 +335,27 @@ void ADK_Object::KnockDown(float KnockDownTime)
 
 }
 
-void ADK_Object::EndKnockDown()
+void ADK_Object::StartEndKnockDown()
 {
-	// 일어서는 모션에서 EndKnockDown_Notify 호출
-	bIsPlayEndKnockDown = true;
+	// 일어서는 모션에서 EndKnockDown 호출
+	if (EndKnockDownMontage)
+	{
+		PlayAnimMontage(EndKnockDownMontage, 1.f);
+		float PlayTime = EndKnockDownMontage->GetPlayLength();
+
+		GetWorldTimerManager().ClearTimer(KnockDownTimerHandle);
+		GetWorldTimerManager().SetTimer(KnockDownTimerHandle, this, &ADK_Object::EndKnockDown, PlayTime - 0.5f, false);
+		
+	}
+	else
+	{
+		bIsKnockDown = false;
+	}
 }
 
-void ADK_Object::EndKnockDown_Notify()
+void ADK_Object::EndKnockDown()
 {
 	bIsKnockDown = false;
-	bIsPlayEndKnockDown = false;
 }
 
 

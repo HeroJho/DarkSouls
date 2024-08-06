@@ -134,33 +134,33 @@ protected:
 public:
 	FORCEINLINE bool IsStun() { return bIsStun; }
 	FORCEINLINE bool IsKnockDown() { return bIsKnockDown; }
-	FORCEINLINE bool IsPlayEndKnockDown() { return bIsPlayEndKnockDown; }
 
 public:	
 	virtual void Stun(float StunTime, bool bSetAnimTime = false);
 	virtual void KnockDown(float KnockDownTime);
 
-	void EndKnockDown_Notify();
 	
 protected:
 	virtual void EndStun();
-	virtual void EndKnockDown();
+	virtual void StartEndKnockDown();
 
+	void EndKnockDown();
 
 protected:
 	FTimerHandle StunTimerHandle;
 	bool bIsStun = false;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stun, Meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Init, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> HitMontage;
 
 
 	FTimerHandle KnockDownTimerHandle;
 	bool bIsKnockDown = false;
-	bool bIsPlayEndKnockDown = false;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stun, Meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Init)
 	TObjectPtr<class UAnimMontage> StartKnockDownMontage;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Init)
+	TObjectPtr<class UAnimMontage> EndKnockDownMontage;
 
 
 

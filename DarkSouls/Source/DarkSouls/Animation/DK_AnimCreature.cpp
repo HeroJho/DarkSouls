@@ -44,7 +44,6 @@ void UDK_AnimCreature::NativeUpdateAnimation(float DeltaSeconds)
 	{
 		bIsStun = Owner->IsStun();
 		bIsKnockDown = Owner->IsKnockDown();
-		bIsPlayEndKnockDown = Owner->IsPlayEndKnockDown();
 
 		bIsBlock = Owner->IsBlock();
 		BlockMoveDir = Owner->GetBlockMoveDir();
