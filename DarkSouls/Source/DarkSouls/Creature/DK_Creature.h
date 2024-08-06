@@ -35,7 +35,7 @@ public:
 	FORCEINLINE UBehaviorTree* GetBTAsset() { return BTAsset; }
 
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Init)
 	TObjectPtr<UBehaviorTree> BTAsset;
 
 
