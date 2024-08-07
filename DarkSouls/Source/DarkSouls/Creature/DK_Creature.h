@@ -38,6 +38,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Init)
 	TObjectPtr<UBehaviorTree> BTAsset;
 
+	TObjectPtr<ADK_AIControllerBase> AIControllerBase;
+
 
 
 	// Stat Section
