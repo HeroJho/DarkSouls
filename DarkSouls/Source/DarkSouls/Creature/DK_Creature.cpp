@@ -19,11 +19,15 @@ ADK_Creature::ADK_Creature()
 	// AttackComponent
 	AttackComponent = CreateDefaultSubobject<UDK_AttackComponent>(TEXT("AttackComponent"));
 	
-
-	AIControllerBase = Cast<ADK_AIControllerBase>(GetController());
-
 }
 
+
+void ADK_Creature::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	AIControllerBase = Cast<ADK_AIControllerBase>(NewController);
+}
 
 void ADK_Creature::BeginPlay()
 {
@@ -62,6 +66,22 @@ void ADK_Creature::BeBlockedPerfectly(int32 GPValue)
 	CreatureStatComponent->IncreaseGP(GPValue);
 
 }
+
+void ADK_Creature::SetIsKnockDown(bool bValue)
+{
+	Super::SetIsKnockDown(bValue);
+
+	if (bValue)
+	{
+		AIControllerBase->SetStateAsFrozen();
+	}
+	else
+	{
+		AIControllerBase->SetStateAsAttacking(nullptr, true);
+	}
+
+}
+
 
 
 bool ADK_Creature::CanKnockDown()

@@ -275,6 +275,7 @@ void ADK_Object::DamagedByGPAttacked(int32 GPValue)
 
 
 
+
 void ADK_Object::Stun(float StunTime, bool bSetAnimTime)
 {
 	if (!CanStun())
@@ -314,25 +315,37 @@ void ADK_Object::EndStun()
 }
 
 
+void ADK_Object::SetIsKnockDown(bool bValue)
+{
+	bIsKnockDown = bValue;
+}
+
 
 void ADK_Object::KnockDown(float KnockDownTime)
 {
 	if (!CanKnockDown())
 		return;
 
-
 	ResetInfoOnKnockDown();
-
-	bIsKnockDown = true;
 
 	GetWorldTimerManager().ClearTimer(KnockDownTimerHandle);
 	GetWorldTimerManager().SetTimer(KnockDownTimerHandle, this, &ADK_Object::StartEndKnockDown, KnockDownTime, false);
 
 	if (StartKnockDownMontage)
 	{
-		PlayAnimMontage(StartKnockDownMontage, 1.f);
-	}
+		/*PlayAnimMontage(StartKnockDownMontage, 1.f);*/
 
+		SetMontageCallbackProxyWithIntrrupted(UPlayMontageCallbackProxy::CreateProxyObjectForPlayMontage(
+			GetMesh(), StartKnockDownMontage, 1.f, 0.f));
+
+		//GetMontageCallbackProxy()->OnCompleted.AddDynamic(this, &UDK_ComboComponent::EndComboAction);
+		//GetMontageCallbackProxy()->OnInterrupted.AddDynamic(this, &UDK_ComboComponent::InterruptedComboAction);
+		//GetMontageCallbackProxy()->OnNotifyBegin.AddDynamic(this, &UDK_ComboComponent::BeginNotifyComboAction);
+		//GetMontageCallbackProxy()->OnNotifyEnd.AddDynamic(this, &UDK_ComboComponent::EndNotifyComboAction);
+
+	}
+	
+	SetIsKnockDown(true);
 }
 
 void ADK_Object::StartEndKnockDown()
@@ -340,7 +353,11 @@ void ADK_Object::StartEndKnockDown()
 	// 일어서는 모션에서 EndKnockDown 호출
 	if (EndKnockDownMontage)
 	{
-		PlayAnimMontage(EndKnockDownMontage, 1.f);
+		//PlayAnimMontage(EndKnockDownMontage, 1.f);
+		SetMontageCallbackProxyWithIntrrupted(UPlayMontageCallbackProxy::CreateProxyObjectForPlayMontage(
+			GetMesh(), EndKnockDownMontage, 1.f, 0.f));
+
+
 		float PlayTime = EndKnockDownMontage->GetPlayLength();
 
 		GetWorldTimerManager().ClearTimer(KnockDownTimerHandle);
@@ -349,13 +366,13 @@ void ADK_Object::StartEndKnockDown()
 	}
 	else
 	{
-		bIsKnockDown = false;
+		SetIsKnockDown(false);
 	}
 }
 
 void ADK_Object::EndKnockDown()
 {
-	bIsKnockDown = false;
+	SetIsKnockDown(false);
 }
 
 
@@ -710,8 +727,8 @@ void ADK_Object::ResetInfoOnHitBlock()
 
 void ADK_Object::SetMontageCallbackProxyWithIntrrupted(UPlayMontageCallbackProxy* Proxy)
 {
-	if (IsValid(PlayMontageCallbackProxy))
-		PlayMontageCallbackProxy->OnInterrupted.Broadcast(NAME_None);
+	/*if (IsValid(PlayMontageCallbackProxy))
+		PlayMontageCallbackProxy->OnInterrupted.Broadcast(NAME_None);*/
 
 	PlayMontageCallbackProxy = Proxy;
 }

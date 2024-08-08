@@ -20,8 +20,8 @@ public:
 
 
 protected:
+	virtual void PossessedBy(AController* NewController) override;
 	virtual void BeginPlay() override;
-
 	virtual void PostInitializeComponents() override;
 
 	// Common Section
@@ -61,6 +61,10 @@ protected:
 public:
 	virtual void BeBlockedPerfectly(int32 GPValue) override;
 
+
+	// Stun
+public:
+	virtual void SetIsKnockDown(bool bValue) override;
 
 	
 	// Condition Section

@@ -134,15 +134,16 @@ protected:
 public:
 	FORCEINLINE bool IsStun() { return bIsStun; }
 	FORCEINLINE bool IsKnockDown() { return bIsKnockDown; }
+	virtual void SetIsKnockDown(bool bValue);
+
 
 public:	
 	virtual void Stun(float StunTime, bool bSetAnimTime = false);
 	virtual void KnockDown(float KnockDownTime);
-
 	
 protected:
 	virtual void EndStun();
-	virtual void StartEndKnockDown();
+	void StartEndKnockDown();
 
 	void EndKnockDown();
 

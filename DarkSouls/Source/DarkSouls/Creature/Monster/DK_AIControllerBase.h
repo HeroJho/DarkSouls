@@ -32,14 +32,16 @@ protected:
 	void StopAI();
 
 	// AI Section
+public:
+	void SetStateAsFrozen();
+	void SetStateAsAttacking(AActor* AttackTarget, bool bUseLastKnownAttack);
+
 protected:
 	EAIState GetCurrentState();
 
 	void SetStateAsPassive();
-	void SetStateAsAttacking(AActor* AttackTarget, bool bUseLastKnownAttack);
 	void SetStateAsInvestigating(FVector Location);
 	void SetStateAsSeeking(FVector Location);
-	void SetStateAsFrozen();
 	void SetStateAsDead();
 
 	// Perception Section
