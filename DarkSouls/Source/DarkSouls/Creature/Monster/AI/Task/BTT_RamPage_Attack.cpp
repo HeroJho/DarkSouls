@@ -27,10 +27,13 @@ EBTNodeResult::Type UBTT_RamPage_Attack::ExecuteTask(UBehaviorTreeComponent & Ow
 		return EBTNodeResult::Failed;
 	}
 
-	RPOwner->Skill_Combo0();
-	RPOwner->OnAttackEnd.AddUObject(this, &UBTT_RamPage_Attack::FinishTask);
-
-
+	if (!RPOwner->Skill_Combo0())
+	{
+		return EBTNodeResult::Failed;
+	}
+		
+	RPOwner->OnAttackEnd.Remove(FinishTaskHandle);
+	FinishTaskHandle = RPOwner->OnAttackEnd.AddUObject(this, &UBTT_RamPage_Attack::FinishTask);
 
 	return EBTNodeResult::InProgress;
 }

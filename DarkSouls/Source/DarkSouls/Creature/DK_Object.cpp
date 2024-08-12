@@ -73,6 +73,8 @@ void ADK_Object::PostInitializeComponents()
 
 	CollisionManagerComponent->OnColHitDelegate.AddUObject(this, &ADK_Object::OnColHit_Notify);
 
+	OnAttackEnd.AddUObject(this, &ADK_Object::EndAttack_Notify);
+
 }
 
 // Called when the game starts or when spawned
@@ -189,6 +191,11 @@ void ADK_Object::InterruptedAttack_Notify()
 {
 	EndAttackRange_Notify();
 	EndColRange_Notify();
+}
+
+void ADK_Object::EndAttack_Notify()
+{
+	bIsAttacking = false;
 }
 
 

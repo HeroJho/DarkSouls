@@ -90,6 +90,8 @@ protected:
 public:
 	FORCEINLINE bool IsInAttackRange() { return bIsInAttackRange; }
 
+	FORCEINLINE bool IsAttacking() { return bIsAttacking; }
+
 	void BeginAttackRange_Notify();
 	void EndAttackRange_Notify();
 
@@ -97,6 +99,8 @@ public:
 	void EndColRange_Notify();
 
 	void InterruptedAttack_Notify();
+
+	void EndAttack_Notify();
 
 
 protected:

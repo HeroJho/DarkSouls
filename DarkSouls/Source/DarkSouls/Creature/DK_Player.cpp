@@ -402,7 +402,6 @@ void ADK_Player::Dodge()
 
 void ADK_Player::OnDodgeSkip_Notify()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Cyan, FString(TEXT("sdfsdfsdfd")));
 	PlayerStatComponent->IncreaseTP(IncreaseTPPer);
 }
 

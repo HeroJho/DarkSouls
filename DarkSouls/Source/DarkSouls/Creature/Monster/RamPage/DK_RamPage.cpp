@@ -21,10 +21,12 @@ void ADK_RamPage::BeginPlay()
 
 }
 
-void ADK_RamPage::Skill_Combo0()
+bool ADK_RamPage::Skill_Combo0()
 {
 	if (!CanAttack())
-		return;
+	{
+		return false;
+	}
 
 	ResetInfoOnAttack();
 
@@ -36,6 +38,9 @@ void ADK_RamPage::Skill_Combo0()
 
 	ComboComponent->ProcessComboCommand(true);
 
+	bIsAttacking = true;
+
+	return true;
 }
 
 void ADK_RamPage::BindFunction_Skill_Combo0()

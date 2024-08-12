@@ -32,4 +32,6 @@ protected:
 protected:
 	UPROPERTY()
 	TObjectPtr<UBehaviorTreeComponent> BTComponentOwner;
+
+	FDelegateHandle FinishTaskHandle;
 };

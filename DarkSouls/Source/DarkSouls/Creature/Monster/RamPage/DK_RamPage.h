@@ -23,7 +23,7 @@ protected:
 
 	// Skill Section
 public:
-	void Skill_Combo0();
+	bool Skill_Combo0();
 
 protected:
 	void BindFunction_Skill_Combo0();

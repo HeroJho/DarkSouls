@@ -36,6 +36,8 @@ void UDK_ComboComponent::BeginPlay()
 
 void UDK_ComboComponent::ProcessComboCommand(bool InbIsAllProcess)
 {
+	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Cyan, FString("AAAAAAA"));
+
 	bIsAllProcess = InbIsAllProcess;
 
 	// 예약 상태라면 기존 재생하던 섹션만 재생한다
@@ -51,6 +53,7 @@ void UDK_ComboComponent::ProcessComboCommand(bool InbIsAllProcess)
 	}
 	else
 	{
+		GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Cyan, FString("CCCCCCC"));
 		bHasNextComboCommand = true;
 	}
 
@@ -167,8 +170,8 @@ void UDK_ComboComponent::ChangeComboActionData(uint8 DataIndex)
 
 	if (AnimInstance)
 	{
-		// 몽타주가 실행중인데, 콤보를 바꾼다? -> 기존꺼 끝내고 바꾼다
-		if (AnimInstance->IsAnyMontagePlaying())
+		// 콤보 중에, 콤보를 바꾸면
+		if (Owner->IsAttacking())
 		{
 			ReserveComboActionDataIndex = DataIndex;
 		}
