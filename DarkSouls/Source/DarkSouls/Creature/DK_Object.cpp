@@ -344,12 +344,6 @@ void ADK_Object::KnockDown(float KnockDownTime)
 
 		SetMontageCallbackProxyWithIntrrupted(UPlayMontageCallbackProxy::CreateProxyObjectForPlayMontage(
 			GetMesh(), StartKnockDownMontage, 1.f, 0.f));
-
-		//GetMontageCallbackProxy()->OnCompleted.AddDynamic(this, &UDK_ComboComponent::EndComboAction);
-		//GetMontageCallbackProxy()->OnInterrupted.AddDynamic(this, &UDK_ComboComponent::InterruptedComboAction);
-		//GetMontageCallbackProxy()->OnNotifyBegin.AddDynamic(this, &UDK_ComboComponent::BeginNotifyComboAction);
-		//GetMontageCallbackProxy()->OnNotifyEnd.AddDynamic(this, &UDK_ComboComponent::EndNotifyComboAction);
-
 	}
 	
 	SetIsKnockDown(true);
@@ -357,18 +351,23 @@ void ADK_Object::KnockDown(float KnockDownTime)
 
 void ADK_Object::StartEndKnockDown()
 {
-	// 일어서는 모션에서 EndKnockDown 호출
 	if (EndKnockDownMontage)
 	{
-		//PlayAnimMontage(EndKnockDownMontage, 1.f);
 		SetMontageCallbackProxyWithIntrrupted(UPlayMontageCallbackProxy::CreateProxyObjectForPlayMontage(
 			GetMesh(), EndKnockDownMontage, 1.f, 0.f));
 
+		// PlayMontageCallbackProxy->OnCompleted.AddDynamic(this, &ADK_Object::EndKnockDown);
+		PlayMontageCallbackProxy->OnInterrupted.AddDynamic(this, &ADK_Object::EndKnockDown);
 
+
+		const float DisPlayTime = 0.25f;
 		float PlayTime = EndKnockDownMontage->GetPlayLength();
-
+		
 		GetWorldTimerManager().ClearTimer(KnockDownTimerHandle);
-		GetWorldTimerManager().SetTimer(KnockDownTimerHandle, this, &ADK_Object::EndKnockDown, PlayTime - 0.5f, false);
+
+		FTimerDelegate KnockDownTimer;
+		KnockDownTimer.BindUFunction(this, FName("EndKnockDown"), FName());
+		GetWorldTimerManager().SetTimer(KnockDownTimerHandle, KnockDownTimer, PlayTime - DisPlayTime, false);
 		
 	}
 	else
@@ -377,8 +376,9 @@ void ADK_Object::StartEndKnockDown()
 	}
 }
 
-void ADK_Object::EndKnockDown()
+void ADK_Object::EndKnockDown(FName NotifyName)
 {
+	GetWorldTimerManager().ClearTimer(KnockDownTimerHandle);
 	SetIsKnockDown(false);
 }
 

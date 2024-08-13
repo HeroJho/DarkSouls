@@ -36,8 +36,6 @@ void UDK_ComboComponent::BeginPlay()
 
 void UDK_ComboComponent::ProcessComboCommand(bool InbIsAllProcess)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Cyan, FString("AAAAAAA"));
-
 	bIsAllProcess = InbIsAllProcess;
 
 	// 예약 상태라면 기존 재생하던 섹션만 재생한다
@@ -53,7 +51,6 @@ void UDK_ComboComponent::ProcessComboCommand(bool InbIsAllProcess)
 	}
 	else
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Cyan, FString("CCCCCCC"));
 		bHasNextComboCommand = true;
 	}
 

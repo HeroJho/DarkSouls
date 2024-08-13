@@ -148,8 +148,8 @@ public:
 protected:
 	virtual void EndStun();
 	void StartEndKnockDown();
-
-	void EndKnockDown();
+	UFUNCTION()
+	void EndKnockDown(FName NotifyName);
 
 protected:
 	FTimerHandle StunTimerHandle;

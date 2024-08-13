@@ -312,7 +312,7 @@ void ADK_AIControllerBase::HandleLostSight(AActor* Actor)
 		SetTimerLosingSight();
 		break;
 	case EAIState::Frozen:
-		SetTimerLosingSight();
+		// SetTimerLosingSight();
 		break;
 	case EAIState::Investigating:
 		SetTimerLosingSight();
