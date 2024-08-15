@@ -3,17 +3,17 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Animation/AnimInstance.h"
+#include "Animation/DK_AnimObject.h"
 #include "DK_AnimCreature.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class DARKSOULS_API UDK_AnimCreature : public UAnimInstance
+class DARKSOULS_API UDK_AnimCreature : public UDK_AnimObject
 {
 	GENERATED_BODY()
-
+	
 public:
 	UDK_AnimCreature();
 
@@ -24,46 +24,12 @@ protected:
 
 
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Creature)
-	TObjectPtr<class ADK_Object> Owner;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Creature)
-	TObjectPtr<class UCharacterMovementComponent> Movement;
+	TWeakObjectPtr<class AAIController> AIController;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Creature)
-	FVector Velocity;
+	uint8 bIsFocusingTarget : 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Creature)
-	float GroundSpeed;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Creature)
-	uint8 bIsIdle : 1;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Creature)
-	float MovingThreshould;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Creature)
-	float JumpingThreshould;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Creature)
-	uint8 bIsFalling : 1;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Creature)
-	uint8 bIsJumping : 1;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Creature)
-	uint8 bIsStun : 1;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Creature)
-	uint8 bIsKnockDown : 1;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Creature)
-	uint8 bIsBlock : 1;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Creature)
-	float BlockSpeed;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Creature)
-	FVector2D BlockMoveDir;
-
+	float RotValDisDegree;
 
 };

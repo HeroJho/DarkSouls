@@ -182,6 +182,8 @@ public:
 	virtual void EndBlock() override;
 	
 	FORCEINLINE bool IsPerfectBlock() { return bIsPerfectBlock; }
+	FORCEINLINE FVector2D GetBlockMoveDir() { return BlockMoveDir; }
+
 
 protected:
 	virtual void BlockAttack(bool bCanParrying, float KnockBackPowar, AActor* DamageCauser) override;
@@ -195,6 +197,7 @@ protected:
 protected:	
 	bool bIsPerfectBlock = false;
 	FTimerHandle PerfectBlockTimerHandle;
+	FVector2D BlockMoveDir;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Block, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> BlockWeakHitMontage;

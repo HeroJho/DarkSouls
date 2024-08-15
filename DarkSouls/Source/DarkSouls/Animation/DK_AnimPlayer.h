@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Animation/DK_AnimCreature.h"
+#include "Animation/DK_AnimObject.h"
 #include "DK_AnimPlayer.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class DARKSOULS_API UDK_AnimPlayer : public UDK_AnimCreature
+class DARKSOULS_API UDK_AnimPlayer : public UDK_AnimObject
 {
 	GENERATED_BODY()
 	
@@ -29,6 +29,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Player)
 	uint8 bIsCharging : 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Creature)
+	FVector2D BlockMoveDir;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Player)
 	TObjectPtr<class ADK_Player> PlayerOwner;

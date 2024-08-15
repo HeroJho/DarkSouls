@@ -2,51 +2,38 @@
 
 
 #include "Animation/DK_AnimCreature.h"
-#include "GameFramework/Character.h"
-#include "GameFramework/CharacterMovementComponent.h"
+#include "AIController.h"
 
 #include "Creature/DK_Object.h"
 
 UDK_AnimCreature::UDK_AnimCreature()
 {
-	MovingThreshould = 3.0f;
-	JumpingThreshould = 100.0f;
-
 }
 
 void UDK_AnimCreature::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();
 
-
-	Owner = Cast<ADK_Object>(GetOwningActor());
-	if (Owner)
-	{
-		Movement = Owner->GetCharacterMovement();
-		BlockSpeed = Owner->GetBlockSpeed();
-	}
+	if(Owner)
+		AIController = Cast<AAIController>(Owner->GetController());
 }
 
 void UDK_AnimCreature::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
 
-	if (Movement)
-	{
-		Velocity = Movement->Velocity;
-		GroundSpeed = Velocity.Size2D();
-		bIsIdle = GroundSpeed < MovingThreshould;
-		bIsFalling = Movement->IsFalling();
-		bIsJumping = bIsFalling & (Velocity.Z > JumpingThreshould);
-	}
 
 	if (Owner)
 	{
-		bIsStun = Owner->IsStun();
-		bIsKnockDown = Owner->IsKnockDown();
-
-		bIsBlock = Owner->IsBlock();
-		BlockMoveDir = Owner->GetBlockMoveDir();
+		RotValDisDegree = CalculateDirection(Velocity, Owner->GetActorRotation());
 	}
-	
+
+	if (AIController.IsValid())
+	{
+		if (AIController->GetFocusActor() == nullptr)
+			bIsFocusingTarget = false;
+		else
+			bIsFocusingTarget = true;
+	}
+
 }

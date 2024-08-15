@@ -27,6 +27,7 @@ void UDK_AnimPlayer::NativeUpdateAnimation(float DeltaSeconds)
 	{
 		ChargePaworAcc = PlayerOwner->GetChargePowarTimeAcc();
 		bIsCharging = PlayerOwner->GetIsCharging();
+		BlockMoveDir = PlayerOwner->GetBlockMoveDir();
 	}
 	
 }

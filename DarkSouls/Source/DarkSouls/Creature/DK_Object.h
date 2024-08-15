@@ -219,7 +219,7 @@ protected:
 	// Block
 public:
 	bool IsBlock();
-	FORCEINLINE FVector2D GetBlockMoveDir() { return BlockMoveDir; }
+
 
 	virtual void Block();
 	virtual void EndBlock();
@@ -239,7 +239,6 @@ protected:
 
 protected:
 	bool bIsHitBlock = false;
-	FVector2D BlockMoveDir;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Block, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> BlockHitMontage;
