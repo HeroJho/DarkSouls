@@ -2,7 +2,6 @@
 
 
 #include "Animation/DK_AnimNotifyState_Rotation.h"
-#include "GameFramework/CharacterMovementComponent.h"
 
 #include "Creature/DK_Object.h"
 #include "Creature/Monster/DK_AIControllerBase.h"
@@ -22,22 +21,14 @@ void UDK_AnimNotifyState_Rotation::NotifyBegin(USkeletalMeshComponent* MeshComp,
 		return;
 	}
 
-	UCharacterMovementComponent* Movement = CharacterOwner->GetCharacterMovement();
-	if (!IsValid(Movement))
-	{
-		return;
-	}
-
 	ADK_AIControllerBase* AIController = Cast<ADK_AIControllerBase>(CharacterOwner->GetController());
 	if (!IsValid(AIController))
 	{
 		return;
 	}
 
-	Movement->RotationRate = FRotator(0.f, RotationSpeed, 0.f);
-	Movement->bUseControllerDesiredRotation = true;
-	Movement->bOrientRotationToMovement = false;
-	AIController->SetFocusTarget();
+
+	AIController->SetFocusTarget(RotationSpeed);
 
 }
 
@@ -58,11 +49,6 @@ void UDK_AnimNotifyState_Rotation::NotifyEnd(USkeletalMeshComponent* MeshComp, U
 		return;
 	}
 
-	UCharacterMovementComponent* Movement = CharacterOwner->GetCharacterMovement();
-	if (!IsValid(Movement))
-	{
-		return;
-	}
 
 	ADK_AIControllerBase* AIController = Cast<ADK_AIControllerBase>(CharacterOwner->GetController());
 	if (!IsValid(AIController))
@@ -70,10 +56,7 @@ void UDK_AnimNotifyState_Rotation::NotifyEnd(USkeletalMeshComponent* MeshComp, U
 		return;
 	}
 
-	Movement->RotationRate = FRotator(0.f, 360.f, 0.f);
-	Movement->bUseControllerDesiredRotation = false;
-	Movement->bOrientRotationToMovement = true;
-	AIController->ClearFocus(EAIFocusPriority::Gameplay);
-	AIController->SetControlRotation(CharacterOwner->GetActorRotation());
+
+	AIController->ClearFocusTarget();
 
 }

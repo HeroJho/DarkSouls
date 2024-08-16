@@ -9,6 +9,7 @@
 #include "Perception/AISense_Sight.h"
 #include "Perception/AISense_Hearing.h"
 #include "Perception/AISense_Damage.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 #include "Creature/DK_Creature.h"
 #include "Interface/DK_DamageableInterface.h"
@@ -42,6 +43,8 @@ void ADK_AIControllerBase::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
 
+	CreatureOwner = Cast<ADK_Creature>(InPawn);
+
 	RunAI(InPawn);
 
 	FScriptDelegate PerceptionUpdatedDelegate;
@@ -58,25 +61,37 @@ void ADK_AIControllerBase::OnPossess(APawn* InPawn)
 
 
 
-void ADK_AIControllerBase::SetFocusTarget()
+void ADK_AIControllerBase::SetFocusTarget(float RotationSpeed)
 {
-	AActor* Target = Cast<AActor>(Blackboard->GetValueAsObject(AttackTargetKey));
+	AActor* Target = GetAttackTarget();
 	if (!IsValid(Target))
 	{
 		return;
 	}
 
+	UCharacterMovementComponent* Movement = CreatureOwner->GetCharacterMovement();
+	Movement->RotationRate = FRotator(0.f, RotationSpeed, 0.f);
+	Movement->bOrientRotationToMovement = false;
 	SetFocus(Target);
+}
 
+void ADK_AIControllerBase::ClearFocusTarget()
+{
+	UCharacterMovementComponent* Movement = CreatureOwner->GetCharacterMovement();
+	Movement->RotationRate = FRotator(0.f, 360.f, 0.f);
+	Movement->bOrientRotationToMovement = true;
+	ClearFocus(EAIFocusPriority::Gameplay);
+}
+
+AActor* ADK_AIControllerBase::GetAttackTarget()
+{
+	AActor* Target = Cast<AActor>(Blackboard->GetValueAsObject(AttackTargetKey));
+	return Target;
 }
 
 void ADK_AIControllerBase::RunAI(APawn* InPawn)
 {
-	ADK_Creature* CreaturePawn = Cast<ADK_Creature>(InPawn);
-	if (!IsValid(CreaturePawn))
-		return;
-
-	UBehaviorTree* BTAsset = CreaturePawn->GetBTAsset();
+	UBehaviorTree* BTAsset = CreatureOwner->GetBTAsset();
 	if (BTAsset == nullptr)
 		return;
 

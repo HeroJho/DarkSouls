@@ -30,7 +30,6 @@ enum class EAISense : uint8
 };
 
 
-
 UCLASS()
 class DARKSOULS_API UE_AIEnum : public UObject
 {

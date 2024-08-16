@@ -25,11 +25,19 @@ protected:
 
 	// Common Section
 public:
-	void SetFocusTarget();
-		
+	void SetFocusTarget(float RotationSpeed);
+	void ClearFocusTarget();
+
+	UFUNCTION(BlueprintCallable)
+	AActor* GetAttackTarget();
+
 protected:
 	void RunAI(APawn* InPawn);
 	void StopAI();
+
+protected:
+	TWeakObjectPtr<class ADK_Creature> CreatureOwner;
+
 
 	// AI Section
 public:

@@ -4,18 +4,23 @@
 #include "Animation/DK_AnimCreature.h"
 #include "AIController.h"
 
-#include "Creature/DK_Object.h"
+#include "Creature/DK_Creature.h"
 
 UDK_AnimCreature::UDK_AnimCreature()
 {
+	bIsStrafe = false;
 }
 
 void UDK_AnimCreature::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();
 
-	if(Owner)
+	if (Owner)
+	{
+		CreatureOwner = Cast<ADK_Creature>(Owner);
 		AIController = Cast<AAIController>(Owner->GetController());
+	}
+
 }
 
 void UDK_AnimCreature::NativeUpdateAnimation(float DeltaSeconds)
@@ -28,12 +33,9 @@ void UDK_AnimCreature::NativeUpdateAnimation(float DeltaSeconds)
 		RotValDisDegree = CalculateDirection(Velocity, Owner->GetActorRotation());
 	}
 
-	if (AIController.IsValid())
+	if (CreatureOwner.IsValid())
 	{
-		if (AIController->GetFocusActor() == nullptr)
-			bIsFocusingTarget = false;
-		else
-			bIsFocusingTarget = true;
+		bIsStrafe = CreatureOwner->GetIsStrafe();
 	}
 
 }

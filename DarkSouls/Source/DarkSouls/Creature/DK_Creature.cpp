@@ -3,6 +3,7 @@
 
 #include "Creature/DK_Creature.h"
 #include "Components/ArrowComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 #include "Component/Stat/DK_CreatureStatComponent.h"
 #include "Component/Attack/DK_AttackComponent.h"
@@ -18,6 +19,12 @@ ADK_Creature::ADK_Creature()
 
 	// AttackComponent
 	AttackComponent = CreateDefaultSubobject<UDK_AttackComponent>(TEXT("AttackComponent"));
+
+
+	IdleSpeed = 0.f;
+	WalkingSpeed = 150.f;
+	JoggingSpeed = 250.f;
+	SprintingSpeed = 400.f;
 	
 }
 
@@ -94,6 +101,41 @@ bool ADK_Creature::CanKnockDown()
 
 
 	return true;
+}
+
+
+
+
+
+
+
+
+void ADK_Creature::SetStrafe(bool bValue)
+{
+	bIsStrafe = bValue;
+}
+
+float ADK_Creature::SetMovementSpeed(EMovementSpeed MovementSpeed)
+{
+	switch (MovementSpeed)
+	{
+	case EMovementSpeed::Idle:
+		GetCharacterMovement()->MaxWalkSpeed = IdleSpeed;
+		return IdleSpeed;
+	case EMovementSpeed::Walking:
+		GetCharacterMovement()->MaxWalkSpeed = WalkingSpeed;
+		return WalkingSpeed;
+	case EMovementSpeed::Jogging:
+		GetCharacterMovement()->MaxWalkSpeed = JoggingSpeed;
+		return JoggingSpeed;
+	case EMovementSpeed::Sprinting:
+		GetCharacterMovement()->MaxWalkSpeed = SprintingSpeed;
+		return SprintingSpeed;
+	default:
+		return 0.0f;
+	}
+
+	return 0.0f;
 }
 
 

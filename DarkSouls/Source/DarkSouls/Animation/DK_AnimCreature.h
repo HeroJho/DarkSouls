@@ -24,10 +24,12 @@ protected:
 
 
 protected:
+	TWeakObjectPtr<class ADK_Creature> CreatureOwner;
 	TWeakObjectPtr<class AAIController> AIController;
+	
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Creature)
-	uint8 bIsFocusingTarget : 1;
+	uint8 bIsStrafe : 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Creature)
 	float RotValDisDegree;

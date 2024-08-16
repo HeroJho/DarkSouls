@@ -5,13 +5,14 @@
 #include "CoreMinimal.h"
 #include "Creature/DK_Object.h"
 #include "BehaviorTree/BehaviorTree.h"
+#include "Interface/DK_EnemyAIinterface.h"
 #include "DK_Creature.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class DARKSOULS_API ADK_Creature: public ADK_Object
+class DARKSOULS_API ADK_Creature: public ADK_Object, public IDK_EnemyAIInterface
 {
 	GENERATED_BODY()
 
@@ -25,10 +26,30 @@ protected:
 	virtual void PostInitializeComponents() override;
 
 	// Common Section
+public:
+	FORCEINLINE void SetIsStrafe(bool bValue) { bIsStrafe = bValue; }
+	FORCEINLINE bool GetIsStrafe() { return bIsStrafe; }
+
 protected:
 	void StartGroggy();
 	
 	virtual void DamagedByGPAttacked(int32 GPValue) override;
+
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Speed)
+	float IdleSpeed = 0.f;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Speed)
+	float WalkingSpeed = 0.f;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Speed)
+	float JoggingSpeed = 0.f;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Speed)
+	float SprintingSpeed = 0.f;
+
+	bool bIsStrafe = false;
+
+
+
+
 
 	// AI Section
 public:
@@ -71,5 +92,10 @@ public:
 protected:
 	virtual bool CanKnockDown() override;
 	
+
+	// IDK_EnemyAIInterface
+public:
+	virtual void SetStrafe(bool bValue) override;
+	virtual float SetMovementSpeed(EMovementSpeed MovementSpeed) override;
 
 };
