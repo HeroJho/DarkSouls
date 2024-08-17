@@ -18,6 +18,8 @@ EBTNodeResult::Type UBTT_SetStrafe::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 		return EBTNodeResult::Failed;
 	}
 
+
+
 	Creature->SetStrafe(bIsStrafe);
 
 

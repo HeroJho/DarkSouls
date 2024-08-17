@@ -30,7 +30,12 @@ void UDK_AnimCreature::NativeUpdateAnimation(float DeltaSeconds)
 
 	if (Owner)
 	{
-		RotValDisDegree = CalculateDirection(Velocity, Owner->GetActorRotation());
+		// 멈출때 Velocity가 0이 되면서 허리를 꼬는 문제 발생 방지
+		if (!bIsIdle)
+		{
+			RotValDisDegree = CalculateDirection(Velocity, Owner->GetActorRotation());
+		}
+
 	}
 
 	if (CreatureOwner.IsValid())
