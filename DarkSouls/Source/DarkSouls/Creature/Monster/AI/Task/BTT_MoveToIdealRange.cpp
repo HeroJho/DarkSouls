@@ -24,15 +24,15 @@ EBTNodeResult::Type UBTT_MoveToIdealRange::ExecuteTask(UBehaviorTreeComponent& O
 		return EBTNodeResult::Failed;
 
 
-	UAITask_MoveTo* MoveToTask = UAITask_MoveTo::AIMoveTo(Controller, FVector(), Target, IdealRange,);
-	FScriptDelegate FinishedDelegate;
-	FinishedDelegate.BindUFunction(this, FName("OnMoveCompleted"));
-	MoveToTask->OnMoveFinished.AddUnique(FinishedDelegate);
-	FScriptDelegate FailedDelegate;
-	FailedDelegate.BindUFunction(this, FName("OnMoveFailed"));
-	MoveToTask->OnRequestFailed.AddUnique(FailedDelegate);
+	//UAITask_MoveTo* MoveToTask = UAITask_MoveTo::AIMoveTo(Controller, FVector(), Target, IdealRange,);
+	//FScriptDelegate FinishedDelegate;
+	//FinishedDelegate.BindUFunction(this, FName("OnMoveCompleted"));
+	//MoveToTask->OnMoveFinished.AddUnique(FinishedDelegate);
+	//FScriptDelegate FailedDelegate;
+	//FailedDelegate.BindUFunction(this, FName("OnMoveFailed"));
+	//MoveToTask->OnRequestFailed.AddUnique(FailedDelegate);
 
-	MoveToTask->ReadyForActivation();
+	//MoveToTask->ReadyForActivation();
 
 	return EBTNodeResult::InProgress;
 }
@@ -46,25 +46,25 @@ EBTNodeResult::Type UBTT_MoveToIdealRange::AbortTask(UBehaviorTreeComponent& Own
 }
 
 
-void UBTT_MoveToIdealRange::OnMoveFailed()
-{
-	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Cyan, FString("OnMoveFailed"));
-
-	FinishLatentTask(*OwnerCompTree, EBTNodeResult::Failed);
-}
-
-void UBTT_MoveToIdealRange::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result)
-{
-	if (Result.IsSuccess())
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Cyan, FString("Success"));
-		FinishLatentTask(*OwnerCompTree, EBTNodeResult::Succeeded);
-	}
-	else
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Cyan, FString("Failed"));
-		FinishLatentTask(*OwnerCompTree, EBTNodeResult::Failed);
-	}
-
-}
+//void UBTT_MoveToIdealRange::OnMoveFailed()
+//{
+//	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Cyan, FString("OnMoveFailed"));
+//
+//	FinishLatentTask(*OwnerCompTree, EBTNodeResult::Failed);
+//}
+//
+//void UBTT_MoveToIdealRange::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result)
+//{
+//	if (Result.IsSuccess())
+//	{
+//		GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Cyan, FString("Success"));
+//		FinishLatentTask(*OwnerCompTree, EBTNodeResult::Succeeded);
+//	}
+//	else
+//	{
+//		GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Cyan, FString("Failed"));
+//		FinishLatentTask(*OwnerCompTree, EBTNodeResult::Failed);
+//	}
+//
+//}
 

@@ -19,11 +19,11 @@ protected:
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 	virtual EBTNodeResult::Type AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 	
-protected:
-	UFUNCTION()
-	void OnMoveFailed();
-	UFUNCTION()
-	void OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result);
+//protected:
+//	UFUNCTION()
+//	void OnMoveFailed();
+//	UFUNCTION()
+//	void OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result);
 
 
 protected:
