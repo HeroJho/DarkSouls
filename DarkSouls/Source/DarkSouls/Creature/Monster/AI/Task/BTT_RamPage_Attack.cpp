@@ -27,7 +27,7 @@ EBTNodeResult::Type UBTT_RamPage_Attack::ExecuteTask(UBehaviorTreeComponent & Ow
 		return EBTNodeResult::Failed;
 	}
 
-	if (!RPOwner->Skill_Combo0())
+	if (!RPOwner->Skill_Combo1())
 	{
 		return EBTNodeResult::Failed;
 	}

@@ -61,6 +61,9 @@ protected:
 	uint8 bIsBlock : 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Creature)
+	uint8 bIsSmallHittedTrigger : 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Creature)
 	float BlockSpeed;
 
 

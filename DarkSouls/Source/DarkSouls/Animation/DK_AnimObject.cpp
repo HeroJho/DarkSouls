@@ -46,6 +46,7 @@ void UDK_AnimObject::NativeUpdateAnimation(float DeltaSeconds)
 		bIsStun = Owner->IsStun();
 		bIsKnockDown = Owner->IsKnockDown();
 		bIsBlock = Owner->IsBlock();
+		bIsSmallHittedTrigger = Owner->GetSmallHittedTrigger();
 	}
 	
 }

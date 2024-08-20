@@ -35,4 +35,19 @@ protected:
 	UFUNCTION()
 	void End_Skill_Combo0(FName NotifyName);
 
+
+public:
+	bool Skill_Combo1();
+
+protected:
+	void BindFunction_Skill_Combo1();
+
+	UFUNCTION()
+	void BeginNotify_Skill_Combo1(FName NotifyName);
+	UFUNCTION()
+	void EndNotify_Skill_Combo1(FName NotifyName);
+	UFUNCTION()
+	void End_Skill_Combo1(FName NotifyName);
+
+
 };

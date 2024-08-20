@@ -349,6 +349,15 @@ void ADK_Object::KnockDown(float KnockDownTime)
 	SetIsKnockDown(true);
 }
 
+void ADK_Object::SmallHittedTrigger()
+{
+	bSmallHittedTrigger = true;
+
+	GetWorldTimerManager().ClearTimer(SmallHittedTimerHandle);
+	GetWorldTimerManager().SetTimer(SmallHittedTimerHandle, FTimerDelegate::CreateLambda(
+		[this](){ bSmallHittedTrigger = false; }), 0.05f, false);
+}
+
 void ADK_Object::StartEndKnockDown()
 {
 	if (EndKnockDownMontage)
@@ -776,7 +785,7 @@ void ADK_Object::OnHitReaction_Notify(EDamageResponse DamageResponseType, int32 
 	case EDamageResponse::None:
 		break;
 	case EDamageResponse::HitReaction:
-		Stun(0.f, bIsAnimStunTime);
+		SmallHittedTrigger();
 		AddImpulse(TargetToMeDir, KnockBackPowar);
 		break;
 	case EDamageResponse::Stagger:

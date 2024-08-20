@@ -41,6 +41,7 @@ public:
 	FORCEINLINE class UPlayMontageCallbackProxy* GetMontageCallbackProxy() { return PlayMontageCallbackProxy; }
 	void SetMontageCallbackProxyWithIntrrupted(class UPlayMontageCallbackProxy* Proxy);
 
+
 protected:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
@@ -51,9 +52,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = State)
 	float BlockSpeed = 150.f;
 
-
 	UPROPERTY()
 	TObjectPtr<class UPlayMontageCallbackProxy> PlayMontageCallbackProxy;
+
 
 
 	// UI
@@ -140,11 +141,14 @@ public:
 	FORCEINLINE bool IsKnockDown() { return bIsKnockDown; }
 	virtual void SetIsKnockDown(bool bValue);
 
+	FORCEINLINE bool GetSmallHittedTrigger() { return bSmallHittedTrigger; }
+
 
 public:	
 	virtual void Stun(float StunTime, bool bSetAnimTime = false);
 	virtual void KnockDown(float KnockDownTime);
-	
+	void SmallHittedTrigger();
+
 protected:
 	virtual void EndStun();
 	void StartEndKnockDown();
@@ -168,7 +172,8 @@ protected:
 	TObjectPtr<class UAnimMontage> EndKnockDownMontage;
 
 
-
+	FTimerHandle SmallHittedTimerHandle;
+	bool bSmallHittedTrigger = false;
 
 
 

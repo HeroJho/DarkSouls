@@ -27,13 +27,13 @@ void UDK_AttackComponent::BeginPlay()
 		
 }
 
-void UDK_AttackComponent::AOEDamage(FVector SpawnLocation, float Radius, FS_DamageInfo DamageInfo)
+void UDK_AttackComponent::AOEDamage(FVector SpawnLocation, float Radius, FS_DamageInfo DamageInfo, bool bIsRenderDebug)
 {
 	const FTransform SpawnTransform(SpawnLocation);
 	APawn* OwnerPawn = Cast<APawn>(GetOwner());
 
 	ADK_AOE_Base* SlashAOE = GetWorld()->SpawnActorDeferred<ADK_AOE_Base>(ADK_AOE_Base::StaticClass(), SpawnTransform, OwnerPawn, OwnerPawn);
-	SlashAOE->InitOption(300.f, false, true, true);
+	SlashAOE->InitOption(300.f, bIsRenderDebug, true, true);
 
 	SlashAOE->OnAOEOverlapActorDelegate.AddLambda([DamageInfo, OwnerPawn](AActor* HitActor)
 		{
