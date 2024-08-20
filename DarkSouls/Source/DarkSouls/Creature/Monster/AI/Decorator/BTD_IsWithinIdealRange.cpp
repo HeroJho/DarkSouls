@@ -20,7 +20,7 @@ bool UBTD_IsWithinIdealRange::CalculateRawConditionValue(UBehaviorTreeComponent&
 
 
 	float Distance = Target->GetDistanceTo(Owner) - ErrorMargin;
-	if (Distance <= ErrorMargin)
+	if (Distance <= IdealRange)
 	{
 		return true;
 	}
