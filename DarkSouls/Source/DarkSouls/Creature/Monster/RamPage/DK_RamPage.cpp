@@ -93,7 +93,7 @@ void ADK_RamPage::End_Skill_Combo0(FName NotifyName)
 
 
 
-bool ADK_RamPage::Skill_Combo1()
+bool ADK_RamPage::GroundSmash()
 {
 	if (!CanAttack())
 	{
@@ -106,7 +106,7 @@ bool ADK_RamPage::Skill_Combo1()
 
 	// Section마다 바인딩 하는 작업
 	ComboComponent->OnSectionEndDelegate.Clear();
-	ComboComponent->OnSectionEndDelegate.AddUObject(this, &ADK_RamPage::BindFunction_Skill_Combo1);
+	ComboComponent->OnSectionEndDelegate.AddUObject(this, &ADK_RamPage::BindFunction_GroundSmash);
 
 	ComboComponent->ProcessComboCommand(true);
 
@@ -115,16 +115,16 @@ bool ADK_RamPage::Skill_Combo1()
 	return true;
 }
 
-void ADK_RamPage::BindFunction_Skill_Combo1()
+void ADK_RamPage::BindFunction_GroundSmash()
 {
 	UPlayMontageCallbackProxy* AnimProxy = GetMontageCallbackProxy();
-	AnimProxy->OnCompleted.AddDynamic(this, &ADK_RamPage::End_Skill_Combo1);
-	AnimProxy->OnInterrupted.AddDynamic(this, &ADK_RamPage::End_Skill_Combo1);
-	AnimProxy->OnNotifyBegin.AddDynamic(this, &ADK_RamPage::BeginNotify_Skill_Combo1);
-	AnimProxy->OnNotifyEnd.AddDynamic(this, &ADK_RamPage::EndNotify_Skill_Combo1);
+	AnimProxy->OnCompleted.AddDynamic(this, &ADK_RamPage::End_GroundSmash);
+	AnimProxy->OnInterrupted.AddDynamic(this, &ADK_RamPage::End_GroundSmash);
+	AnimProxy->OnNotifyBegin.AddDynamic(this, &ADK_RamPage::BeginNotify_GroundSmash);
+	AnimProxy->OnNotifyEnd.AddDynamic(this, &ADK_RamPage::EndNotify_GroundSmash);
 }
 
-void ADK_RamPage::BeginNotify_Skill_Combo1(FName NotifyName)
+void ADK_RamPage::BeginNotify_GroundSmash(FName NotifyName)
 {
 	if (NotifyName == FName("AttackRange"))
 	{
@@ -146,7 +146,7 @@ void ADK_RamPage::BeginNotify_Skill_Combo1(FName NotifyName)
 	}
 }
 
-void ADK_RamPage::EndNotify_Skill_Combo1(FName NotifyName)
+void ADK_RamPage::EndNotify_GroundSmash(FName NotifyName)
 {
 	if (NotifyName == FName("AttackRange"))
 	{
@@ -158,7 +158,7 @@ void ADK_RamPage::EndNotify_Skill_Combo1(FName NotifyName)
 	}
 }
 
-void ADK_RamPage::End_Skill_Combo1(FName NotifyName)
+void ADK_RamPage::End_GroundSmash(FName NotifyName)
 {
 	InterruptedAttack_Notify();
 }

@@ -27,11 +27,36 @@ EBTNodeResult::Type UBTT_RamPage_Attack::ExecuteTask(UBehaviorTreeComponent & Ow
 		return EBTNodeResult::Failed;
 	}
 
-	if (!RPOwner->Skill_Combo1())
+
+
+	switch (AttackName)
+	{
+	case ERamPage_Attack::Defualt:
 	{
 		return EBTNodeResult::Failed;
 	}
-		
+		break;
+	case ERamPage_Attack::Combo1:
+	{
+		if (!RPOwner->Skill_Combo0())
+		{
+			return EBTNodeResult::Failed;
+		}
+	}
+		break;
+	case ERamPage_Attack::GroundSmash:
+	{
+		if (!RPOwner->GroundSmash())
+		{
+			return EBTNodeResult::Failed;
+		}
+	}
+		break;
+	default:
+		break;
+	}
+
+
 	RPOwner->OnAttackEnd.Remove(FinishTaskHandle);
 	FinishTaskHandle = RPOwner->OnAttackEnd.AddUObject(this, &UBTT_RamPage_Attack::FinishTask);
 
@@ -47,7 +72,12 @@ void UBTT_RamPage_Attack::TickTask(UBehaviorTreeComponent & OwnerComp, uint8 * N
 {
 }
 
+
+
+
 void UBTT_RamPage_Attack::FinishTask()
 {
 	FinishLatentTask(*BTComponentOwner, EBTNodeResult::Succeeded);
 }
+
+

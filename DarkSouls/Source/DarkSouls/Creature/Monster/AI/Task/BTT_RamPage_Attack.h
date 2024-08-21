@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/BTTaskNode.h"
+#include "Creature/Monster/RamPage/E_RamPage_Attacks.h"
 #include "BTT_RamPage_Attack.generated.h"
 
 /**
@@ -28,9 +29,10 @@ protected:
 	void FinishTask();
 
 
-
 protected:
-	UPROPERTY()
+	UPROPERTY(EditAnywhere)
+	ERamPage_Attack AttackName = ERamPage_Attack::Defualt;
+
 	TObjectPtr<UBehaviorTreeComponent> BTComponentOwner;
 
 	FDelegateHandle FinishTaskHandle;

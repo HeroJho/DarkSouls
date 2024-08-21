@@ -37,17 +37,17 @@ protected:
 
 
 public:
-	bool Skill_Combo1();
+	bool GroundSmash();
 
 protected:
-	void BindFunction_Skill_Combo1();
+	void BindFunction_GroundSmash();
 
 	UFUNCTION()
-	void BeginNotify_Skill_Combo1(FName NotifyName);
+	void BeginNotify_GroundSmash(FName NotifyName);
 	UFUNCTION()
-	void EndNotify_Skill_Combo1(FName NotifyName);
+	void EndNotify_GroundSmash(FName NotifyName);
 	UFUNCTION()
-	void End_Skill_Combo1(FName NotifyName);
+	void End_GroundSmash(FName NotifyName);
 
 
 };
