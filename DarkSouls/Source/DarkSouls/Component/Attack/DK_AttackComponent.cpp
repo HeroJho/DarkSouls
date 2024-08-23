@@ -2,10 +2,17 @@
 
 
 #include "Component/Attack/DK_AttackComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "GameFramework/Character.h"
 
 #include "Struct/S_DamageInfo.h"
 #include "Interface/DK_DamageableInterface.h"
 #include "AOE/DK_AOE_Base.h"
+#include "Game/DK_GameMode.h"
+#include "Manager/DK_ToolManager.h"
+
+
 
 // Sets default values for this component's properties
 UDK_AttackComponent::UDK_AttackComponent()
@@ -49,5 +56,53 @@ void UDK_AttackComponent::AOEDamage(FVector SpawnLocation, float Radius, FS_Dama
 
 	SlashAOE->FinishSpawning(SpawnTransform);
 
+
+
+
+}
+
+bool UDK_AttackComponent::JumpToAttackTarget(AActor* Target)
+{
+	ADK_GameMode* GameMode = Cast<ADK_GameMode>(GetWorld()->GetAuthGameMode());
+
+	AActor* Owner = GetOwner();
+
+	FVector OwnerLocation = Owner->GetTargetLocation();
+	FVector FutureLocation = GameMode->GetToolManager()->CalculateFutureActorXYLocation(Target, 1.f);
+	FutureLocation.Z = 100.f;
+
+	
+	float Distance = Owner->GetDistanceTo(Target);
+	float Rad = UKismetMathLibrary::FClamp(UKismetMathLibrary::NormalizeToRange(Distance, 400.f, 800.f), 0.f, 1.f);
+	float Arc = UKismetMathLibrary::Lerp(0.5f, 0.94f, Rad);
+
+
+	FVector OutLaunchVelocity;
+
+	bool bResult = UGameplayStatics::SuggestProjectileVelocity_CustomArc(
+		this,
+		OutLaunchVelocity,
+		OwnerLocation,
+		FutureLocation,
+		0.f,
+		0.5f
+	);
+
+	DrawDebugCapsule(GetWorld(), FutureLocation, 100.f, 100.f, FQuat::Identity, FColor::Cyan, false, 1.f);
+
+	if (bResult == false)
+		return false;
+
+	ACharacter* CharacterOwner = Cast<ACharacter>(Owner);
+	if (IsValid(CharacterOwner) == false)
+		return false;
+
+	CharacterOwner->LaunchCharacter(OutLaunchVelocity, true, true);
+
+	/*FScriptDelegate LandDelegate;
+	LandDelegate.BindUFunction();
+	CharacterOwner->LandedDelegate.AddUnique(,);*/
+
+	return true;
 }
 

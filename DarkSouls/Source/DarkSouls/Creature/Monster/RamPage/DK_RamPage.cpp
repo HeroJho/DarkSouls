@@ -8,6 +8,7 @@
 #include "Component/Attack/DK_AttackComponent.h"
 #include "AOE/DK_AOE_Base.h"
 #include "Interface/DK_DamageableInterface.h"
+#include "Creature/Monster/DK_AIControllerBase.h"
 
 ADK_RamPage::ADK_RamPage()
 {
@@ -159,6 +160,85 @@ void ADK_RamPage::EndNotify_GroundSmash(FName NotifyName)
 }
 
 void ADK_RamPage::End_GroundSmash(FName NotifyName)
+{
+	InterruptedAttack_Notify();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+bool ADK_RamPage::JumpAttack()
+{
+	if (!CanAttack())
+	{
+		return false;
+	}
+
+	ResetInfoOnAttack();
+
+	ComboComponent->ChangeComboActionData(2);
+
+	// Section마다 바인딩 하는 작업
+	ComboComponent->OnSectionEndDelegate.Clear();
+	ComboComponent->OnSectionEndDelegate.AddUObject(this, &ADK_RamPage::BindFunction_JumpAttack);
+
+	ComboComponent->ProcessComboCommand(true);
+
+	bIsAttacking = true;
+
+
+	return true;
+}
+
+void ADK_RamPage::BindFunction_JumpAttack()
+{
+	UPlayMontageCallbackProxy* AnimProxy = GetMontageCallbackProxy();
+	AnimProxy->OnCompleted.AddDynamic(this, &ADK_RamPage::End_JumpAttack);
+	AnimProxy->OnInterrupted.AddDynamic(this, &ADK_RamPage::End_JumpAttack);
+	AnimProxy->OnNotifyBegin.AddDynamic(this, &ADK_RamPage::BeginNotify_JumpAttack);
+	AnimProxy->OnNotifyEnd.AddDynamic(this, &ADK_RamPage::EndNotify_JumpAttack);
+}
+
+void ADK_RamPage::BeginNotify_JumpAttack(FName NotifyName)
+{
+	if (NotifyName == FName("AttackRange"))
+	{
+		BeginAttackRange_Notify();
+	}
+	else if (NotifyName == FName("ColRange"))
+	{
+		BeginColRange_Notify();
+	}
+	else if (NotifyName == FName("Jump"))
+	{
+		AActor* Target = AIControllerBase->GetAttackTarget();
+		AttackComponent->JumpToAttackTarget(Target);
+	}
+
+}
+
+void ADK_RamPage::EndNotify_JumpAttack(FName NotifyName)
+{
+	if (NotifyName == FName("AttackRange"))
+	{
+		EndAttackRange_Notify();
+	}
+	else if (NotifyName == FName("ColRange"))
+	{
+		EndColRange_Notify();
+	}
+}
+
+void ADK_RamPage::End_JumpAttack(FName NotifyName)
 {
 	InterruptedAttack_Notify();
 }

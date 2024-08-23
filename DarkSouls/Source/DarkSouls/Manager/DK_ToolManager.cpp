@@ -119,3 +119,14 @@ AActor* UDK_ToolManager::GetObjectInNearstAngleByChannel(ECollisionChannel Chann
 
 	return Answer;
 }
+
+FVector UDK_ToolManager::CalculateFutureActorXYLocation(AActor* Target, float Time)
+{
+	FVector Location = Target->GetActorLocation();
+	FVector Velocity = Target->GetVelocity();
+	Velocity.Z = 0.f;
+
+	FVector FutureLocation = Location + (Velocity * Time);
+
+	return FutureLocation;
+}

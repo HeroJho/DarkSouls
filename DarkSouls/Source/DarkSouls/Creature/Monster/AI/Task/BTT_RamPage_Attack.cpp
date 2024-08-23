@@ -52,6 +52,14 @@ EBTNodeResult::Type UBTT_RamPage_Attack::ExecuteTask(UBehaviorTreeComponent & Ow
 		}
 	}
 		break;
+	case ERamPage_Attack::JumpAttack:
+	{
+		if (!RPOwner->JumpAttack())
+		{
+			return EBTNodeResult::Failed;
+		}
+	}
+		break;
 	default:
 		break;
 	}

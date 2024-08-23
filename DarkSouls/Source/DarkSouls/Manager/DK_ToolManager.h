@@ -27,4 +27,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	AActor* GetObjectInNearstAngleByChannel(ECollisionChannel Channel, FVector StanPos, float MaxDis, FVector StanVec, float MaxAngle, bool bDebug);
 
+	UFUNCTION(BlueprintCallable)
+	FVector CalculateFutureActorXYLocation(AActor* Target, float Time);
 };

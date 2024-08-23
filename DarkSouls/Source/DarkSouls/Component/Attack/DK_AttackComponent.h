@@ -24,5 +24,8 @@ protected:
 public:
 	void AOEDamage(FVector SpawnLocation, float Radius, FS_DamageInfo DamageInfo, bool bIsRenderDebug = false);
 	
+	bool JumpToAttackTarget(AActor* Target);
+
+
 
 };

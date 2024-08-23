@@ -36,6 +36,7 @@ protected:
 	void End_Skill_Combo0(FName NotifyName);
 
 
+
 public:
 	bool GroundSmash();
 
@@ -48,6 +49,21 @@ protected:
 	void EndNotify_GroundSmash(FName NotifyName);
 	UFUNCTION()
 	void End_GroundSmash(FName NotifyName);
+
+
+
+public:
+	bool JumpAttack();
+
+protected:
+	void BindFunction_JumpAttack();
+
+	UFUNCTION()
+	void BeginNotify_JumpAttack(FName NotifyName);
+	UFUNCTION()
+	void EndNotify_JumpAttack(FName NotifyName);
+	UFUNCTION()
+	void End_JumpAttack(FName NotifyName);
 
 
 };
