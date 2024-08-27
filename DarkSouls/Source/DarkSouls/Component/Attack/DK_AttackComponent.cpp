@@ -103,6 +103,8 @@ bool UDK_AttackComponent::JumpToAttackTarget(AActor* Target)
 	LandDelegate.BindUFunction();
 	CharacterOwner->LandedDelegate.AddUnique(,);*/
 
+	// 잔디 테스트
+
 	return true;
 }
 
