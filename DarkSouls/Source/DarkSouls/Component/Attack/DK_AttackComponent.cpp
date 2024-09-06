@@ -57,7 +57,7 @@ void UDK_AttackComponent::AOEDamage(FVector SpawnLocation, float Radius, FS_Dama
 	SlashAOE->FinishSpawning(SpawnTransform);
 
 
-
+	NewObject<ADK_AOE_Base>();
 
 }
 
@@ -88,7 +88,6 @@ bool UDK_AttackComponent::JumpToAttackTarget(AActor* Target)
 		0.5f
 	);
 
-	DrawDebugCapsule(GetWorld(), FutureLocation, 100.f, 100.f, FQuat::Identity, FColor::Cyan, false, 1.f);
 
 	if (bResult == false)
 		return false;
@@ -103,7 +102,21 @@ bool UDK_AttackComponent::JumpToAttackTarget(AActor* Target)
 	LandDelegate.BindUFunction();
 	CharacterOwner->LandedDelegate.AddUnique(,);*/
 
-	// 잔디 테스트
+
+	DrawDebugCapsule(GetWorld(), FutureLocation, 100.f, 100.f, FQuat::Identity, FColor::Cyan, false, 1.f);
+
+
+	// 20: tracing 보여질 프로젝타일 크기, 15: 시물레이션되는 Max 시간(초)
+	FPredictProjectilePathParams predictParams(20.0f, OwnerLocation, OutLaunchVelocity, 15.0f);
+	predictParams.DrawDebugTime = 5.0f;     //디버그 라인 보여지는 시간 (초)
+	// DrawDebugTime 을 지정하면 EDrawDebugTrace::Type::ForDuration 필요.
+	predictParams.DrawDebugType = EDrawDebugTrace::Type::ForDuration;  
+	predictParams.OverrideGravityZ = GetWorld()->GetGravityZ();
+	
+	FPredictProjectilePathResult Result;
+	UGameplayStatics::PredictProjectilePath(this, predictParams, Result);
+
+
 
 	return true;
 }
