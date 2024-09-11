@@ -2,9 +2,9 @@
 
 
 #include "Component/Attack/DK_AttackComponent.h"
-#include "Kismet/GameplayStatics.h"
-#include "Kismet/KismetMathLibrary.h"
 #include "GameFramework/Character.h"
+#include "Curves/CurveFloat.h"
+#include "Kismet/KismetMathLibrary.h"
 
 #include "Struct/S_DamageInfo.h"
 #include "Interface/DK_DamageableInterface.h"
@@ -61,63 +61,69 @@ void UDK_AttackComponent::AOEDamage(FVector SpawnLocation, float Radius, FS_Dama
 
 }
 
-bool UDK_AttackComponent::JumpToAttackTarget(AActor* Target)
+bool UDK_AttackComponent::JumpToAttackTarget(AActor* Target, UCurveFloat* Curve)
 {
+	GetWorld()->GetTimerManager().ClearTimer(JumpTimerHandle);
+	JumpDeltaTimeAcc = 0.f;
+	bIsPuase = true;
+
 	ADK_GameMode* GameMode = Cast<ADK_GameMode>(GetWorld()->GetAuthGameMode());
 
-	AActor* Owner = GetOwner();
+	TArray<FVector> Poss;
+	GameMode->GetToolManager()->PredictProjectilePath(GetOwner(), Target, Poss, true);
 
-	FVector OwnerLocation = Owner->GetTargetLocation();
-	FVector FutureLocation = GameMode->GetToolManager()->CalculateFutureActorXYLocation(Target, 1.f);
-	FutureLocation.Z = 100.f;
+	double Dis = FVector::Distance(Target->GetTargetLocation(), Poss.Last());
 
-	
-	float Distance = Owner->GetDistanceTo(Target);
-	float Rad = UKismetMathLibrary::FClamp(UKismetMathLibrary::NormalizeToRange(Distance, 400.f, 800.f), 0.f, 1.f);
-	float Arc = UKismetMathLibrary::Lerp(0.5f, 0.94f, Rad);
+	ACharacter* CharacterOwner = Cast<ACharacter>(GetOwner());
+	// CharacterOwner->GetMesh()->GetAnimInstance()->Montage_Resume(nullptr);
+	float EndTime = CharacterOwner->GetMesh()->GetAnimInstance()->GetCurrentActiveMontage()->GetSectionLength(1);
 
-
-	FVector OutLaunchVelocity;
-
-	bool bResult = UGameplayStatics::SuggestProjectileVelocity_CustomArc(
-		this,
-		OutLaunchVelocity,
-		OwnerLocation,
-		FutureLocation,
-		0.f,
-		0.5f
-	);
-
-
-	if (bResult == false)
-		return false;
-
-	ACharacter* CharacterOwner = Cast<ACharacter>(Owner);
-	if (IsValid(CharacterOwner) == false)
-		return false;
-
-	CharacterOwner->LaunchCharacter(OutLaunchVelocity, true, true);
-
-	/*FScriptDelegate LandDelegate;
-	LandDelegate.BindUFunction();
-	CharacterOwner->LandedDelegate.AddUnique(,);*/
-
-
-	DrawDebugCapsule(GetWorld(), FutureLocation, 100.f, 100.f, FQuat::Identity, FColor::Cyan, false, 1.f);
-
-
-	// 20: tracing 보여질 프로젝타일 크기, 15: 시물레이션되는 Max 시간(초)
-	FPredictProjectilePathParams predictParams(20.0f, OwnerLocation, OutLaunchVelocity, 15.0f);
-	predictParams.DrawDebugTime = 5.0f;     //디버그 라인 보여지는 시간 (초)
-	// DrawDebugTime 을 지정하면 EDrawDebugTrace::Type::ForDuration 필요.
-	predictParams.DrawDebugType = EDrawDebugTrace::Type::ForDuration;  
-	predictParams.OverrideGravityZ = GetWorld()->GetGravityZ();
-	
-	FPredictProjectilePathResult Result;
-	UGameplayStatics::PredictProjectilePath(this, predictParams, Result);
-
+	FTimerDelegate JumpTimerDelegate;
+	JumpTimerDelegate.BindUFunction(this, FName("JumpTick"), Curve, Poss, EndTime);
+	GetWorld()->GetTimerManager().SetTimer(JumpTimerHandle, JumpTimerDelegate, 0.01f, true);
 
 
 	return true;
+}
+
+
+void UDK_AttackComponent::JumpTick(UCurveFloat* Curve, TArray<FVector> Poss, float EndAnimLength)
+{
+	const float TimeDelta = GetWorld()->DeltaTimeSeconds;
+	const float Speed = 0.5f;
+
+	JumpDeltaTimeAcc = FMath::Clamp(JumpDeltaTimeAcc + TimeDelta * Speed, 0.f, 1.f);
+	float CurveValue = Curve->GetFloatValue(JumpDeltaTimeAcc);
+
+	int CurIndex = CurveValue * Poss.Num();
+	int NexIndex = CurIndex + 1;
+
+	float TotalTime = 1.f / Speed;
+	float EndRatio = EndAnimLength / TotalTime;
+
+
+
+	if (bIsPuase && 1.f - EndRatio <= JumpDeltaTimeAcc)
+	{
+		ACharacter* CharacterOwner = Cast<ACharacter>(GetOwner());
+		CharacterOwner->GetMesh()->GetAnimInstance()->Montage_Resume(nullptr);
+		bIsPuase = false;
+	}
+
+	// 끝
+	if (NexIndex >= Poss.Num())
+	{
+		GetWorld()->GetTimerManager().ClearTimer(JumpTimerHandle);
+		// GetOwner()->SetActorLocation(Poss[CurIndex]);
+
+		return;
+	}
+
+	// 0~0.1    0~1  
+	float LerpAcc = (CurveValue * Poss.Num()) - CurIndex;
+	FVector DestPos = UKismetMathLibrary::VLerp(Poss[CurIndex], Poss[NexIndex], LerpAcc);
+	
+	GetOwner()->SetActorLocation(DestPos, true);
+	
 }
 

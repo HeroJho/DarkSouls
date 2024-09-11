@@ -29,4 +29,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	FVector CalculateFutureActorXYLocation(AActor* Target, float Time);
+
+	UFUNCTION(BlueprintCallable)
+	bool PredictProjectilePath(AActor* Me, AActor* Target, TArray<FVector>& OUT_Pos, bool bDebug = false);
 };

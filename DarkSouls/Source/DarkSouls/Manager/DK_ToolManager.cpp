@@ -2,8 +2,13 @@
 
 
 #include "Manager/DK_ToolManager.h"
+#include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "GameFramework/Character.h"
+
 
 #include "Tool/Define.h"
+#include "Game/DK_GameMode.h"
 
 // Sets default values for this component's properties
 UDK_ToolManager::UDK_ToolManager()
@@ -129,4 +134,83 @@ FVector UDK_ToolManager::CalculateFutureActorXYLocation(AActor* Target, float Ti
 	FVector FutureLocation = Location + (Velocity * Time);
 
 	return FutureLocation;
+}
+
+
+
+
+
+bool UDK_ToolManager::PredictProjectilePath(AActor* Me, AActor* Target, TArray<FVector>& OUT_Pos, bool bDebug)
+{
+
+	FVector OwnerLocation = Me->GetTargetLocation();
+	FVector FutureLocation = CalculateFutureActorXYLocation(Target, 1.f);
+	FutureLocation.Z = 100.f;
+
+
+	float Distance = Me->GetDistanceTo(Target);
+	float Rad = UKismetMathLibrary::FClamp(UKismetMathLibrary::NormalizeToRange(Distance, 400.f, 1600.f), 0.f, 1.f);
+	float Arc = UKismetMathLibrary::Lerp(0.1f, 0.6f, Rad);
+
+	// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("%f"), Arc));
+
+	FVector OutLaunchVelocity;
+
+	bool bResult = UGameplayStatics::SuggestProjectileVelocity_CustomArc(
+		Me,
+		OutLaunchVelocity,
+		OwnerLocation,
+		FutureLocation,
+		0.f,
+		Arc
+	);
+
+
+	if (bResult == false)
+		return false;
+
+
+
+	//// TEST
+	//ACharacter* CharacterOwner = Cast<ACharacter>(Me);
+	//if (IsValid(CharacterOwner) == false)
+	//	return false;
+	//CharacterOwner->LaunchCharacter(OutLaunchVelocity, false, false);
+
+
+
+
+
+	// 20: tracing 보여질 프로젝타일 크기, 15: 시물레이션되는 Max 시간(초)
+	FPredictProjectilePathParams predictParams(20.0f, OwnerLocation, OutLaunchVelocity, 15.0f);
+	
+	predictParams.OverrideGravityZ = GetWorld()->GetGravityZ();
+	predictParams.SimFrequency = 5.f;
+
+	if (bDebug)
+	{
+		predictParams.DrawDebugTime = 10.0f;     //디버그 라인 보여지는 시간 (초)
+		predictParams.DrawDebugType = EDrawDebugTrace::ForDuration;
+	}
+	else
+		predictParams.DrawDebugType = EDrawDebugTrace::None;
+
+
+
+	// TODO: 벽에 부딪혔을 때 처리
+	predictParams.bTraceWithCollision = true;
+	predictParams.TraceChannel = ECollisionChannel::ECC_Camera;
+	
+
+	FPredictProjectilePathResult Result;
+	UGameplayStatics::PredictProjectilePath(this, predictParams, Result);
+
+
+	for (int32 i = 0; i < Result.PathData.Num(); ++i)
+	{
+		OUT_Pos.Add(Result.PathData[i].Location);
+	}
+
+
+	return true;
 }

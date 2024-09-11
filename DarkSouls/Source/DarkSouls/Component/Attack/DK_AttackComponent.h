@@ -24,8 +24,17 @@ protected:
 public:
 	void AOEDamage(FVector SpawnLocation, float Radius, FS_DamageInfo DamageInfo, bool bIsRenderDebug = false);
 	
-	bool JumpToAttackTarget(AActor* Target);
 
+	// Jump
+public:
+	bool JumpToAttackTarget(AActor* Target, UCurveFloat* Curve);
 
+protected:
+	UFUNCTION()
+	void JumpTick(UCurveFloat* Curve, TArray<FVector> Poss, float EndAnimLength);
 
+protected:
+	FTimerHandle JumpTimerHandle;
+	float JumpDeltaTimeAcc = 0.f;
+	bool bIsPuase = false;
 };

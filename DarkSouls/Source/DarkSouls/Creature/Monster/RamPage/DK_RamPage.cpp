@@ -3,6 +3,7 @@
 
 #include "Creature/Monster/RamPage/DK_RamPage.h"
 #include "PlayMontageCallbackProxy.h"
+#include "Curves/CurveFloat.h"
 
 #include "Component/Combo/DK_ComboComponent.h"
 #include "Component/Attack/DK_AttackComponent.h"
@@ -221,7 +222,12 @@ void ADK_RamPage::BeginNotify_JumpAttack(FName NotifyName)
 	else if (NotifyName == FName("Jump"))
 	{
 		AActor* Target = AIControllerBase->GetAttackTarget();
-		AttackComponent->JumpToAttackTarget(Target);
+		AttackComponent->JumpToAttackTarget(Target, JumpAttackCurve);
+	}
+	else if (NotifyName == FName("JumpLoop"))
+	{
+		UPlayMontageCallbackProxy* AnimProxy = GetMontageCallbackProxy();
+		GetMesh()->GetAnimInstance()->Montage_Pause();
 	}
 
 }
