@@ -119,8 +119,6 @@ protected:
 
 	// Collsion
 public:
-	//virtual void OnDamaged(const FAttackDamagedInfo& AttackDamagedInfo, AActor* DamageCauser);
-
 	virtual void OnColHit_Notify(IDK_DamageableInterface* HitActor);
 
 protected:

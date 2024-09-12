@@ -140,19 +140,20 @@ FVector UDK_ToolManager::CalculateFutureActorXYLocation(AActor* Target, float Ti
 
 
 
-bool UDK_ToolManager::PredictProjectilePath(AActor* Me, AActor* Target, TArray<FVector>& OUT_Pos, bool bDebug)
+bool UDK_ToolManager::PredictProjectilePath(AActor* Me, AActor* Target, TArray<FVector>& OUT_Pos, float PredictTime, float Arc, bool bIsFrontTarget, float FrontDis, bool bDebug)
 {
-
 	FVector OwnerLocation = Me->GetTargetLocation();
-	FVector FutureLocation = CalculateFutureActorXYLocation(Target, 1.f);
+	FVector FutureLocation = CalculateFutureActorXYLocation(Target, PredictTime);
 	FutureLocation.Z = 100.f;
 
 
-	float Distance = Me->GetDistanceTo(Target);
-	float Rad = UKismetMathLibrary::FClamp(UKismetMathLibrary::NormalizeToRange(Distance, 400.f, 1600.f), 0.f, 1.f);
-	float Arc = UKismetMathLibrary::Lerp(0.1f, 0.6f, Rad);
+	if (bIsFrontTarget)
+	{
+		FVector DisVec = Target->GetActorLocation() - FutureLocation;
+		DisVec.Normalize();
+		FutureLocation += DisVec * FrontDis;
+	}
 
-	// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("%f"), Arc));
 
 	FVector OutLaunchVelocity;
 
@@ -170,17 +171,6 @@ bool UDK_ToolManager::PredictProjectilePath(AActor* Me, AActor* Target, TArray<F
 		return false;
 
 
-
-	//// TEST
-	//ACharacter* CharacterOwner = Cast<ACharacter>(Me);
-	//if (IsValid(CharacterOwner) == false)
-	//	return false;
-	//CharacterOwner->LaunchCharacter(OutLaunchVelocity, false, false);
-
-
-
-
-
 	// 20: tracing 보여질 프로젝타일 크기, 15: 시물레이션되는 Max 시간(초)
 	FPredictProjectilePathParams predictParams(20.0f, OwnerLocation, OutLaunchVelocity, 15.0f);
 	
@@ -189,7 +179,7 @@ bool UDK_ToolManager::PredictProjectilePath(AActor* Me, AActor* Target, TArray<F
 
 	if (bDebug)
 	{
-		predictParams.DrawDebugTime = 10.0f;     //디버그 라인 보여지는 시간 (초)
+		predictParams.DrawDebugTime = 5.0f;     //디버그 라인 보여지는 시간 (초)
 		predictParams.DrawDebugType = EDrawDebugTrace::ForDuration;
 	}
 	else
@@ -197,7 +187,6 @@ bool UDK_ToolManager::PredictProjectilePath(AActor* Me, AActor* Target, TArray<F
 
 
 
-	// TODO: 벽에 부딪혔을 때 처리
 	predictParams.bTraceWithCollision = true;
 	predictParams.TraceChannel = ECollisionChannel::ECC_Camera;
 	

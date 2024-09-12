@@ -46,6 +46,7 @@ protected:
 	float SprintingSpeed = 0.f;
 
 	bool bIsStrafe = false;
+	bool bIsInJumpAttackPath = false;
 
 
 

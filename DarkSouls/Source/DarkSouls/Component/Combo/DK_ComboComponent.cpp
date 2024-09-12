@@ -115,7 +115,6 @@ void UDK_ComboComponent::BeginNotifyComboAction(FName NotifyName)
 		ComboCheck_Notify();
 	}
 
-
 }
 
 void UDK_ComboComponent::EndNotifyComboAction(FName NotifyName)

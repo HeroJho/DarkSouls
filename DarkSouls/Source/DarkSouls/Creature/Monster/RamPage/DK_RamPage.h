@@ -65,8 +65,12 @@ protected:
 	UFUNCTION()
 	void End_JumpAttack(FName NotifyName);
 
+	void EndPathJumpAttack();
+
 protected:
-	UPROPERTY(EditAnywhere, Category = JumpCurve)
+	UPROPERTY(EditAnywhere, Category = JumpAttack)
 	TObjectPtr<UCurveFloat> JumpAttackCurve;
+	UPROPERTY(EditAnywhere, Category = JumpAttack)
+	TObjectPtr<UParticleSystem> JumpAttackParticle;
 
 };

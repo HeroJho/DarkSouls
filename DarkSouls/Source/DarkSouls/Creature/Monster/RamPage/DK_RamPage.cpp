@@ -4,6 +4,8 @@
 #include "Creature/Monster/RamPage/DK_RamPage.h"
 #include "PlayMontageCallbackProxy.h"
 #include "Curves/CurveFloat.h"
+#include "Kismet/GameplayStatics.h"
+#include "Particles/ParticleSystem.h"
 
 #include "Component/Combo/DK_ComboComponent.h"
 #include "Component/Attack/DK_AttackComponent.h"
@@ -196,7 +198,6 @@ bool ADK_RamPage::JumpAttack()
 
 	bIsAttacking = true;
 
-
 	return true;
 }
 
@@ -221,13 +222,27 @@ void ADK_RamPage::BeginNotify_JumpAttack(FName NotifyName)
 	}
 	else if (NotifyName == FName("Jump"))
 	{
+		bIsInJumpAttackPath = true;
+
 		AActor* Target = AIControllerBase->GetAttackTarget();
-		AttackComponent->JumpToAttackTarget(Target, JumpAttackCurve);
+
+		// EndJump ¹ÙÀÎµù
+		AttackComponent->Delegate_EndJump.Clear();
+		AttackComponent->Delegate_EndJump.AddUObject(this, &ADK_RamPage::EndPathJumpAttack);
+
+		// TODO
+		FS_JumpAttackInfo JumpAttackInfo(JumpAttackCurve, 0.5f, 1.f, -1.f, 400.f, 1600.f, 0.1f, 0.5f, true, 400.f, false);
+		AttackComponent->JumpToAttackTarget(Target, JumpAttackInfo);
+
 	}
 	else if (NotifyName == FName("JumpLoop"))
 	{
 		UPlayMontageCallbackProxy* AnimProxy = GetMontageCallbackProxy();
-		GetMesh()->GetAnimInstance()->Montage_Pause();
+		if (bIsInJumpAttackPath)
+		{
+			GetMesh()->GetAnimInstance()->Montage_Pause();
+		}
+
 	}
 
 }
@@ -247,4 +262,17 @@ void ADK_RamPage::EndNotify_JumpAttack(FName NotifyName)
 void ADK_RamPage::End_JumpAttack(FName NotifyName)
 {
 	InterruptedAttack_Notify();
+	bIsInJumpAttackPath = false;
+}
+
+void ADK_RamPage::EndPathJumpAttack()
+{
+	FVector SlashLocation = GetMesh()->GetSocketLocation(FName("Combo1_Smash"));
+	AttackComponent->AOEDamage(SlashLocation, 1500.f, ComboComponent->GetCurrentAttackInfos(), false);
+
+	FTransform EffectMatrix;
+	EffectMatrix.SetLocation(SlashLocation);
+	EffectMatrix.SetScale3D({1.5f,1.5f,1.5f});
+	EffectMatrix.SetRotation(FRotator(0.f, 90.f, 90.f).Quaternion());
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), JumpAttackParticle, EffectMatrix);
 }
