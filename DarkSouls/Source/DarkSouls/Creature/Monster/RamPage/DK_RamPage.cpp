@@ -9,6 +9,7 @@
 
 #include "Component/Combo/DK_ComboComponent.h"
 #include "Component/Attack/DK_AttackComponent.h"
+#include "Component/Stat/DK_StatComponent.h"
 #include "AOE/DK_AOE_Base.h"
 #include "Interface/DK_DamageableInterface.h"
 #include "Creature/Monster/DK_AIControllerBase.h"
@@ -222,6 +223,8 @@ void ADK_RamPage::BeginNotify_JumpAttack(FName NotifyName)
 	}
 	else if (NotifyName == FName("Jump"))
 	{
+		StatComponent->SetIsInvincible(true);
+
 		bIsInJumpAttackPath = true;
 
 		AActor* Target = AIControllerBase->GetAttackTarget();
@@ -263,6 +266,7 @@ void ADK_RamPage::End_JumpAttack(FName NotifyName)
 {
 	InterruptedAttack_Notify();
 	bIsInJumpAttackPath = false;
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf("End_JumpAttack"));
 }
 
 void ADK_RamPage::EndPathJumpAttack()
@@ -275,4 +279,6 @@ void ADK_RamPage::EndPathJumpAttack()
 	EffectMatrix.SetScale3D({1.5f,1.5f,1.5f});
 	EffectMatrix.SetRotation(FRotator(0.f, 90.f, 90.f).Quaternion());
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), JumpAttackParticle, EffectMatrix);
+
+	StatComponent->SetIsInvincible(false);
 }

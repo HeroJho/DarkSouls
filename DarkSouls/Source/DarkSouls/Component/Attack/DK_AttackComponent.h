@@ -62,6 +62,7 @@ protected:
 
 	// AOE
 public:
+	UFUNCTION(BlueprintCallable)
 	void AOEDamage(FVector SpawnLocation, float Radius, FS_DamageInfo DamageInfo, bool bIsRenderDebug = false);
 
 
