@@ -8,8 +8,6 @@
 #include "DK_Object.generated.h"
 
 
-DECLARE_MULTICAST_DELEGATE(FOnNoParDelegate);
-
 
 UCLASS()
 class DARKSOULS_API ADK_Object : public ACharacter, public IDK_DamageableInterface
@@ -89,8 +87,8 @@ protected:
 
 	// Combo && Attack
 public:
+	FORCEINLINE class UDK_ComboComponent* GetComboComponent() { return ComboComponent; }
 	FORCEINLINE bool IsInAttackRange() { return bIsInAttackRange; }
-
 	FORCEINLINE bool IsAttacking() { return bIsAttacking; }
 
 	void BeginAttackRange_Notify();
@@ -102,7 +100,6 @@ public:
 	void InterruptedAttack_Notify();
 
 	void EndAttack_Notify();
-
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Combo)
@@ -280,11 +277,6 @@ protected:
 
 
 
-
-
-	// ===== Delegate ======
-public:
-	FOnNoParDelegate OnAttackEnd;
 
 
 

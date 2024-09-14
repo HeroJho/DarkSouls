@@ -35,5 +35,6 @@ protected:
 
 	TObjectPtr<UBehaviorTreeComponent> BTComponentOwner;
 
-	FDelegateHandle FinishTaskHandle;
+	FDelegateHandle EndTaskHandle;
+	FDelegateHandle InterruptedTaskHandle;
 };

@@ -26,46 +26,55 @@ public:
 	bool Skill_Combo0();
 
 protected:
-	void BindFunction_Skill_Combo0();
+	// 섹션마다 불리는 작업
+	void BindSectionFunction_Skill_Combo0();
+	UFUNCTION()
+	void BeginSectionNotify_Skill_Combo0(FName NotifyName);
+	UFUNCTION()
+	void EndSectionNotify_Skill_Combo0(FName NotifyName);
+	UFUNCTION()
+	void EndSection_Skill_Combo0(FName NotifyName);
 
-	UFUNCTION()
-	void BeginNotify_Skill_Combo0(FName NotifyName);
-	UFUNCTION()
-	void EndNotify_Skill_Combo0(FName NotifyName);
-	UFUNCTION()
-	void End_Skill_Combo0(FName NotifyName);
-
+	// 콤보 단위 작업
+	void Interrupted_ComboSkill_Combo0();
+	void End_ComboSkill_Combo0();
 
 
 public:
 	bool GroundSmash();
 
 protected:
-	void BindFunction_GroundSmash();
+	void BindSectionFunction_GroundSmash();
+	UFUNCTION()
+	void BeginSectionNotify_GroundSmash(FName NotifyName);
+	UFUNCTION()
+	void EndSectionNotify_GroundSmash(FName NotifyName);
+	UFUNCTION()
+	void EndSection_GroundSmash(FName NotifyName);
 
-	UFUNCTION()
-	void BeginNotify_GroundSmash(FName NotifyName);
-	UFUNCTION()
-	void EndNotify_GroundSmash(FName NotifyName);
-	UFUNCTION()
-	void End_GroundSmash(FName NotifyName);
-
+	void Interrupted_ComboGroundSmash();
+	void End_ComboGroundSmash();
 
 
 public:
 	bool JumpAttack();
 
 protected:
-	void BindFunction_JumpAttack();
+	void BindSectionFunction_JumpAttack();
+	UFUNCTION()
+	void BeginSectionNotify_JumpAttack(FName NotifyName);
+	UFUNCTION()
+	void EndSectionNotify_JumpAttack(FName NotifyName);
+	UFUNCTION()
+	void EndSection_JumpAttack(FName NotifyName);
 
-	UFUNCTION()
-	void BeginNotify_JumpAttack(FName NotifyName);
-	UFUNCTION()
-	void EndNotify_JumpAttack(FName NotifyName);
-	UFUNCTION()
-	void End_JumpAttack(FName NotifyName);
+	void Interrupted_ComboJumpAttack();
+	void End_ComboJumpAttack();
 
 	void EndPathJumpAttack();
+
+
+
 
 protected:
 	UPROPERTY(EditAnywhere, Category = JumpAttack)

@@ -98,6 +98,7 @@ void UDK_ComboComponent::ComboCheck_Notify()
 
 void UDK_ComboComponent::BindEventFunc()
 {
+	// 크리쳐 함수 바인딩
 	OnSectionEndDelegate.Broadcast();
 
 	UPlayMontageCallbackProxy* Proxy = Owner->GetMontageCallbackProxy();
@@ -132,8 +133,17 @@ void UDK_ComboComponent::InterruptedComboAction(FName NotifyName)
 	// 다른 몽타주로 Interrupte 됐다면 스탑
 	if (PlayMontage != CurData->ComboActionMontage)
 	{
-		EndComboAction(FName());
+		CurrentCombo = 0;
+		bHasNextComboCommand = false;
+		bIsAllProcess = false;
 
+		if (ReserveComboActionDataIndex != -1)
+		{
+			CurComboActionDataIndex = ReserveComboActionDataIndex;
+			ReserveComboActionDataIndex = -1;
+		}
+
+		OnComboInterruptedDelegate.Broadcast();
 	}
 
 }
@@ -150,8 +160,7 @@ void UDK_ComboComponent::EndComboAction(FName NotifyName)
 		ReserveComboActionDataIndex = -1;
 	}
 
-	// 공격 끝났다는 Delegate 호출
-	Owner->OnAttackEnd.Broadcast();
+	OnComboEndDelegate.Broadcast();
 }
 
 

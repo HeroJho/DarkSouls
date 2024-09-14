@@ -6,7 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "DK_ComboComponent.generated.h"
 
-DECLARE_MULTICAST_DELEGATE(FOnSectionEndDelegate);
+DECLARE_MULTICAST_DELEGATE(FOnNoParmDelegate);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class DARKSOULS_API UDK_ComboComponent : public UActorComponent
@@ -68,6 +68,8 @@ protected:
 
 	// Delegate
 public:
-	FOnSectionEndDelegate OnSectionEndDelegate;
-
+	FOnNoParmDelegate OnSectionEndDelegate;
+	FOnNoParmDelegate OnComboInterruptedDelegate;
+	FOnNoParmDelegate OnComboEndDelegate;
+	
 };

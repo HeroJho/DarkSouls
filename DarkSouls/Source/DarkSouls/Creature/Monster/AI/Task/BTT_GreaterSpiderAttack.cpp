@@ -26,15 +26,9 @@ EBTNodeResult::Type UBTT_GreaterSpiderAttack::ExecuteTask(UBehaviorTreeComponent
 		return EBTNodeResult::Failed;
 	}
 
-	////	 *인자있는 함수 Delay
-	//FTimerDelegate TimerDelegate;
-	//TimerDelegate.BindUFunction(this, FName("FinishTask"), &OwnerComp, EBTNodeResult::Succeeded);
-	//FTimerHandle UnusedHandle;
-	//SpiderOwner->GetWorldTimerManager().SetTimer(
-	//	UnusedHandle, TimerDelegate, 20.f, false);
-
-	SpiderOwner->Skill_Combo0();
-	SpiderOwner->OnAttackEnd.AddUObject(this, &UBTT_GreaterSpiderAttack::FinishTask);
+	
+	/*SpiderOwner->Skill_Combo0();
+	SpiderOwner->OnAttackEnd.AddUObject(this, &UBTT_GreaterSpiderAttack::FinishTask);*/
 
 
 

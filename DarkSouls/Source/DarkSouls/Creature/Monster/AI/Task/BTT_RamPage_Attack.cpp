@@ -5,6 +5,7 @@
 #include "AIController.h"
 
 #include "Creature/Monster/RamPage/DK_RamPage.h"
+#include "Component/Combo/DK_ComboComponent.h"
 
 
 
@@ -65,8 +66,10 @@ EBTNodeResult::Type UBTT_RamPage_Attack::ExecuteTask(UBehaviorTreeComponent & Ow
 	}
 
 
-	RPOwner->OnAttackEnd.Remove(FinishTaskHandle);
-	FinishTaskHandle = RPOwner->OnAttackEnd.AddUObject(this, &UBTT_RamPage_Attack::FinishTask);
+	RPOwner->GetComboComponent()->OnComboInterruptedDelegate.Remove(InterruptedTaskHandle);
+	RPOwner->GetComboComponent()->OnComboEndDelegate.Remove(EndTaskHandle);
+	InterruptedTaskHandle = RPOwner->GetComboComponent()->OnComboInterruptedDelegate.AddUObject(this, &UBTT_RamPage_Attack::FinishTask);
+	EndTaskHandle = RPOwner->GetComboComponent()->OnComboEndDelegate.AddUObject(this, &UBTT_RamPage_Attack::FinishTask);
 
 	return EBTNodeResult::InProgress;
 }

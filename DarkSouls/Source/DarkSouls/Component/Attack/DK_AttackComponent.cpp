@@ -105,14 +105,14 @@ bool UDK_AttackComponent::JumpToAttackTarget(AActor* Target, FS_JumpAttackInfo J
 	
 	GameMode->GetToolManager()->PredictProjectilePath(GetOwner(), Target, Poss, JumpAttackInfo.PredictTime, 
 		Arc, JumpAttackInfo.bIsFrontTarget, JumpAttackInfo.FrontDis, JumpAttackInfo.bRenderDebug);
+	Poss.Pop();
 
 	float EndTime = CharacterOwner->GetMesh()->GetAnimInstance()->GetCurrentActiveMontage()->GetSectionLength(2);
-
 
 	// Run JumpTick
 	FTimerDelegate JumpTimerDelegate;
 	JumpTimerDelegate.BindUFunction(this, FName("JumpTick"), JumpAttackInfo.Curve, Poss, EndTime, JumpAttackInfo.JumpSpeed);
-	GetWorld()->GetTimerManager().SetTimer(JumpTimerHandle, JumpTimerDelegate, 0.01f, true);
+	GetWorld()->GetTimerManager().SetTimer(JumpTimerHandle, JumpTimerDelegate, 0.01f, true, 0.f);
 
 
 	return true;
@@ -120,11 +120,12 @@ bool UDK_AttackComponent::JumpToAttackTarget(AActor* Target, FS_JumpAttackInfo J
 
 void UDK_AttackComponent::JumpTick(UCurveFloat* Curve, TArray<FVector> Poss, float EndAnimLength, float JumpSpeed)
 {
+	// EndAnimLength += 0.1f;
+
 	const float TimeDelta = GetWorld()->DeltaTimeSeconds;
 
 	// 0~1 누적
 	JumpDeltaTimeAcc = FMath::Clamp(JumpDeltaTimeAcc + TimeDelta * JumpSpeed, 0.f, 1.f);
-
 
 	// EndAnim 실행 위치 구하기
 	float TotalTime = 1.f / JumpSpeed;
@@ -132,8 +133,11 @@ void UDK_AttackComponent::JumpTick(UCurveFloat* Curve, TArray<FVector> Poss, flo
 
 	// EndAnim 실행
 	UAnimInstance* OwnerAnim = CharacterOwner->GetMesh()->GetAnimInstance();
+
+	// 1.f - EndRatio
 	if (OwnerAnim->Montage_GetIsStopped(nullptr) && (1.f - EndRatio <= JumpDeltaTimeAcc))
 	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("TotalTime: %f, EndRatio: %f"), TotalTime, 1.f - EndRatio));
 		OwnerAnim->Montage_Resume(nullptr);
 	}
 

@@ -73,8 +73,8 @@ void ADK_Object::PostInitializeComponents()
 
 	CollisionManagerComponent->OnColHitDelegate.AddUObject(this, &ADK_Object::OnColHit_Notify);
 
-	OnAttackEnd.AddUObject(this, &ADK_Object::EndAttack_Notify);
-
+	ComboComponent->OnComboInterruptedDelegate.AddUObject(this, &ADK_Object::EndAttack_Notify);
+	ComboComponent->OnComboEndDelegate.AddUObject(this, &ADK_Object::EndAttack_Notify);
 }
 
 // Called when the game starts or when spawned
