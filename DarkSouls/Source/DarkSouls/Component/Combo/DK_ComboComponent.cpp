@@ -77,6 +77,8 @@ void UDK_ComboComponent::ComboCheck_Notify()
 {
 	if (bIsAllProcess || bHasNextComboCommand)
 	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("ComboCheck_Notify")));
+
 		bHasNextComboCommand = false;
 
 		UDK_ComboActionData* CurData = ComboActionDatas[CurComboActionDataIndex];
@@ -143,6 +145,7 @@ void UDK_ComboComponent::InterruptedComboAction(FName NotifyName)
 			ReserveComboActionDataIndex = -1;
 		}
 
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("InterruptedComboAction")));
 		OnComboInterruptedDelegate.Broadcast();
 	}
 

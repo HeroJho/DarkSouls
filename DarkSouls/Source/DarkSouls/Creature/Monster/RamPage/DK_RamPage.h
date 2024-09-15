@@ -71,6 +71,7 @@ protected:
 	void Interrupted_ComboJumpAttack();
 	void End_ComboJumpAttack();
 
+	void StartEndJumpAttackAnim();
 	void EndPathJumpAttack();
 
 

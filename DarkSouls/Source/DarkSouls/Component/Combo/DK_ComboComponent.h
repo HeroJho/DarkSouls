@@ -33,10 +33,11 @@ public:
 
 	// ex) 스턴이 걸렸을 때 호출
 	void ResetComboInfo();
+	// 다음 콤보 넘기는 함수
+	void ComboCheck_Notify();
 
 protected:	
 	void ComboActionBegin();
-	void ComboCheck_Notify();
 	void BindEventFunc();
 	
 	UFUNCTION()

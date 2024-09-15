@@ -244,7 +244,6 @@ void ADK_RamPage::BeginSectionNotify_JumpAttack(FName NotifyName)
 	}
 	else if (NotifyName == FName("Jump"))
 	{
-		bIsInJumpAttackPath = true;
 		StatComponent->SetIsInvincible(true);
 
 		AActor* Target = AIControllerBase->GetAttackTarget();
@@ -253,6 +252,9 @@ void ADK_RamPage::BeginSectionNotify_JumpAttack(FName NotifyName)
 		AttackComponent->Delegate_EndJump.Clear();
 		AttackComponent->Delegate_EndJump.AddUObject(this, &ADK_RamPage::EndPathJumpAttack);
 
+		AttackComponent->Delegate_StartEndAnim.Clear();
+		AttackComponent->Delegate_StartEndAnim.AddUObject(this, &ADK_RamPage::StartEndJumpAttackAnim);
+
 		// TODO
 		FS_JumpAttackInfo JumpAttackInfo(JumpAttackCurve, 1.f, 1.f, -1.f, 400.f, 1600.f, 0.1f, 0.5f, true, 400.f, true);
 		AttackComponent->JumpToAttackTarget(Target, JumpAttackInfo);
@@ -260,11 +262,10 @@ void ADK_RamPage::BeginSectionNotify_JumpAttack(FName NotifyName)
 	}
 	else if (NotifyName == FName("JumpLoop"))
 	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("LockLoop")));
+
 		UPlayMontageCallbackProxy* AnimProxy = GetMontageCallbackProxy();
-		if (bIsInJumpAttackPath)
-		{
-			GetMesh()->GetAnimInstance()->Montage_Pause();
-		}
+		GetMesh()->GetAnimInstance()->Montage_Pause();
 
 	}
 
@@ -287,6 +288,12 @@ void ADK_RamPage::EndSection_JumpAttack(FName NotifyName)
 	InterruptedAttack_Notify();
 }
 
+void ADK_RamPage::StartEndJumpAttackAnim()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("StartEndJumpAttackAnim")));
+	ComboComponent->ComboCheck_Notify();
+}
+
 void ADK_RamPage::EndPathJumpAttack()
 {
 	FVector SlashLocation = GetMesh()->GetSocketLocation(FName("Combo1_Smash"));
@@ -298,7 +305,7 @@ void ADK_RamPage::EndPathJumpAttack()
 	EffectMatrix.SetRotation(FRotator(0.f, 90.f, 90.f).Quaternion());
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), JumpAttackParticle, EffectMatrix);
 
-	bIsInJumpAttackPath = false;
+
 	StatComponent->SetIsInvincible(false);
 }
 
@@ -306,12 +313,11 @@ void ADK_RamPage::EndPathJumpAttack()
 
 void ADK_RamPage::Interrupted_ComboJumpAttack()
 {
-	bIsInJumpAttackPath = false;
 	StatComponent->SetIsInvincible(false);
 }
 
 void ADK_RamPage::End_ComboJumpAttack()
 {
-	bIsInJumpAttackPath = false;
 	StatComponent->SetIsInvincible(false);
+	
 }

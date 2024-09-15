@@ -88,6 +88,7 @@ bool UDK_AttackComponent::JumpToAttackTarget(AActor* Target, FS_JumpAttackInfo J
 	// Init
 	GetWorld()->GetTimerManager().ClearTimer(JumpTimerHandle);
 	JumpDeltaTimeAcc = 0.f;
+	bTriggerStartEndAnim = false;
 
 	ADK_GameMode* GameMode = Cast<ADK_GameMode>(GetWorld()->GetAuthGameMode());
 
@@ -134,11 +135,24 @@ void UDK_AttackComponent::JumpTick(UCurveFloat* Curve, TArray<FVector> Poss, flo
 	// EndAnim 실행
 	UAnimInstance* OwnerAnim = CharacterOwner->GetMesh()->GetAnimInstance();
 
-	// 1.f - EndRatio
-	if (OwnerAnim->Montage_GetIsStopped(nullptr) && (1.f - EndRatio <= JumpDeltaTimeAcc))
+
+	if (1.f - EndRatio <= JumpDeltaTimeAcc)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("TotalTime: %f, EndRatio: %f"), TotalTime, 1.f - EndRatio));
-		OwnerAnim->Montage_Resume(nullptr);
+		// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("TotalTime: %f, EndRatio: %f"), TotalTime, 1.f - EndRatio));
+		
+		// 루프 걸렸다면
+		if (OwnerAnim->Montage_GetIsStopped(nullptr))
+		{
+			OwnerAnim->Montage_Resume(nullptr);
+		}
+
+
+		if (false == bTriggerStartEndAnim)
+		{
+			bTriggerStartEndAnim = true;
+			Delegate_StartEndAnim.Broadcast();
+		}
+		
 	}
 
 
@@ -155,11 +169,11 @@ void UDK_AttackComponent::JumpTick(UCurveFloat* Curve, TArray<FVector> Poss, flo
 	// 루프가 걸리기전에 호출
 	if (NexIndex >= Poss.Num())
 	{
-		GetWorld()->GetTimerManager().ClearTimer(JumpTimerHandle);
-		Delegate_EndJump.Broadcast();
-
 		if (OwnerAnim->Montage_GetIsStopped(nullptr))
 			OwnerAnim->Montage_Resume(nullptr);
+
+		GetWorld()->GetTimerManager().ClearTimer(JumpTimerHandle);
+		Delegate_EndJump.Broadcast();
 
 		return;
 	}

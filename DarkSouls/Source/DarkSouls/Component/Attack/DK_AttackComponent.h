@@ -78,9 +78,11 @@ protected:
 	FTimerHandle JumpTimerHandle;
 	float JumpDeltaTimeAcc = 0.f;
 
+	bool bTriggerStartEndAnim = false;
 
 	// Delegate
 public:
+	FOnNoParDelegate Delegate_StartEndAnim;
 	FOnNoParDelegate Delegate_EndJump;
 
 };
