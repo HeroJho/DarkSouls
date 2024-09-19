@@ -33,13 +33,16 @@ public:
 
 	// ex) 스턴이 걸렸을 때 호출
 	void ResetComboInfo();
-	// 다음 콤보 넘기는 함수
+	
+	// 다음 Section 실행 함수
+	void PlayNextSection();
+	
 	void ComboCheck_Notify();
 
 protected:	
 	void ComboActionBegin();
 	void BindEventFunc();
-	
+
 	UFUNCTION()
 	void InterruptedComboAction(FName NotifyName);
 	UFUNCTION()
@@ -48,6 +51,9 @@ protected:
 	void BeginNotifyComboAction(FName NotifyName);
 	UFUNCTION()
 	void EndNotifyComboAction(FName NotifyName);
+
+	UFUNCTION()
+	void NextSectionInterruptedComboAction(FName NotifyName);
 
 protected:
 	UPROPERTY()

@@ -82,5 +82,6 @@ protected:
 	TObjectPtr<UCurveFloat> JumpAttackCurve;
 	UPROPERTY(EditAnywhere, Category = JumpAttack)
 	TObjectPtr<UParticleSystem> JumpAttackParticle;
-
+	UPROPERTY(EditAnywhere, Category = JumpAttack)
+	float JumpAttackSpeed = 0.5f;
 };

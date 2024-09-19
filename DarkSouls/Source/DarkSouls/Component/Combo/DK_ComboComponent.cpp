@@ -77,8 +77,6 @@ void UDK_ComboComponent::ComboCheck_Notify()
 {
 	if (bIsAllProcess || bHasNextComboCommand)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("ComboCheck_Notify")));
-
 		bHasNextComboCommand = false;
 
 		UDK_ComboActionData* CurData = ComboActionDatas[CurComboActionDataIndex];
@@ -90,9 +88,35 @@ void UDK_ComboComponent::ComboCheck_Notify()
 		Owner->SetMontageCallbackProxyWithIntrrupted(UPlayMontageCallbackProxy::CreateProxyObjectForPlayMontage(
 			Owner->GetMesh(), CurData->ComboActionMontage, 1.f, 0.f, NextSection));
 
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("ComboCheck_Notify")));
+
 		BindEventFunc();
 		
 	}
+
+
+}
+
+void UDK_ComboComponent::PlayNextSection()
+{
+	// bHasNextComboCommand = false;
+
+	UDK_ComboActionData* CurData = ComboActionDatas[CurComboActionDataIndex];
+
+	CurrentCombo = FMath::Clamp(CurrentCombo + 1, 1, CurData->MaxComboCount);
+	FName NextSection = *FString::Printf(TEXT("%s%d"), *CurData->MontageSectionNamePrefix, CurrentCombo);
+
+
+
+	UPlayMontageCallbackProxy* Proxy = Owner->GetMontageCallbackProxy();
+	Proxy->OnInterrupted.Clear();
+
+	Owner->SetMontageCallbackProxyWithIntrrupted(UPlayMontageCallbackProxy::CreateProxyObjectForPlayMontage(
+		Owner->GetMesh(), CurData->ComboActionMontage, 1.f, 0.f, NextSection));
+
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("PlayNextSection")));
+
+	BindEventFunc();
 
 
 }
@@ -125,15 +149,54 @@ void UDK_ComboComponent::EndNotifyComboAction(FName NotifyName)
 
 }
 
-void UDK_ComboComponent::InterruptedComboAction(FName NotifyName)
+void UDK_ComboComponent::NextSectionInterruptedComboAction(FName NotifyName)
 {
 	UAnimInstance* AnimInstance = Owner->GetMesh()->GetAnimInstance();
 	UAnimMontage* PlayMontage = AnimInstance->GetCurrentActiveMontage();
 
 	UDK_ComboActionData* CurData = ComboActionDatas[CurComboActionDataIndex];
+
+
+	bool bIsSame = AnimInstance->Montage_IsPlaying(CurData->ComboActionMontage);
+
+	// 다른 몽타주로 Interrupte 됐다면 스탑
+	// if (PlayMontage != CurData->ComboActionMontage)
+		// if(!bIsSame)
+	{
+		CurrentCombo = 0;
+		bHasNextComboCommand = false;
+		bIsAllProcess = false;
+
+		if (ReserveComboActionDataIndex != -1)
+		{
+			CurComboActionDataIndex = ReserveComboActionDataIndex;
+			ReserveComboActionDataIndex = -1;
+		}
+
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("NextSectionInterruptedComboAction")));
+		OnComboInterruptedDelegate.Broadcast();
+	}
+}
+
+void UDK_ComboComponent::InterruptedComboAction(FName NotifyName)
+{
+	UAnimInstance* AnimInstance = Owner->GetMesh()->GetAnimInstance();
+	UAnimMontage* PlayMontage = AnimInstance->GetCurrentActiveMontage();
 	
+	UDK_ComboActionData* CurData = ComboActionDatas[CurComboActionDataIndex];
+	
+
+	//if (PlayMontage)
+	//	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("PlayMontage")));
+	//if (CurData->ComboActionMontage)
+	//	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Data")));
+
+
+	bool bIsSame = AnimInstance->Montage_IsPlaying(CurData->ComboActionMontage);
+
 	// 다른 몽타주로 Interrupte 됐다면 스탑
 	if (PlayMontage != CurData->ComboActionMontage)
+	// if(!bIsSame)
 	{
 		CurrentCombo = 0;
 		bHasNextComboCommand = false;

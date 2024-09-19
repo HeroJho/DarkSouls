@@ -256,7 +256,7 @@ void ADK_RamPage::BeginSectionNotify_JumpAttack(FName NotifyName)
 		AttackComponent->Delegate_StartEndAnim.AddUObject(this, &ADK_RamPage::StartEndJumpAttackAnim);
 
 		// TODO
-		FS_JumpAttackInfo JumpAttackInfo(JumpAttackCurve, 1.f, 1.f, -1.f, 400.f, 1600.f, 0.1f, 0.5f, true, 400.f, true);
+		FS_JumpAttackInfo JumpAttackInfo(JumpAttackCurve, JumpAttackSpeed, 1.f, -1.f, 400.f, 1600.f, 0.1f, 0.5f, true, 400.f, true);
 		AttackComponent->JumpToAttackTarget(Target, JumpAttackInfo);
 
 	}
@@ -265,7 +265,7 @@ void ADK_RamPage::BeginSectionNotify_JumpAttack(FName NotifyName)
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("LockLoop")));
 
 		UPlayMontageCallbackProxy* AnimProxy = GetMontageCallbackProxy();
-		GetMesh()->GetAnimInstance()->Montage_Pause();
+		// GetMesh()->GetAnimInstance()->Montage_Pause();
 
 	}
 
@@ -291,7 +291,8 @@ void ADK_RamPage::EndSection_JumpAttack(FName NotifyName)
 void ADK_RamPage::StartEndJumpAttackAnim()
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("StartEndJumpAttackAnim")));
-	ComboComponent->ComboCheck_Notify();
+	ComboComponent->PlayNextSection();
+
 }
 
 void ADK_RamPage::EndPathJumpAttack()
