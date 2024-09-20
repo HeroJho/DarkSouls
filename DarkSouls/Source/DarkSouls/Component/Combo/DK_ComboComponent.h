@@ -37,11 +37,11 @@ public:
 	// 다음 Section 실행 함수
 	void PlayNextSection();
 	
-	void ComboCheck_Notify();
 
 protected:	
 	void ComboActionBegin();
 	void BindEventFunc();
+	void ComboCheck_Notify();
 
 	UFUNCTION()
 	void InterruptedComboAction(FName NotifyName);
@@ -52,8 +52,6 @@ protected:
 	UFUNCTION()
 	void EndNotifyComboAction(FName NotifyName);
 
-	UFUNCTION()
-	void NextSectionInterruptedComboAction(FName NotifyName);
 
 protected:
 	UPROPERTY()

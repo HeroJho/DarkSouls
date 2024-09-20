@@ -5,6 +5,55 @@
 #include "S_DamageInfo.generated.h"
 
 
+
+USTRUCT(BlueprintType)
+struct FS_JumpAttackInfo
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+	FS_JumpAttackInfo();
+	FS_JumpAttackInfo(class UCurveFloat* InCurve, float InJumpSpeed, float InPredictTime,
+		float InArc, float InMinDisRange, float InMaxDisRange, float InMinArc, float InMaxArc,
+		bool InbIsFrontTarget, float InFrontDis, float InEndAnimPlayRatio, bool InbRenderDebug);
+
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Jump)
+	class UCurveFloat* Curve;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Jump)
+	float JumpSpeed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Jump)
+	float PredictTime;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Jump)
+	float Arc;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Jump)
+	float MinDisRange;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Jump)
+	float MaxDisRange;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Jump)
+	float MinArc;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Jump)
+	float MaxArc;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Jump)
+	bool bIsFrontTarget;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Jump)
+	float FrontDis;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Jump)
+	float EndAnimPlayRatio;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Jump)
+	bool bRenderDebug;
+};
+
+
+
+
 USTRUCT(BlueprintType)
 struct FS_DamageInfo
 {
@@ -43,7 +92,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hit)
 	float BlockKnockBackPowar;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Jump)
+	FS_JumpAttackInfo JumpAttackInfo;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Col)
 	TArray<FString> AttackColInfos;
 
 };
+
+

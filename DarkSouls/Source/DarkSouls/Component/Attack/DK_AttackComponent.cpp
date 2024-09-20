@@ -14,23 +14,6 @@
 
 
 
-FS_JumpAttackInfo::FS_JumpAttackInfo()
-	: Curve(nullptr), JumpSpeed(0.f),
-	PredictTime(0.f), Arc(0.f), MinDisRange(0.f), MaxDisRange(0.f), MinArc(0.f), MaxArc(0.f),
-	bIsFrontTarget(false), FrontDis(0.f), bRenderDebug(false)
-{
-}
-
-FS_JumpAttackInfo::FS_JumpAttackInfo(UCurveFloat* In_Curve, float In_JumpSpeed, float In_PredictTime,
-	float In_Arc, float In_MinDisRange, float In_MaxDisRange, float In_MinArc, float In_MaxArc,
-	bool In_bIsFrontTarget, float In_FrontDis, bool In_bRenderDebug)
-	: Curve(In_Curve), JumpSpeed(In_JumpSpeed), 
-	PredictTime(In_PredictTime), Arc(In_Arc), MinDisRange(In_MinDisRange), MaxDisRange(In_MaxDisRange), MinArc(In_MinArc), MaxArc(In_MaxArc),
-	bIsFrontTarget(In_bIsFrontTarget), FrontDis(In_FrontDis), bRenderDebug(In_bRenderDebug)
-{
-
-}
-
 
 // Sets default values for this component's properties
 UDK_AttackComponent::UDK_AttackComponent()
@@ -106,23 +89,20 @@ bool UDK_AttackComponent::JumpToAttackTarget(AActor* Target, FS_JumpAttackInfo J
 	
 	GameMode->GetToolManager()->PredictProjectilePath(GetOwner(), Target, Poss, JumpAttackInfo.PredictTime, 
 		Arc, JumpAttackInfo.bIsFrontTarget, JumpAttackInfo.FrontDis, JumpAttackInfo.bRenderDebug);
-	Poss.Pop();
 
 	float EndTime = CharacterOwner->GetMesh()->GetAnimInstance()->GetCurrentActiveMontage()->GetSectionLength(2);
 
 	// Run JumpTick
 	FTimerDelegate JumpTimerDelegate;
-	JumpTimerDelegate.BindUFunction(this, FName("JumpTick"), JumpAttackInfo.Curve, Poss, EndTime, JumpAttackInfo.JumpSpeed);
+	JumpTimerDelegate.BindUFunction(this, FName("JumpTick"), JumpAttackInfo.Curve, Poss, EndTime, JumpAttackInfo.JumpSpeed, JumpAttackInfo.EndAnimPlayRatio);
 	GetWorld()->GetTimerManager().SetTimer(JumpTimerHandle, JumpTimerDelegate, 0.01f, true, 0.f);
 
 
 	return true;
 }
 
-void UDK_AttackComponent::JumpTick(UCurveFloat* Curve, TArray<FVector> Poss, float EndAnimLength, float JumpSpeed)
+void UDK_AttackComponent::JumpTick(UCurveFloat* Curve, TArray<FVector> Poss, float EndAnimLength, float JumpSpeed, float EndAnimPlayRatio)
 {
-	// EndAnimLength += 0.1f;
-
 	const float TimeDelta = GetWorld()->DeltaTimeSeconds;
 
 	// 0~1 누적
@@ -131,21 +111,16 @@ void UDK_AttackComponent::JumpTick(UCurveFloat* Curve, TArray<FVector> Poss, flo
 	// EndAnim 실행 위치 구하기
 	float TotalTime = 1.f / JumpSpeed;
 	float EndRatio = EndAnimLength / TotalTime;
+	if (EndAnimPlayRatio >= 0.f)
+		EndRatio = 1.f - EndAnimPlayRatio;
 
 	// EndAnim 실행
-	UAnimInstance* OwnerAnim = CharacterOwner->GetMesh()->GetAnimInstance();
-
-
 	if (1.f - EndRatio <= JumpDeltaTimeAcc)
 	{
-		// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("TotalTime: %f, EndRatio: %f"), TotalTime, 1.f - EndRatio));
-		
 		// 루프 걸렸다면
+		UAnimInstance* OwnerAnim = CharacterOwner->GetMesh()->GetAnimInstance();
 		if (OwnerAnim->Montage_GetIsStopped(nullptr))
-		{
 			OwnerAnim->Montage_Resume(nullptr);
-		}
-
 
 		if (false == bTriggerStartEndAnim)
 		{
@@ -163,14 +138,20 @@ void UDK_AttackComponent::JumpTick(UCurveFloat* Curve, TArray<FVector> Poss, flo
 	int CurIndex = CurveValue * Poss.Num();
 	int NexIndex = CurIndex + 1;
 
-
 	// 끝
 	// *JumpDeltaTimeAcc는 1에 꼭 도달하기에 끝을 보장한다
 	// 루프가 걸리기전에 호출
 	if (NexIndex >= Poss.Num())
 	{
+		UAnimInstance* OwnerAnim = CharacterOwner->GetMesh()->GetAnimInstance();
 		if (OwnerAnim->Montage_GetIsStopped(nullptr))
 			OwnerAnim->Montage_Resume(nullptr);
+		// Poss의 갯수가 적으면 위보다 이부분이 먼저 호출될 수도 있으니
+		if (false == bTriggerStartEndAnim)
+		{
+			bTriggerStartEndAnim = true;
+			Delegate_StartEndAnim.Broadcast();
+		}
 
 		GetWorld()->GetTimerManager().ClearTimer(JumpTimerHandle);
 		Delegate_EndJump.Broadcast();

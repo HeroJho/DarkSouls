@@ -255,17 +255,15 @@ void ADK_RamPage::BeginSectionNotify_JumpAttack(FName NotifyName)
 		AttackComponent->Delegate_StartEndAnim.Clear();
 		AttackComponent->Delegate_StartEndAnim.AddUObject(this, &ADK_RamPage::StartEndJumpAttackAnim);
 
-		// TODO
-		FS_JumpAttackInfo JumpAttackInfo(JumpAttackCurve, JumpAttackSpeed, 1.f, -1.f, 400.f, 1600.f, 0.1f, 0.5f, true, 400.f, true);
-		AttackComponent->JumpToAttackTarget(Target, JumpAttackInfo);
+		AttackComponent->JumpToAttackTarget(Target, ComboComponent->GetCurrentAttackInfos().JumpAttackInfo);
 
 	}
 	else if (NotifyName == FName("JumpLoop"))
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("LockLoop")));
-
 		UPlayMontageCallbackProxy* AnimProxy = GetMontageCallbackProxy();
-		// GetMesh()->GetAnimInstance()->Montage_Pause();
+		
+		// End 애니메이션이 호출 중이라면 JumpLoop 안들어옴.
+		GetMesh()->GetAnimInstance()->Montage_Pause();
 
 	}
 
@@ -290,22 +288,13 @@ void ADK_RamPage::EndSection_JumpAttack(FName NotifyName)
 
 void ADK_RamPage::StartEndJumpAttackAnim()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("StartEndJumpAttackAnim")));
 	ComboComponent->PlayNextSection();
-
 }
 
 void ADK_RamPage::EndPathJumpAttack()
 {
 	FVector SlashLocation = GetMesh()->GetSocketLocation(FName("Combo1_Smash"));
 	AttackComponent->AOEDamage(SlashLocation, 1500.f, ComboComponent->GetCurrentAttackInfos(), false);
-
-	FTransform EffectMatrix;
-	EffectMatrix.SetLocation(SlashLocation);
-	EffectMatrix.SetScale3D({1.5f,1.5f,1.5f});
-	EffectMatrix.SetRotation(FRotator(0.f, 90.f, 90.f).Quaternion());
-	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), JumpAttackParticle, EffectMatrix);
-
 
 	StatComponent->SetIsInvincible(false);
 }

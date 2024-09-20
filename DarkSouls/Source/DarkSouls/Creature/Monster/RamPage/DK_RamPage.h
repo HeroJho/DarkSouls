@@ -40,6 +40,8 @@ protected:
 	void End_ComboSkill_Combo0();
 
 
+
+
 public:
 	bool GroundSmash();
 
@@ -54,6 +56,8 @@ protected:
 
 	void Interrupted_ComboGroundSmash();
 	void End_ComboGroundSmash();
+
+
 
 
 public:
@@ -74,14 +78,4 @@ protected:
 	void StartEndJumpAttackAnim();
 	void EndPathJumpAttack();
 
-
-
-
-protected:
-	UPROPERTY(EditAnywhere, Category = JumpAttack)
-	TObjectPtr<UCurveFloat> JumpAttackCurve;
-	UPROPERTY(EditAnywhere, Category = JumpAttack)
-	TObjectPtr<UParticleSystem> JumpAttackParticle;
-	UPROPERTY(EditAnywhere, Category = JumpAttack)
-	float JumpAttackSpeed = 0.5f;
 };
