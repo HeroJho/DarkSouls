@@ -15,7 +15,7 @@ public:
 	FS_JumpAttackInfo();
 	FS_JumpAttackInfo(class UCurveFloat* InCurve, float InJumpSpeed, float InPredictTime,
 		float InArc, float InMinDisRange, float InMaxDisRange, float InMinArc, float InMaxArc,
-		bool InbIsFrontTarget, float InFrontDis, float InEndAnimPlayRatio, bool InbRenderDebug);
+		float InFrontDis, float InEndAnimPlayRatio, bool InbRenderDebug);
 
 
 public:
@@ -39,8 +39,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Jump)
 	float MaxArc;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Jump)
-	bool bIsFrontTarget;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Jump)
 	float FrontDis;
 

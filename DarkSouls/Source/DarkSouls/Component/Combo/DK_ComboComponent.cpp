@@ -151,17 +151,8 @@ void UDK_ComboComponent::InterruptedComboAction(FName NotifyName)
 	UDK_ComboActionData* CurData = ComboActionDatas[CurComboActionDataIndex];
 	
 
-	//if (PlayMontage)
-	//	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("PlayMontage")));
-	//if (CurData->ComboActionMontage)
-	//	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Data")));
-
-
-	bool bIsSame = AnimInstance->Montage_IsPlaying(CurData->ComboActionMontage);
-
 	// 다른 몽타주로 Interrupte 됐다면 스탑
 	if (PlayMontage != CurData->ComboActionMontage)
-	// if(!bIsSame)
 	{
 		CurrentCombo = 0;
 		bHasNextComboCommand = false;
@@ -191,6 +182,7 @@ void UDK_ComboComponent::EndComboAction(FName NotifyName)
 		ReserveComboActionDataIndex = -1;
 	}
 
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("EndComboAction")));
 	OnComboEndDelegate.Broadcast();
 }
 

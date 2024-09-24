@@ -10,10 +10,10 @@ FS_JumpAttackInfo::FS_JumpAttackInfo()
 
 FS_JumpAttackInfo::FS_JumpAttackInfo(UCurveFloat* InCurve, float InJumpSpeed, float InPredictTime,
 	float InArc, float InMinDisRange, float InMaxDisRange, float InMinArc, float InMaxArc,
-	bool InbIsFrontTarget, float InFrontDis, float InEndAnimPlayRatio, bool InbRenderDebug)
+	float InFrontDis, float InEndAnimPlayRatio, bool InbRenderDebug)
 	: Curve(InCurve), JumpSpeed(InJumpSpeed),
 	PredictTime(InPredictTime), Arc(InArc), MinDisRange(InMinDisRange), MaxDisRange(InMaxDisRange), MinArc(InMinArc), MaxArc(InMaxArc),
-	bIsFrontTarget(InbIsFrontTarget), FrontDis(InFrontDis), EndAnimPlayRatio(InEndAnimPlayRatio), bRenderDebug(InbRenderDebug)
+	FrontDis(InFrontDis), EndAnimPlayRatio(InEndAnimPlayRatio), bRenderDebug(InbRenderDebug)
 {
 
 }

@@ -131,6 +131,7 @@ FVector UDK_ToolManager::CalculateFutureActorXYLocation(AActor* Target, float Ti
 	FVector Velocity = Target->GetVelocity();
 	Velocity.Z = 0.f;
 
+
 	FVector FutureLocation = Location + (Velocity * Time);
 
 	return FutureLocation;
@@ -140,16 +141,16 @@ FVector UDK_ToolManager::CalculateFutureActorXYLocation(AActor* Target, float Ti
 
 
 
-bool UDK_ToolManager::PredictProjectilePath(AActor* Me, AActor* Target, TArray<FVector>& OUT_Pos, float PredictTime, float Arc, bool bIsFrontTarget, float FrontDis, bool bDebug)
+bool UDK_ToolManager::PredictProjectilePath(AActor* Me, AActor* Target, TArray<FVector>& OUT_Pos, float PredictTime, float Arc, float FrontDis, bool bDebug)
 {
 	FVector OwnerLocation = Me->GetTargetLocation();
 	FVector FutureLocation = CalculateFutureActorXYLocation(Target, PredictTime);
 	FutureLocation.Z = 100.f;
 
 
-	if (bIsFrontTarget)
+	if (0.f < FrontDis)
 	{
-		FVector DisVec = Target->GetActorLocation() - FutureLocation;
+		FVector DisVec = Me->GetActorLocation() - FutureLocation;
 		DisVec.Normalize();
 		FutureLocation += DisVec * FrontDis;
 	}

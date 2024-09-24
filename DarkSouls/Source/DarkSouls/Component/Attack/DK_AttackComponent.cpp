@@ -88,7 +88,7 @@ bool UDK_AttackComponent::JumpToAttackTarget(AActor* Target, FS_JumpAttackInfo J
 	}
 	
 	GameMode->GetToolManager()->PredictProjectilePath(GetOwner(), Target, Poss, JumpAttackInfo.PredictTime, 
-		Arc, JumpAttackInfo.bIsFrontTarget, JumpAttackInfo.FrontDis, JumpAttackInfo.bRenderDebug);
+		Arc, JumpAttackInfo.FrontDis, JumpAttackInfo.bRenderDebug);
 
 	float EndTime = CharacterOwner->GetMesh()->GetAnimInstance()->GetCurrentActiveMontage()->GetSectionLength(2);
 
