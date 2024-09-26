@@ -151,8 +151,11 @@ bool UDK_ToolManager::PredictProjectilePath(AActor* Me, AActor* Target, TArray<F
 	if (0.f < FrontDis)
 	{
 		FVector DisVec = Me->GetActorLocation() - FutureLocation;
-		DisVec.Normalize();
-		FutureLocation += DisVec * FrontDis;
+		if (DisVec.Length() > FrontDis * 4.f)
+		{
+			DisVec.Normalize();
+			FutureLocation += DisVec * FrontDis;
+		}
 	}
 
 
