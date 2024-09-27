@@ -35,6 +35,10 @@ void ADK_RamPage::BeginPlay()
 	ComboComponent->OnComboInterruptedDelegate.AddUObject(this, &ADK_RamPage::Interrupted_ComboJumpAttack);
 	ComboComponent->OnComboEndDelegate.AddUObject(this, &ADK_RamPage::End_ComboJumpAttack);
 
+	ComboComponent->OnSectionEndDelegate.AddUObject(this, &ADK_RamPage::BindSectionFunction_ThrowWall);
+	ComboComponent->OnComboInterruptedDelegate.AddUObject(this, &ADK_RamPage::Interrupted_ComboThrowWall);
+	ComboComponent->OnComboEndDelegate.AddUObject(this, &ADK_RamPage::End_ComboThrowWall);
+
 }
 
 
@@ -190,6 +194,83 @@ void ADK_RamPage::Interrupted_ComboGroundSmash()
 }
 
 void ADK_RamPage::End_ComboGroundSmash()
+{
+}
+
+
+
+
+
+bool ADK_RamPage::ThrowWall()
+{
+	if (!CanAttack())
+	{
+		return false;
+	}
+
+	ResetInfoOnAttack();
+
+	ComboComponent->ChangeComboActionData(3);
+
+	ComboComponent->ProcessComboCommand(true);
+
+	bIsAttacking = true;
+
+	return true;
+}
+
+void ADK_RamPage::BindSectionFunction_ThrowWall()
+{
+	UPlayMontageCallbackProxy* AnimProxy = GetMontageCallbackProxy();
+	AnimProxy->OnCompleted.AddDynamic(this, &ADK_RamPage::EndSection_ThrowWall);
+	AnimProxy->OnInterrupted.AddDynamic(this, &ADK_RamPage::EndSection_ThrowWall);
+	AnimProxy->OnNotifyBegin.AddDynamic(this, &ADK_RamPage::BeginSectionNotify_ThrowWall);
+	AnimProxy->OnNotifyEnd.AddDynamic(this, &ADK_RamPage::EndSectionNotify_ThrowWall);
+}
+
+void ADK_RamPage::BeginSectionNotify_ThrowWall(FName NotifyName)
+{
+	if (NotifyName == FName("AttackRange"))
+	{
+		BeginAttackRange_Notify();
+	}
+	else if (NotifyName == FName("ColRange"))
+	{
+		BeginColRange_Notify();
+	}
+	else if (NotifyName == FName("FullWall"))
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("FullWall")));
+	}
+	else if (NotifyName == FName("Throw"))
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Throw")));
+	}
+
+}
+
+void ADK_RamPage::EndSectionNotify_ThrowWall(FName NotifyName)
+{
+	if (NotifyName == FName("AttackRange"))
+	{
+		EndAttackRange_Notify();
+	}
+	else if (NotifyName == FName("ColRange"))
+	{
+		EndColRange_Notify();
+	}
+}
+
+void ADK_RamPage::EndSection_ThrowWall(FName NotifyName)
+{
+	InterruptedAttack_Notify();
+}
+
+void ADK_RamPage::Interrupted_ComboThrowWall()
+{
+}
+
+void ADK_RamPage::End_ComboThrowWall()
 {
 }
 

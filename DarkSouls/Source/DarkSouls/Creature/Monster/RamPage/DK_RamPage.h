@@ -60,6 +60,29 @@ protected:
 
 
 
+
+public:
+	bool ThrowWall();
+
+protected:
+	void BindSectionFunction_ThrowWall();
+	UFUNCTION()
+	void BeginSectionNotify_ThrowWall(FName NotifyName);
+	UFUNCTION()
+	void EndSectionNotify_ThrowWall(FName NotifyName);
+	UFUNCTION()
+	void EndSection_ThrowWall(FName NotifyName);
+
+	void Interrupted_ComboThrowWall();
+	void End_ComboThrowWall();
+
+
+
+
+
+
+
+
 public:
 	bool JumpAttack();
 
