@@ -22,12 +22,17 @@ protected:
 public:	
 	virtual void Tick(float DeltaTime) override;
 
+
+public:
+	void Init(AActor* Target, float InHomingAcceleration, float InSpeed, float InGravity, bool InbRotateToTarget, bool InbSimulating);
+
+	void SimulatingProjectile();
+
 private:
 	void RotateToTarget();
 	
-	
 	UFUNCTION()
-	void OnComponentHit(UPrimitiveComponent* OnComponentHit, UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+	void OnComponentHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 
 protected:
@@ -43,15 +48,11 @@ protected:
 
 
 	// RunTime Option
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Test)
-	TWeakObjectPtr<class AActor> TargetActor;
-
-	UPROPERTY(EditAnywhere, Category = Test)
+	TWeakObjectPtr<AActor> TargetActor;
 	float Speed;
-	UPROPERTY(EditAnywhere, Category = Test)
 	float Gravity;
-	UPROPERTY(EditAnywhere, Category = Test)
-	bool bIsHoming;
+	float HomingAcceleration;
+	bool bSimulating;
 
 	// Static Option
 	UPROPERTY(EditAnywhere, Category = Projectile)

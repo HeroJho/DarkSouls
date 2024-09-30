@@ -40,6 +40,7 @@ public:
 
 	void ClearActorTemps();
 
+
 protected:
 	bool CheckAttackedActor(AActor* InCreature);
 

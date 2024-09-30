@@ -7,6 +7,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/ArrowComponent.h"
 #include "Particles/ParticleSystem.h"
+#include "Particles/ParticleSystemComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -16,10 +17,11 @@ ADK_Projectile_Base::ADK_Projectile_Base()
 {
  	PrimaryActorTick.bCanEverTick = false;
 
+	// 생성자에서 생성 후 Hit 함수 바인딩
 	BoxCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxCollision"));
-	FScriptDelegate BeginDelegate;
-	BeginDelegate.BindUFunction(this, FName("OnComponentHit"));
-	BoxCollision->OnComponentHit.AddUnique(BeginDelegate);
+	FScriptDelegate HitDelegate;
+	HitDelegate.BindUFunction(this, FName("OnComponentHit"));
+	BoxCollision->OnComponentHit.AddUnique(HitDelegate);
 
 	RootComponent = BoxCollision;
 
@@ -32,11 +34,11 @@ ADK_Projectile_Base::ADK_Projectile_Base()
 
 
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
-	ProjectileMovementComponent->bRotationFollowsVelocity = true;
 	
 	Speed = 0.f;
 	Gravity = 0.f;
-	bIsHoming = false;
+	HomingAcceleration = 0.f;
+	bSimulating = false;
 }
 
 // Called when the game starts or when spawned
@@ -44,14 +46,11 @@ void ADK_Projectile_Base::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// 오너랑 부딪히지 않는다, 오너쪽에도 호출해줘야 함
-	BoxCollision->IgnoreActorWhenMoving(GetOwner(), true);
 
 	if (TargetActor.IsValid())
 	{
 		RotateToTarget();
 	}
-
 
 }
 
@@ -59,8 +58,43 @@ void ADK_Projectile_Base::BeginPlay()
 void ADK_Projectile_Base::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	
 }
+
+void ADK_Projectile_Base::Init(AActor* Target, float InHomingAcceleration, float InSpeed, float InGravity, bool InbRotateToTarget, bool InbSimulating)
+{
+	if (InbSimulating == false)
+		ProjectileMovementComponent->bSimulationEnabled = false;
+
+	TargetActor = Target;
+	HomingAcceleration = InHomingAcceleration;
+	Speed = InSpeed;
+	Gravity = InGravity;
+
+	ProjectileMovementComponent->bRotationFollowsVelocity = InbRotateToTarget;
+	ProjectileMovementComponent->InitialSpeed = Speed;
+	ProjectileMovementComponent->MaxSpeed = Speed;
+	ProjectileMovementComponent->ProjectileGravityScale = Gravity;
+
+	ProjectileMovementComponent->bIsHomingProjectile = false;
+	if (TargetActor.IsValid() && HomingAcceleration > 0.f)
+	{
+		ProjectileMovementComponent->bIsHomingProjectile = true;
+		DisableComponentsSimulatePhysics();
+		ProjectileMovementComponent->HomingTargetComponent = TargetActor.Get()->GetRootComponent();
+		ProjectileMovementComponent->HomingAccelerationMagnitude = HomingAcceleration;
+	}
+	
+}
+
+void ADK_Projectile_Base::SimulatingProjectile()
+{
+	ProjectileMovementComponent->bSimulationEnabled = true;
+	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Cyan, FString::Printf(TEXT("Go")));
+}
+
+
+
 
 void ADK_Projectile_Base::RotateToTarget()
 {
@@ -70,16 +104,23 @@ void ADK_Projectile_Base::RotateToTarget()
 	UnitVector *= Speed;
 	
 	ProjectileMovementComponent->Velocity = UnitVector;
-
 }
 
-void ADK_Projectile_Base::OnComponentHit(UPrimitiveComponent* OnComponentHit, UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+void ADK_Projectile_Base::OnComponentHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	// OnProjectileImpact.Execute(OtherActor, Hit);
+	if (OtherActor == GetOwner())
+		return;
 
-	if(IsValid(ImpactEffect))
+	// 바인딩한 Hit 함수
+	if(OnProjectileImpact.IsBound())
+		OnProjectileImpact.Execute(OtherActor, Hit);
+
+	if (IsValid(ImpactEffect))
+	{
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffect, Hit.Location);
+	}
+		
+	
 
 	Destroy();
 }
-

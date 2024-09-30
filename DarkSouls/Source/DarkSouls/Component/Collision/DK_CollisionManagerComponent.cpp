@@ -36,7 +36,6 @@ void UDK_CollisionManagerComponent::InitializeComponent()
 	{
 		if (Components[i]->ComponentHasTag(COLTAG_NOMANAGE))
 			continue;
-
 	
 		FString Name = Components[i]->GetName();
 
@@ -161,6 +160,7 @@ void UDK_CollisionManagerComponent::ClearActorTemps()
 {
 	ActorTemps.Empty();
 }
+
 
 
 bool UDK_CollisionManagerComponent::CheckAttackedActor(AActor* InCreature)

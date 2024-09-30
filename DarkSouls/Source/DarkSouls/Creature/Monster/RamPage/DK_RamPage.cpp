@@ -13,6 +13,9 @@
 #include "AOE/DK_AOE_Base.h"
 #include "Interface/DK_DamageableInterface.h"
 #include "Creature/Monster/DK_AIControllerBase.h"
+#include "Projectile/DK_Projectile_Base.h"
+
+
 
 ADK_RamPage::ADK_RamPage()
 {
@@ -240,11 +243,38 @@ void ADK_RamPage::BeginSectionNotify_ThrowWall(FName NotifyName)
 	}
 	else if (NotifyName == FName("FullWall"))
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("FullWall")));
+		// 중간에 플레이어가 죽었다
+		AActor* Target = AIControllerBase->GetAttackTarget();
+		if (IsValid(Target))
+		{
+			if (ThrowWallProjectile.IsValid())
+				ThrowWallProjectile->Destroy();
+
+			ThrowWallProjectile = GetWorld()->SpawnActorDeferred<ADK_Projectile_Base>(ThrowWallProjectileClass, FTransform::Identity, this);
+			
+			ThrowWallProjectile->Init(Target, -1.f, 4500.f, 1.5f, false, false);
+			ThrowWallProjectile->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, FName(TEXT("RockAttachPoint")));
+
+			ThrowWallProjectile->FinishSpawning(FTransform::Identity);
+
+		}
+		else
+		{
+			StopAnimMontage();
+		}
+
 	}
 	else if (NotifyName == FName("Throw"))
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Throw")));
+
+		if (ThrowWallProjectile.IsValid())
+		{
+			ThrowWallProjectile->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+			ThrowWallProjectile->SimulatingProjectile();
+
+			ThrowWallProjectile = nullptr;
+		}
+
 	}
 
 }
@@ -268,10 +298,20 @@ void ADK_RamPage::EndSection_ThrowWall(FName NotifyName)
 
 void ADK_RamPage::Interrupted_ComboThrowWall()
 {
+	if (ThrowWallProjectile.IsValid())
+	{
+		ThrowWallProjectile->Destroy();
+	}
+
 }
 
 void ADK_RamPage::End_ComboThrowWall()
 {
+	if (ThrowWallProjectile.IsValid())
+	{
+		ThrowWallProjectile->Destroy();
+	}
+
 }
 
 

@@ -76,7 +76,11 @@ protected:
 	void Interrupted_ComboThrowWall();
 	void End_ComboThrowWall();
 
-
+protected:
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class ADK_Projectile_Base> ThrowWallProjectileClass;
+	UPROPERTY()
+	TWeakObjectPtr<class ADK_Projectile_Base> ThrowWallProjectile;
 
 
 
