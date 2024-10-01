@@ -8,6 +8,23 @@
 
 DECLARE_DELEGATE_TwoParams(FOnColHitTwoDelegete, AActor*, const FHitResult&)
 
+struct ProjectileOption
+{
+	ProjectileOption() {};
+	ProjectileOption(AActor* InTarget, float InHomingAcceleration, float InSpeed, float InGravity, 
+		bool InbRotateToTarget, bool InbSimulating)
+		: Target(InTarget), HomingAcceleration(InHomingAcceleration), Speed(InSpeed), Gravity(InGravity),
+		bRotateToTarget(InbRotateToTarget), bSimulating(InbSimulating)
+	{};
+
+	AActor* Target = nullptr;
+	float HomingAcceleration = 0.f;
+	float Speed = 0.f;
+	float Gravity = 0.f;
+	bool bRotateToTarget = false;
+	bool bSimulating = false;
+};
+
 UCLASS()
 class DARKSOULS_API ADK_Projectile_Base : public AActor
 {
@@ -24,13 +41,18 @@ public:
 
 
 public:
-	void Init(AActor* Target, float InHomingAcceleration, float InSpeed, float InGravity, bool InbRotateToTarget, bool InbSimulating);
+	void Init(ProjectileOption Option);
 
 	void SimulatingProjectile();
 
-private:
-	void RotateToTarget();
+	UFUNCTION()
+	void DestroyProjectile(FVector HitPos = FVector::ZeroVector);
+
+protected:
+	virtual void RotateToTarget();
 	
+
+
 	UFUNCTION()
 	void OnComponentHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
@@ -57,8 +79,12 @@ protected:
 	// Static Option
 	UPROPERTY(EditAnywhere, Category = Projectile)
 	TObjectPtr<class UParticleSystem> ImpactEffect;
+	UPROPERTY(EditAnywhere, Category = Projectile)
+	FRotator RotSpeed;
+	UPROPERTY(EditAnywhere, Category = Projectile)
+	float LifeTime;
 
-
+	FTimerHandle LifeTimerHandle;
 
 	// Delegate
 public:

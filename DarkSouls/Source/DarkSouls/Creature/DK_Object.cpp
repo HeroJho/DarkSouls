@@ -3,6 +3,7 @@
 
 #include "Creature/DK_Object.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/ArrowComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "PlayMontageCallbackProxy.h"
@@ -61,6 +62,10 @@ ADK_Object::ADK_Object()
 	WidgetComponent->SetupAttachment(RootComponent);
 	WidgetComponent->SetCollisionProfileName(TEXT("NoCollision"));
 
+
+	// MiddlePosArrowComponent
+	MiddlePosArrowComponent = CreateDefaultSubobject<UArrowComponent>(TEXT("MiddlePosArrowComponent"));
+	MiddlePosArrowComponent->SetupAttachment(RootComponent);
 }
 
 void ADK_Object::PostInitializeComponents()
@@ -514,6 +519,15 @@ void ADK_Object::BeBlockedPerfectly(int32 GPValue)
 
 }
 
+
+
+
+
+
+FVector ADK_Object::GetMiddlePos()
+{
+	return MiddlePosArrowComponent->GetComponentLocation();
+}
 
 
 

@@ -11,6 +11,8 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/GameplayStatics.h"
 
+#include "Creature/DK_Object.h"
+
 
 // Sets default values
 ADK_Projectile_Base::ADK_Projectile_Base()
@@ -32,13 +34,13 @@ ADK_Projectile_Base::ADK_Projectile_Base()
 	Arrow->SetupAttachment(BoxCollision);
 
 
-
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
 	
 	Speed = 0.f;
 	Gravity = 0.f;
 	HomingAcceleration = 0.f;
 	bSimulating = false;
+	RotSpeed = FRotator::ZeroRotator;
 }
 
 // Called when the game starts or when spawned
@@ -46,12 +48,7 @@ void ADK_Projectile_Base::BeginPlay()
 {
 	Super::BeginPlay();
 
-
-	if (TargetActor.IsValid())
-	{
-		RotateToTarget();
-	}
-
+	RotateToTarget();
 }
 
 // Called every frame
@@ -59,19 +56,27 @@ void ADK_Projectile_Base::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	
+	if (ProjectileMovementComponent->bSimulationEnabled == false)
+		return;
+
+	if (RotSpeed != FRotator::ZeroRotator)
+	{
+		AddActorWorldRotation(RotSpeed * DeltaTime);
+	}
+
 }
 
-void ADK_Projectile_Base::Init(AActor* Target, float InHomingAcceleration, float InSpeed, float InGravity, bool InbRotateToTarget, bool InbSimulating)
+void ADK_Projectile_Base::Init(ProjectileOption Option)
 {
-	if (InbSimulating == false)
+	if (Option.bSimulating == false)
 		ProjectileMovementComponent->bSimulationEnabled = false;
 
-	TargetActor = Target;
-	HomingAcceleration = InHomingAcceleration;
-	Speed = InSpeed;
-	Gravity = InGravity;
+	TargetActor = Option.Target;
+	HomingAcceleration = Option.HomingAcceleration;
+	Speed = Option.Speed;
+	Gravity = Option.Gravity;
 
-	ProjectileMovementComponent->bRotationFollowsVelocity = InbRotateToTarget;
+	ProjectileMovementComponent->bRotationFollowsVelocity = Option.bRotateToTarget;
 	ProjectileMovementComponent->InitialSpeed = Speed;
 	ProjectileMovementComponent->MaxSpeed = Speed;
 	ProjectileMovementComponent->ProjectileGravityScale = Gravity;
@@ -84,13 +89,28 @@ void ADK_Projectile_Base::Init(AActor* Target, float InHomingAcceleration, float
 		ProjectileMovementComponent->HomingTargetComponent = TargetActor.Get()->GetRootComponent();
 		ProjectileMovementComponent->HomingAccelerationMagnitude = HomingAcceleration;
 	}
+
+	if (RotSpeed != FRotator::ZeroRotator)
+	{
+		PrimaryActorTick.bCanEverTick = true;
+		ProjectileMovementComponent->bRotationFollowsVelocity = false;
+	}
 	
+
+	if (UKismetMathLibrary::NearlyEqual_FloatFloat(LifeTime, 0.f) == false)
+	{
+		FTimerDelegate Del;
+		Del.BindUFunction(this, FName("DestroyProjectile"), FVector::ZeroVector);
+		GetWorldTimerManager().SetTimer(LifeTimerHandle, Del, LifeTime, false);
+	}
+
 }
 
 void ADK_Projectile_Base::SimulatingProjectile()
 {
 	ProjectileMovementComponent->bSimulationEnabled = true;
-	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Cyan, FString::Printf(TEXT("Go")));
+
+	RotateToTarget();
 }
 
 
@@ -99,11 +119,34 @@ void ADK_Projectile_Base::SimulatingProjectile()
 void ADK_Projectile_Base::RotateToTarget()
 {
 	// bRotationFollowsVelocity Option is true;
+	if (TargetActor.IsValid() == false)
+		return;
 
-	FVector UnitVector = UKismetMathLibrary::GetDirectionUnitVector(GetActorLocation(), TargetActor->GetActorLocation());
+	FVector TargetLocation = TargetActor->GetActorLocation();
+
+	ADK_Object* ObjTarget = Cast<ADK_Object>(TargetActor);
+	if (IsValid(ObjTarget))
+	{
+		TargetLocation = ObjTarget->GetMiddlePos();
+	}
+
+	FVector UnitVector = UKismetMathLibrary::GetDirectionUnitVector(GetActorLocation(), TargetLocation);
 	UnitVector *= Speed;
 	
 	ProjectileMovementComponent->Velocity = UnitVector;
+}
+
+void ADK_Projectile_Base::DestroyProjectile(FVector HitPos)
+{
+	if (IsValid(ImpactEffect))
+	{
+		if(HitPos == FVector::ZeroVector)
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffect, GetActorLocation());
+		else
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffect, HitPos);
+	}
+
+	Destroy();
 }
 
 void ADK_Projectile_Base::OnComponentHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
@@ -114,13 +157,6 @@ void ADK_Projectile_Base::OnComponentHit(UPrimitiveComponent* HitComponent, AAct
 	// 바인딩한 Hit 함수
 	if(OnProjectileImpact.IsBound())
 		OnProjectileImpact.Execute(OtherActor, Hit);
-
-	if (IsValid(ImpactEffect))
-	{
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffect, Hit.Location);
-	}
 		
-	
-
-	Destroy();
+	DestroyProjectile(Hit.Location);
 }

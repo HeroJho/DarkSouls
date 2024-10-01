@@ -4,28 +4,28 @@
 
 #include "CoreMinimal.h"
 #include "Projectile/DK_Projectile_Base.h"
-#include "DK_Projectile_Rotation.generated.h"
+#include "DK_Projectile_Gravity.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class DARKSOULS_API ADK_Projectile_Rotation : public ADK_Projectile_Base
+class DARKSOULS_API ADK_Projectile_Gravity : public ADK_Projectile_Base
 {
 	GENERATED_BODY()
 	
 public:
-	ADK_Projectile_Rotation();
+	ADK_Projectile_Gravity();
 
 protected:
 	virtual void BeginPlay() override;
 
-public:
-	virtual void Tick(float DeltaTime) override;
-
 
 protected:
-	UPROPERTY(EditAnywhere)
-	FVector RotSpeed;
+	virtual void RotateToTarget() override;
+
+protected:
+	UPROPERTY(EditAnywhere, Category = Projectile)
+	float PitchDegree;
 
 };

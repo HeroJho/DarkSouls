@@ -250,6 +250,19 @@ protected:
 
 
 
+	// MiddlePos
+	// 오브젝트 Location을 가져오면 발바닥 위치를 가져옴.
+	// 내가 원하는(오브젝트 크기마다 다름) 가슴 부분을 가져오고 싶다.
+public:
+	FVector GetMiddlePos();
+
+protected:
+	UPROPERTY(EditAnywhere, Category = MiddlePos)
+	TObjectPtr<class UArrowComponent> MiddlePosArrowComponent;
+
+
+
+
 	// Condition
 protected:
 	virtual bool CanAttack();

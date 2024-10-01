@@ -248,11 +248,12 @@ void ADK_RamPage::BeginSectionNotify_ThrowWall(FName NotifyName)
 		if (IsValid(Target))
 		{
 			if (ThrowWallProjectile.IsValid())
-				ThrowWallProjectile->Destroy();
+				ThrowWallProjectile->DestroyProjectile();
 
 			ThrowWallProjectile = GetWorld()->SpawnActorDeferred<ADK_Projectile_Base>(ThrowWallProjectileClass, FTransform::Identity, this);
 			
-			ThrowWallProjectile->Init(Target, -1.f, 4500.f, 1.5f, false, false);
+			ProjectileOption ProjOp(Target, -1.f, 4500.f, 0.5f, false, false);
+			ThrowWallProjectile->Init(ProjOp);
 			ThrowWallProjectile->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, FName(TEXT("RockAttachPoint")));
 
 			ThrowWallProjectile->FinishSpawning(FTransform::Identity);
@@ -300,7 +301,7 @@ void ADK_RamPage::Interrupted_ComboThrowWall()
 {
 	if (ThrowWallProjectile.IsValid())
 	{
-		ThrowWallProjectile->Destroy();
+		ThrowWallProjectile->DestroyProjectile();
 	}
 
 }
@@ -309,7 +310,7 @@ void ADK_RamPage::End_ComboThrowWall()
 {
 	if (ThrowWallProjectile.IsValid())
 	{
-		ThrowWallProjectile->Destroy();
+		ThrowWallProjectile->DestroyProjectile();
 	}
 
 }
