@@ -160,12 +160,12 @@ protected:
 
 protected:
 	bool bIsTargetLockOn = false;
-	TSoftObjectPtr<AActor> TargetLockedOn;
+	TWeakObjectPtr<AActor> TargetLockedOn;
 
 	UPROPERTY(EditAnywhere, Category = LockOn)
 	float LockOnSmoothSpeed = 5.f;
 
-	const float LockMaxDis = 3000.f;
+	const float LockMaxDis = 10000.f;
 	const float MaxAngle = 90.f;
 	const float LockOnCameraLagSpeed = 3.f;
 	const float LockOffCameraLagSpeed = 6.f;

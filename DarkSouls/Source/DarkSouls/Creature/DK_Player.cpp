@@ -175,13 +175,7 @@ void ADK_Player::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-
-
-	if (bIsTargetLockOn)
-	{
-		LockTick();
-	}
-
+	LockTick();
 
 }
 
@@ -410,15 +404,7 @@ void ADK_Player::OnDodgeSkip_Notify()
 
 void ADK_Player::LockTarget()
 {
-	if (bIsTargetLockOn)
-	{
-		LockTarget(false);
-	}
-	else
-	{
-		LockTarget(true);
-	}
-
+	LockTarget(!bIsTargetLockOn);
 }
 
 void ADK_Player::LockTarget(bool bIsLock)
@@ -433,7 +419,8 @@ void ADK_Player::LockTarget(bool bIsLock)
 		FRotator ControlRotation = GetController()->GetControlRotation();
 		FVector StanVec = FRotationMatrix(ControlRotation).GetScaledAxis(EAxis::X);
 
-		AActor* LockTarget = GameMode->GetToolManager()->GetObjectInNearstAngleByChannel(ECC_GameTraceChannel2, StanPos, LockMaxDis, StanVec, MaxAngle, false);
+		AActor* LockTarget = GameMode->GetToolManager()->
+			GetObjectInNearstAngleByChannel(ECC_GameTraceChannel2, StanPos, LockMaxDis, StanVec, MaxAngle, false);
 		if (LockTarget)
 		{
 			TargetLockedOn = LockTarget;
@@ -458,12 +445,16 @@ void ADK_Player::LockTarget(bool bIsLock)
 
 void ADK_Player::LockTick()
 {
+	if (!bIsTargetLockOn)
+		return;
+
 	if(!IsValid(TargetLockedOn.Get()))
 	{
 		LockTarget(false);
 		return;
 	}
 
+	// *최적화
 	// LockOnPos 위치를 가리키는 Arrow 컴포넌트를 찾는다
 	UArrowComponent* LockArrow = nullptr;
 	TArray<UArrowComponent*> ArrowComponents;
@@ -476,7 +467,6 @@ void ADK_Player::LockTick()
 			LockArrow = ArrowComponents[i];
 			break;
 		}
-
 	}
 
 	if (LockArrow == nullptr)
@@ -484,7 +474,6 @@ void ADK_Player::LockTick()
 		LockTarget(false);
 		return;
 	}
-
 
 	// 거리 확인
 	if (LockMaxDis < GetDistanceTo(TargetLockedOn.Get()))
@@ -497,9 +486,9 @@ void ADK_Player::LockTick()
 	// 컨트롤러(Boom)의 Yaw을 얼마나 회전해야하냐
 	FVector ArrowLocation = LockArrow->GetComponentLocation();
 	FVector PlayerLocation = GetActorLocation();
-	
 	FRotator RotationYaw = UKismetMathLibrary::FindLookAtRotation(PlayerLocation, ArrowLocation);
 	
+
 	// 컨트롤러(Boom)의 Pitch을 얼마나 회전해야하냐
 	FVector StartLocation;
 	FVector LocalArmLocation = FVector(CameraBoom->TargetArmLength * -1.f, 0.f, 0.f);
@@ -515,14 +504,13 @@ void ADK_Player::LockTick()
 	// 구한 Yaw와 Pitch로 Lerp해서 회전한다
 	float Pitch = RotationPitch.Pitch;
 	float Yaw = RotationYaw.Yaw;
-
 	FRotator CurRot = GetController()->GetControlRotation();
 	FRotator WantRot(Pitch , Yaw, 0.f);
-
 
 	FRotator ResultRot = FMath::RInterpTo(CurRot, WantRot, GetWorld()->GetDeltaSeconds(), LockOnSmoothSpeed);
 
 
+	// 적용
 	GetController()->SetControlRotation(ResultRot);
 
 }

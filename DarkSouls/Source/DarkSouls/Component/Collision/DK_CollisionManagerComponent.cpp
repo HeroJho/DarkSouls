@@ -161,6 +161,17 @@ void UDK_CollisionManagerComponent::ClearActorTemps()
 	ActorTemps.Empty();
 }
 
+void UDK_CollisionManagerComponent::IgnoreCol(AActor* IgnoreActor)
+{
+	TArray<UCapsuleComponent*> Components;
+	CreatureOwner->GetComponents(UCapsuleComponent::StaticClass(), Components);
+
+	for (int32 i = 0; i < Components.Num(); ++i)
+	{
+		Components[i]->IgnoreActorWhenMoving(IgnoreActor, true);
+	}
+}
+
 
 
 bool UDK_CollisionManagerComponent::CheckAttackedActor(AActor* InCreature)
@@ -175,30 +186,31 @@ bool UDK_CollisionManagerComponent::CheckAttackedActor(AActor* InCreature)
 
 void UDK_CollisionManagerComponent::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	IDK_DamageableInterface* OtherDamageable = Cast<IDK_DamageableInterface>(OtherActor);
-	if (OtherDamageable == nullptr)
+	// 자신을 충돌했다면
+	if (OtherActor == GetOwner())
 		return;
 
-	if (OtherActor == GetOwner())
+	// 데미지 인터페이스 여부
+	IDK_DamageableInterface* OtherDamageable = Cast<IDK_DamageableInterface>(OtherActor);
+	if (OtherDamageable == nullptr)
 		return;
 
 	// 공격 애니메이션 범위인지
 	if (!CreatureOwner->IsInAttackRange())
 		return;
 
+	// 공격 판정 콜라이더가 아니라면 
 	FString ColName = OverlappedComp->GetName();
-	// 공격 판정 콜라이더라면 
-	if (CheckIsAttackCol(ColName))
-	{
-		// 중복 공격 방지
-		if (CheckAttackedActor(OtherActor))
-			return;
+	if (!CheckIsAttackCol(ColName))
+		return;
 
-		ActorTemps.Add(OtherActor);
+	// 중복 공격 방지
+	if (CheckAttackedActor(OtherActor))
+		return;
+	ActorTemps.Add(OtherActor);
 
-		OnColHitDelegate.Broadcast(OtherDamageable);
 
-	}
+	OnColHitDelegate.Broadcast(OtherDamageable);
 
 }
 

@@ -24,8 +24,8 @@ void UBTS_UpdateDistanceToTarget::TickNode(UBehaviorTreeComponent& OwnerComp, ui
 		OwnerComp.GetBlackboardComponent()->GetValueAsObject(AttackTargetKey.SelectedKeyName));
 	if (IsValid(Target) == false)
 		return;
-
+	
+		
 	float Distance = Target->GetDistanceTo(Owner);
 	OwnerComp.GetBlackboardComponent()->SetValueAsFloat(DistanceToTargetKey.SelectedKeyName, Distance);
-
 }

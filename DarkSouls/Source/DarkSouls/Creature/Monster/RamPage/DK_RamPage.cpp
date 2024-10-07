@@ -15,6 +15,7 @@
 #include "Creature/Monster/DK_AIControllerBase.h"
 #include "Projectile/DK_Projectile_Base.h"
 
+#include "Component/Collision/DK_CollisionManagerComponent.h"
 
 
 ADK_RamPage::ADK_RamPage()
@@ -182,7 +183,7 @@ void ADK_RamPage::EndSectionNotify_GroundSmash(FName NotifyName)
 		EndAttackRange_Notify();
 	}
 	else if (NotifyName == FName("ColRange"))
-	{
+	{ 
 		EndColRange_Notify();
 	}
 }
@@ -255,9 +256,36 @@ void ADK_RamPage::BeginSectionNotify_ThrowWall(FName NotifyName)
 			ProjectileOption ProjOp(Target, -1.f, 4500.f, 0.5f, false, false);
 			ThrowWallProjectile->Init(ProjOp);
 			ThrowWallProjectile->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, FName(TEXT("RockAttachPoint")));
+			ThrowWallProjectile->OnProjectileImpact;
+
+			//ThrowWallProjectile->OnProjectileImpact.BindLambda([DamageInfo, OwnerPawn](AActor* HitActor)
+			//	{
+			//		if (!IsValid(OwnerPawn))
+			//			return;
+
+			//		IDK_DamageableInterface* HitActorDamageable = Cast<IDK_DamageableInterface>(HitActor);
+			//		if (HitActorDamageable)
+			//		{
+			//			HitActorDamageable->TakeDamage(DamageInfo, OwnerPawn);
+			//		}
+			//	});
+
+
+			//SlashAOE->OnAOEOverlapActorDelegate.AddLambda([DamageInfo, OwnerPawn](AActor* HitActor)
+			//	{
+			//		if (!IsValid(OwnerPawn))
+			//			return;
+
+			//		IDK_DamageableInterface* HitActorDamageable = Cast<IDK_DamageableInterface>(HitActor);
+			//		if (HitActorDamageable)
+			//		{
+			//			HitActorDamageable->TakeDamage(DamageInfo, OwnerPawn);
+			//		}
+			//	});
 
 			ThrowWallProjectile->FinishSpawning(FTransform::Identity);
 
+			CollisionManagerComponent->IgnoreCol(ThrowWallProjectile.Get());
 		}
 		else
 		{

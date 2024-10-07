@@ -40,6 +40,8 @@ public:
 
 	void ClearActorTemps();
 
+	void IgnoreCol(AActor* IgnoreActor);
+
 
 protected:
 	bool CheckAttackedActor(AActor* InCreature);

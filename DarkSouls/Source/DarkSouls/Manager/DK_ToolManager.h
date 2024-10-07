@@ -22,10 +22,10 @@ protected:
 
 public:
 	//    StanPos 기준 MaxDis 반지름 Channel 트레이스에 충돌한 오브젝트에서 StanVec 벡터를 기준으로 MaxAngle 내에 있는 오브젝트를 반환 
+	const TArray<AActor*> GetObjectInAngleByChannel(ECollisionChannel Channel, FVector MyPos, float MaxDis, FVector MyVec, float MaxAngle, bool bDebug);
+	
 	UFUNCTION(BlueprintCallable)
-	const TArray<AActor*> GetObjectInAngleByChannel(ECollisionChannel Channel, FVector StanPos, float MaxDis, FVector StanVec, float MaxAngle, bool bDebug);
-	UFUNCTION(BlueprintCallable)
-	AActor* GetObjectInNearstAngleByChannel(ECollisionChannel Channel, FVector StanPos, float MaxDis, FVector StanVec, float MaxAngle, bool bDebug);
+	AActor* GetObjectInNearstAngleByChannel(ECollisionChannel Channel, FVector MyPos, float MaxDis, FVector MyVec, float MaxAngle, bool bDebug);
 
 	UFUNCTION(BlueprintCallable)
 	FVector CalculateFutureActorXYLocation(AActor* Target, float Time);

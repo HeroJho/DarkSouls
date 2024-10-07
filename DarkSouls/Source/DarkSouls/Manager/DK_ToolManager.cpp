@@ -30,13 +30,14 @@ void UDK_ToolManager::BeginPlay()
 	
 }
 
-const TArray<AActor*> UDK_ToolManager::GetObjectInAngleByChannel(ECollisionChannel Channel, FVector StanPos, float MaxDis, FVector StanVec, float MaxAngle, bool bDebug)
+const TArray<AActor*> UDK_ToolManager::GetObjectInAngleByChannel(ECollisionChannel Channel, FVector MyPos, float MaxDis, FVector MyVec, float MaxAngle, bool bDebug)
 {
-	TArray<AActor*> Answers;
+	TArray<AActor*> Targets;
 
 	// 트레이스로 오브젝트를 얻어온다
 	TArray<FOverlapResult> TraceHitArray;
-	GetWorld()->OverlapMultiByChannel(TraceHitArray, StanPos, FQuat::Identity, Channel, FCollisionShape::MakeSphere(MaxDis));
+	GetWorld()->OverlapMultiByChannel(TraceHitArray, 
+		MyPos, FQuat::Identity, Channel, FCollisionShape::MakeSphere(MaxDis));
 
 
 	// 내적해서 MaxAngle안에 있다
@@ -46,19 +47,16 @@ const TArray<AActor*> UDK_ToolManager::GetObjectInAngleByChannel(ECollisionChann
 		if (!IsValid(TargetTemp))
 			continue;
 		
-		FVector LookToTargetVector = TargetTemp->GetActorLocation() - StanPos;
+		FVector LookToTargetVector = TargetTemp->GetActorLocation() - MyPos;
 		LookToTargetVector.Normalize();
-		StanVec.Normalize();
+		MyVec.Normalize();
 
-		float  DotResult = FVector::DotProduct(StanVec, LookToTargetVector);
+		float  DotResult = FVector::DotProduct(MyVec, LookToTargetVector);
 		
 		float Angle =  (FMath::Acos(DotResult) / UE_PI) * 180.f;
 		
 		if (FMath::Abs(Angle) <= MaxAngle)
-		{
-			Answers.Push(TargetTemp);
-		}
-
+			Targets.Push(TargetTemp);
 	}
 
 
@@ -66,11 +64,11 @@ const TArray<AActor*> UDK_ToolManager::GetObjectInAngleByChannel(ECollisionChann
 
 	if (bDebug)
 	{
-		DrawDebugSphere(GetWorld(), StanPos, MaxDis, 12, FColor::White);
+		DrawDebugSphere(GetWorld(), MyPos, MaxDis, 12, FColor::White);
 
-		for (int32 i = 0; i < Answers.Num(); ++i)
+		for (int32 i = 0; i < Targets.Num(); ++i)
 		{
-			FVector Location = Answers[i]->GetActorLocation();
+			FVector Location = Targets[i]->GetActorLocation();
 
 			DrawDebugSphere(GetWorld(), Location, 150.f, 20, FColor::Red, false, 10.f);
 		}
@@ -78,27 +76,24 @@ const TArray<AActor*> UDK_ToolManager::GetObjectInAngleByChannel(ECollisionChann
 
 #endif 
 
-
-
-	return Answers;
+	return Targets;
 }
 
-AActor* UDK_ToolManager::GetObjectInNearstAngleByChannel(ECollisionChannel Channel, FVector StanPos, float MaxDis, FVector StanVec, float MaxAngle, bool bDebug)
+AActor* UDK_ToolManager::GetObjectInNearstAngleByChannel(ECollisionChannel Channel, FVector MyPos, float MaxDis, FVector MyVec, float MaxAngle, bool bDebug)
 {
 	AActor* Answer = nullptr;
 
 	TArray<AActor*> Targets;
-	Targets = GetObjectInAngleByChannel(Channel, StanPos, MaxDis, StanVec, MaxAngle, bDebug);
+	Targets = GetObjectInAngleByChannel(Channel, MyPos, MaxDis, MyVec, MaxAngle, bDebug);
 
 	float MinRad = 0.f;
 	for (int32 i = 0; i < Targets.Num(); ++i)
 	{
-		FVector LookToTargetVector = Targets[i]->GetTargetLocation() - StanPos;
+		FVector LookToTargetVector = Targets[i]->GetTargetLocation() - MyPos;
 		LookToTargetVector.Normalize();
-		
-		StanVec.Normalize();
+		MyVec.Normalize();
 
-		float Rad = FVector::DotProduct(StanVec, LookToTargetVector);
+		float Rad = FVector::DotProduct(MyVec, LookToTargetVector);
 
 		if (FMath::Abs(Rad) >= MinRad)
 		{

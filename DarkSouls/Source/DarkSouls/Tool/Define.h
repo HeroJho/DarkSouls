@@ -1,8 +1,8 @@
 #pragma once
 
-#define COLTAG_NOMANAGE TEXT("NoManage")
-#define COLTAG_NOBLOCK TEXT("NoBlock")
-#define COLTAG_ONLYATTACK TEXT("OnlyAttack")
+#define COLTAG_NOMANAGE TEXT("NoManage") // Col 매니저에서 관리 x
+#define COLTAG_NOBLOCK TEXT("NoBlock") // Block 함수 호출 시 변경 x
+#define COLTAG_ONLYATTACK TEXT("OnlyAttack") //  
 
 #define COL_ATTACK TEXT("AttackCreatureCol")
 #define COL_BLOCK TEXT("BlockCreatureCol")
