@@ -10,12 +10,13 @@
 #include "Component/Combo/DK_ComboComponent.h"
 #include "Component/Attack/DK_AttackComponent.h"
 #include "Component/Stat/DK_StatComponent.h"
+#include "Component/Collision/DK_CollisionManagerComponent.h"
+#include "Creature/Monster/DK_AIControllerBase.h"
+#include "Creature/Monster/RamPage/E_RamPage_Attacks.h"
 #include "AOE/DK_AOE_Base.h"
 #include "Interface/DK_DamageableInterface.h"
-#include "Creature/Monster/DK_AIControllerBase.h"
 #include "Projectile/DK_Projectile_Base.h"
 
-#include "Component/Collision/DK_CollisionManagerComponent.h"
 
 
 ADK_RamPage::ADK_RamPage()
@@ -30,6 +31,10 @@ void ADK_RamPage::BeginPlay()
 	ComboComponent->OnSectionEndDelegate.AddUObject(this, &ADK_RamPage::BindSectionFunction_Skill_Combo0);
 	ComboComponent->OnComboInterruptedDelegate.AddUObject(this, &ADK_RamPage::Interrupted_ComboSkill_Combo0);
 	ComboComponent->OnComboEndDelegate.AddUObject(this, &ADK_RamPage::End_ComboSkill_Combo0);
+
+	ComboComponent->OnSectionEndDelegate.AddUObject(this, &ADK_RamPage::BindSectionFunction_Skill_Combo1);
+	ComboComponent->OnComboInterruptedDelegate.AddUObject(this, &ADK_RamPage::Interrupted_ComboSkill_Combo1);
+	ComboComponent->OnComboEndDelegate.AddUObject(this, &ADK_RamPage::End_ComboSkill_Combo1);
 
 	ComboComponent->OnSectionEndDelegate.AddUObject(this, &ADK_RamPage::BindSectionFunction_GroundSmash);
 	ComboComponent->OnComboInterruptedDelegate.AddUObject(this, &ADK_RamPage::Interrupted_ComboGroundSmash);
@@ -58,7 +63,7 @@ bool ADK_RamPage::Skill_Combo0()
 
 	ResetInfoOnAttack();
 
-	ComboComponent->ChangeComboActionData(0);
+	ComboComponent->ChangeComboActionData((int8)ERamPage_Attack::Combo1);
 
 	ComboComponent->ProcessComboCommand(true);
 
@@ -125,6 +130,151 @@ void ADK_RamPage::End_ComboSkill_Combo0()
 
 
 
+bool ADK_RamPage::Skill_Combo1()
+{
+	if (!CanAttack())
+	{
+		return false;
+	}
+
+	ResetInfoOnAttack();
+
+	ComboComponent->ChangeComboActionData((int8)ERamPage_Attack::Combo2);
+
+	ComboComponent->ProcessComboCommand(true);
+
+	bIsAttacking = true;
+
+	return true;
+}
+
+void ADK_RamPage::BindSectionFunction_Skill_Combo1()
+{
+	UPlayMontageCallbackProxy* AnimProxy = GetMontageCallbackProxy();
+	AnimProxy->OnCompleted.AddDynamic(this, &ADK_RamPage::EndSection_Skill_Combo1);
+	AnimProxy->OnInterrupted.AddDynamic(this, &ADK_RamPage::EndSection_Skill_Combo1);
+	AnimProxy->OnNotifyBegin.AddDynamic(this, &ADK_RamPage::BeginSectionNotify_Skill_Combo1);
+	AnimProxy->OnNotifyEnd.AddDynamic(this, &ADK_RamPage::EndSectionNotify_Skill_Combo1);
+}
+
+void ADK_RamPage::BeginSectionNotify_Skill_Combo1(FName NotifyName)
+{
+	if (NotifyName == FName("AttackRange"))
+	{
+		BeginAttackRange_Notify();
+	}
+	else if (NotifyName == FName("ColRange"))
+	{
+		BeginColRange_Notify();
+	}
+
+}
+
+void ADK_RamPage::EndSectionNotify_Skill_Combo1(FName NotifyName)
+{
+	if (NotifyName == FName("AttackRange"))
+	{
+		EndAttackRange_Notify();
+	}
+	else if (NotifyName == FName("ColRange"))
+	{
+		EndColRange_Notify();
+	}
+}
+
+void ADK_RamPage::EndSection_Skill_Combo1(FName NotifyName)
+{
+	InterruptedAttack_Notify();
+}
+
+void ADK_RamPage::Interrupted_ComboSkill_Combo1()
+{
+
+}
+
+void ADK_RamPage::End_ComboSkill_Combo1()
+{
+
+}
+
+
+
+
+
+bool ADK_RamPage::Skill_Combo2()
+{
+	if (!CanAttack())
+	{
+		return false;
+	}
+
+	ResetInfoOnAttack();
+
+	ComboComponent->ChangeComboActionData((int8)ERamPage_Attack::Combo2);
+
+	ComboComponent->ProcessComboCommand(true);
+
+	bIsAttacking = true;
+
+	return true;
+}
+
+void ADK_RamPage::BindSectionFunction_Skill_Combo2()
+{
+	UPlayMontageCallbackProxy* AnimProxy = GetMontageCallbackProxy();
+	AnimProxy->OnCompleted.AddDynamic(this, &ADK_RamPage::EndSection_Skill_Combo1);
+	AnimProxy->OnInterrupted.AddDynamic(this, &ADK_RamPage::EndSection_Skill_Combo1);
+	AnimProxy->OnNotifyBegin.AddDynamic(this, &ADK_RamPage::BeginSectionNotify_Skill_Combo1);
+	AnimProxy->OnNotifyEnd.AddDynamic(this, &ADK_RamPage::EndSectionNotify_Skill_Combo1);
+}
+
+void ADK_RamPage::BeginSectionNotify_Skill_Combo2(FName NotifyName)
+{
+	if (NotifyName == FName("AttackRange"))
+	{
+		BeginAttackRange_Notify();
+	}
+	else if (NotifyName == FName("ColRange"))
+	{
+		BeginColRange_Notify();
+	}
+
+}
+
+void ADK_RamPage::EndSectionNotify_Skill_Combo2(FName NotifyName)
+{
+	if (NotifyName == FName("AttackRange"))
+	{
+		EndAttackRange_Notify();
+	}
+	else if (NotifyName == FName("ColRange"))
+	{
+		EndColRange_Notify();
+	}
+}
+
+void ADK_RamPage::EndSection_Skill_Combo2(FName NotifyName)
+{
+	InterruptedAttack_Notify();
+}
+
+void ADK_RamPage::Interrupted_ComboSkill_Combo2()
+{
+
+}
+
+void ADK_RamPage::End_ComboSkill_Combo2()
+{
+
+}
+
+
+
+
+
+
+
+
 
 
 bool ADK_RamPage::GroundSmash()
@@ -136,7 +286,7 @@ bool ADK_RamPage::GroundSmash()
 
 	ResetInfoOnAttack();
 
-	ComboComponent->ChangeComboActionData(1);
+	ComboComponent->ChangeComboActionData((int8)ERamPage_Attack::GroundSmash);
 
 	ComboComponent->ProcessComboCommand(true);
 
@@ -205,6 +355,8 @@ void ADK_RamPage::End_ComboGroundSmash()
 
 
 
+
+
 bool ADK_RamPage::ThrowWall()
 {
 	if (!CanAttack())
@@ -214,7 +366,7 @@ bool ADK_RamPage::ThrowWall()
 
 	ResetInfoOnAttack();
 
-	ComboComponent->ChangeComboActionData(3);
+	ComboComponent->ChangeComboActionData((int8)ERamPage_Attack::ThrowWall);
 
 	ComboComponent->ProcessComboCommand(true);
 
@@ -354,7 +506,7 @@ bool ADK_RamPage::JumpAttack()
 
 	ResetInfoOnAttack();
 
-	ComboComponent->ChangeComboActionData(2);
+	ComboComponent->ChangeComboActionData((int8)ERamPage_Attack::JumpAttack);
 	
 	ComboComponent->ProcessComboCommand(true);
 

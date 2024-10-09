@@ -41,6 +41,45 @@ protected:
 
 
 
+public:
+	bool Skill_Combo1();
+
+protected:
+	void BindSectionFunction_Skill_Combo1();
+	UFUNCTION()
+	void BeginSectionNotify_Skill_Combo1(FName NotifyName);
+	UFUNCTION()
+	void EndSectionNotify_Skill_Combo1(FName NotifyName);
+	UFUNCTION()
+	void EndSection_Skill_Combo1(FName NotifyName);
+
+	void Interrupted_ComboSkill_Combo1();
+	void End_ComboSkill_Combo1();
+
+
+
+public:
+	bool Skill_Combo2();
+
+protected:
+	void BindSectionFunction_Skill_Combo2();
+	UFUNCTION()
+	void BeginSectionNotify_Skill_Combo2(FName NotifyName);
+	UFUNCTION()
+	void EndSectionNotify_Skill_Combo2(FName NotifyName);
+	UFUNCTION()
+	void EndSection_Skill_Combo2(FName NotifyName);
+
+	// 콤보 단위 작업
+	void Interrupted_ComboSkill_Combo2();
+	void End_ComboSkill_Combo2s();
+
+
+
+
+
+
+
 
 public:
 	bool GroundSmash();

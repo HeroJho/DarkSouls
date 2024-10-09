@@ -45,6 +45,22 @@ EBTNodeResult::Type UBTT_RamPage_Attack::ExecuteTask(UBehaviorTreeComponent & Ow
 		}
 	}
 		break;
+	case ERamPage_Attack::Combo2:
+	{
+		if (!RPOwner->Skill_Combo1())
+		{
+			return EBTNodeResult::Failed;
+		}
+	}
+	break;
+	case ERamPage_Attack::Combo3:
+	{
+		if (!RPOwner->Skill_Combo2())
+		{
+			return EBTNodeResult::Failed;
+		}
+	}
+	break;
 	case ERamPage_Attack::GroundSmash:
 	{
 		if (!RPOwner->GroundSmash())
