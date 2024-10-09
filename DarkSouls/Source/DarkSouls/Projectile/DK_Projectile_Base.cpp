@@ -153,15 +153,13 @@ void ADK_Projectile_Base::DestroyProjectile(FVector HitPos)
 
 void ADK_Projectile_Base::OnComponentHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	//if (OtherActor == GetOwner())
-	//	return;
+	if (!ProjectileMovementComponent->bSimulationEnabled)
+		return;
 
 	// 바인딩한 Hit 함수
 	if(OnProjectileImpact.IsBound())
-		OnProjectileImpact.Execute(OtherActor, Hit);
+		OnProjectileImpact.Execute(OtherActor);
 		
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, OtherActor->GetName());
-
 	DestroyProjectile(Hit.ImpactPoint);
 
 }

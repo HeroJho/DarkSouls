@@ -6,7 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "DK_Projectile_Base.generated.h"
 
-DECLARE_DELEGATE_TwoParams(FOnColHitTwoDelegete, AActor*, const FHitResult&)
+DECLARE_DELEGATE_OneParam(FOnColHitTwoDelegete, AActor*)
 
 struct ProjectileOption
 {

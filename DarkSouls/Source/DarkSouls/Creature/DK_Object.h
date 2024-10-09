@@ -159,6 +159,7 @@ protected:
 
 
 	FTimerHandle KnockDownTimerHandle;
+	FTimerHandle EndKnockDownTimerHandle;
 	bool bIsKnockDown = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Init)

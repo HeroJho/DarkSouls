@@ -262,6 +262,10 @@ void ADK_Object::EndStun()
 }
 
 
+
+
+
+
 void ADK_Object::SetIsKnockDown(bool bValue)
 {
 	bIsKnockDown = bValue;
@@ -276,27 +280,21 @@ void ADK_Object::KnockDown(float KnockDownTime)
 	ResetInfoOnKnockDown();
 
 	GetWorldTimerManager().ClearTimer(KnockDownTimerHandle);
+	GetWorldTimerManager().ClearTimer(EndKnockDownTimerHandle);
+
 	GetWorldTimerManager().SetTimer(KnockDownTimerHandle, this, &ADK_Object::StartEndKnockDown, KnockDownTime, false);
 
 	if (StartKnockDownMontage)
 	{
-		/*PlayAnimMontage(StartKnockDownMontage, 1.f);*/
-
 		SetMontageCallbackProxyWithIntrrupted(UPlayMontageCallbackProxy::CreateProxyObjectForPlayMontage(
 			GetMesh(), StartKnockDownMontage, 1.f, 0.f));
+
+		GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Cyan, FString::Printf(TEXT("%f"), KnockDownTime));
 	}
 	
 	SetIsKnockDown(true);
 }
 
-void ADK_Object::SmallHittedTrigger()
-{
-	bSmallHittedTrigger = true;
-
-	GetWorldTimerManager().ClearTimer(SmallHittedTimerHandle);
-	GetWorldTimerManager().SetTimer(SmallHittedTimerHandle, FTimerDelegate::CreateLambda(
-		[this](){ bSmallHittedTrigger = false; }), 0.05f, false);
-}
 
 void ADK_Object::StartEndKnockDown()
 {
@@ -305,7 +303,6 @@ void ADK_Object::StartEndKnockDown()
 		SetMontageCallbackProxyWithIntrrupted(UPlayMontageCallbackProxy::CreateProxyObjectForPlayMontage(
 			GetMesh(), EndKnockDownMontage, 1.f, 0.f));
 
-		// PlayMontageCallbackProxy->OnCompleted.AddDynamic(this, &ADK_Object::EndKnockDown);
 		PlayMontageCallbackProxy->OnInterrupted.AddDynamic(this, &ADK_Object::EndKnockDown);
 
 
@@ -313,10 +310,11 @@ void ADK_Object::StartEndKnockDown()
 		float PlayTime = EndKnockDownMontage->GetPlayLength();
 		
 		GetWorldTimerManager().ClearTimer(KnockDownTimerHandle);
+		GetWorldTimerManager().ClearTimer(EndKnockDownTimerHandle);
 
 		FTimerDelegate KnockDownTimer;
 		KnockDownTimer.BindUFunction(this, FName("EndKnockDown"), FName());
-		GetWorldTimerManager().SetTimer(KnockDownTimerHandle, KnockDownTimer, PlayTime - DisPlayTime, false);
+		GetWorldTimerManager().SetTimer(EndKnockDownTimerHandle, KnockDownTimer, PlayTime - DisPlayTime, false);
 		
 	}
 	else
@@ -327,12 +325,22 @@ void ADK_Object::StartEndKnockDown()
 
 void ADK_Object::EndKnockDown(FName NotifyName)
 {
-	GetWorldTimerManager().ClearTimer(KnockDownTimerHandle);
+	GetWorldTimerManager().ClearTimer(EndKnockDownTimerHandle);
 	SetIsKnockDown(false);
 }
 
 
 
+
+
+void ADK_Object::SmallHittedTrigger()
+{
+	bSmallHittedTrigger = true;
+
+	GetWorldTimerManager().ClearTimer(SmallHittedTimerHandle);
+	GetWorldTimerManager().SetTimer(SmallHittedTimerHandle, FTimerDelegate::CreateLambda(
+		[this]() { bSmallHittedTrigger = false; }), 0.05f, false);
+}
 
 
 

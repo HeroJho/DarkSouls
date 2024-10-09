@@ -258,30 +258,20 @@ void ADK_RamPage::BeginSectionNotify_ThrowWall(FName NotifyName)
 			ThrowWallProjectile->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, FName(TEXT("RockAttachPoint")));
 			ThrowWallProjectile->OnProjectileImpact;
 
-			//ThrowWallProjectile->OnProjectileImpact.BindLambda([DamageInfo, OwnerPawn](AActor* HitActor)
-			//	{
-			//		if (!IsValid(OwnerPawn))
-			//			return;
+			FS_DamageInfo DamageInfo = ComboComponent->GetCurrentAttackInfos();
+			AActor* TempOwner = GetOwner();
+			ThrowWallProjectile->OnProjectileImpact.BindLambda([DamageInfo, TempOwner](AActor* HitActor)
+				{
+					if (!IsValid(TempOwner))
+						return;
 
-			//		IDK_DamageableInterface* HitActorDamageable = Cast<IDK_DamageableInterface>(HitActor);
-			//		if (HitActorDamageable)
-			//		{
-			//			HitActorDamageable->TakeDamage(DamageInfo, OwnerPawn);
-			//		}
-			//	});
+					IDK_DamageableInterface* HitActorDamageable = Cast<IDK_DamageableInterface>(HitActor);
+					if (HitActorDamageable)
+					{
+						HitActorDamageable->TakeDamage(DamageInfo, TempOwner);
+					}
+				});
 
-
-			//SlashAOE->OnAOEOverlapActorDelegate.AddLambda([DamageInfo, OwnerPawn](AActor* HitActor)
-			//	{
-			//		if (!IsValid(OwnerPawn))
-			//			return;
-
-			//		IDK_DamageableInterface* HitActorDamageable = Cast<IDK_DamageableInterface>(HitActor);
-			//		if (HitActorDamageable)
-			//		{
-			//			HitActorDamageable->TakeDamage(DamageInfo, OwnerPawn);
-			//		}
-			//	});
 
 			ThrowWallProjectile->FinishSpawning(FTransform::Identity);
 

@@ -48,8 +48,6 @@ void UDK_CollisionManagerComponent::InitializeComponent()
 		EndDelegate.BindUFunction(this, FName("OnOverlapEnd"));
 		Components[i]->OnComponentEndOverlap.AddUnique(EndDelegate);
 
-		//GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Green,
-		//	FString::Printf(TEXT("%s"), *Name));
 	}
 
 }
