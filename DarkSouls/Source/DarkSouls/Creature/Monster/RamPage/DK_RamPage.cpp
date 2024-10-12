@@ -28,6 +28,8 @@ void ADK_RamPage::BeginPlay()
 {
 	Super::BeginPlay();
 
+
+	// * 다른 패턴들의 함수들도 호출되는 문제 고려해야함
 	ComboComponent->OnSectionEndDelegate.AddUObject(this, &ADK_RamPage::BindSectionFunction_Skill_Combo0);
 	ComboComponent->OnComboInterruptedDelegate.AddUObject(this, &ADK_RamPage::Interrupted_ComboSkill_Combo0);
 	ComboComponent->OnComboEndDelegate.AddUObject(this, &ADK_RamPage::End_ComboSkill_Combo0);
@@ -35,6 +37,10 @@ void ADK_RamPage::BeginPlay()
 	ComboComponent->OnSectionEndDelegate.AddUObject(this, &ADK_RamPage::BindSectionFunction_Skill_Combo1);
 	ComboComponent->OnComboInterruptedDelegate.AddUObject(this, &ADK_RamPage::Interrupted_ComboSkill_Combo1);
 	ComboComponent->OnComboEndDelegate.AddUObject(this, &ADK_RamPage::End_ComboSkill_Combo1);
+
+	ComboComponent->OnSectionEndDelegate.AddUObject(this, &ADK_RamPage::BindSectionFunction_Skill_Combo2);
+	ComboComponent->OnComboInterruptedDelegate.AddUObject(this, &ADK_RamPage::Interrupted_ComboSkill_Combo2);
+	ComboComponent->OnComboEndDelegate.AddUObject(this, &ADK_RamPage::End_ComboSkill_Combo2);
 
 	ComboComponent->OnSectionEndDelegate.AddUObject(this, &ADK_RamPage::BindSectionFunction_GroundSmash);
 	ComboComponent->OnComboInterruptedDelegate.AddUObject(this, &ADK_RamPage::Interrupted_ComboGroundSmash);
@@ -201,6 +207,7 @@ void ADK_RamPage::End_ComboSkill_Combo1()
 
 
 
+
 bool ADK_RamPage::Skill_Combo2()
 {
 	if (!CanAttack())
@@ -210,7 +217,7 @@ bool ADK_RamPage::Skill_Combo2()
 
 	ResetInfoOnAttack();
 
-	ComboComponent->ChangeComboActionData((int8)ERamPage_Attack::Combo2);
+	ComboComponent->ChangeComboActionData((int8)ERamPage_Attack::Combo3);
 
 	ComboComponent->ProcessComboCommand(true);
 
@@ -222,10 +229,10 @@ bool ADK_RamPage::Skill_Combo2()
 void ADK_RamPage::BindSectionFunction_Skill_Combo2()
 {
 	UPlayMontageCallbackProxy* AnimProxy = GetMontageCallbackProxy();
-	AnimProxy->OnCompleted.AddDynamic(this, &ADK_RamPage::EndSection_Skill_Combo1);
-	AnimProxy->OnInterrupted.AddDynamic(this, &ADK_RamPage::EndSection_Skill_Combo1);
-	AnimProxy->OnNotifyBegin.AddDynamic(this, &ADK_RamPage::BeginSectionNotify_Skill_Combo1);
-	AnimProxy->OnNotifyEnd.AddDynamic(this, &ADK_RamPage::EndSectionNotify_Skill_Combo1);
+	AnimProxy->OnCompleted.AddDynamic(this, &ADK_RamPage::EndSection_Skill_Combo2);
+	AnimProxy->OnInterrupted.AddDynamic(this, &ADK_RamPage::EndSection_Skill_Combo2);
+	AnimProxy->OnNotifyBegin.AddDynamic(this, &ADK_RamPage::BeginSectionNotify_Skill_Combo2);
+	AnimProxy->OnNotifyEnd.AddDynamic(this, &ADK_RamPage::EndSectionNotify_Skill_Combo2);
 }
 
 void ADK_RamPage::BeginSectionNotify_Skill_Combo2(FName NotifyName)
@@ -398,41 +405,58 @@ void ADK_RamPage::BeginSectionNotify_ThrowWall(FName NotifyName)
 	{
 		// 중간에 플레이어가 죽었다
 		AActor* Target = AIControllerBase->GetAttackTarget();
-		if (IsValid(Target))
-		{
-			if (ThrowWallProjectile.IsValid())
-				ThrowWallProjectile->DestroyProjectile();
 
-			ThrowWallProjectile = GetWorld()->SpawnActorDeferred<ADK_Projectile_Base>(ThrowWallProjectileClass, FTransform::Identity, this);
-			
-			ProjectileOption ProjOp(Target, -1.f, 4500.f, 0.5f, false, false);
-			ThrowWallProjectile->Init(ProjOp);
-			ThrowWallProjectile->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, FName(TEXT("RockAttachPoint")));
-			ThrowWallProjectile->OnProjectileImpact;
-
-			FS_DamageInfo DamageInfo = ComboComponent->GetCurrentAttackInfos();
-			AActor* TempOwner = GetOwner();
-			ThrowWallProjectile->OnProjectileImpact.BindLambda([DamageInfo, TempOwner](AActor* HitActor)
-				{
-					if (!IsValid(TempOwner))
-						return;
-
-					IDK_DamageableInterface* HitActorDamageable = Cast<IDK_DamageableInterface>(HitActor);
-					if (HitActorDamageable)
-					{
-						HitActorDamageable->TakeDamage(DamageInfo, TempOwner);
-					}
-				});
-
-
-			ThrowWallProjectile->FinishSpawning(FTransform::Identity);
-
-			CollisionManagerComponent->IgnoreCol(ThrowWallProjectile.Get());
-		}
-		else
+		if (!IsValid(Target))
 		{
 			StopAnimMontage();
+			return;
 		}
+			
+
+		if (ThrowWallProjectile.IsValid())
+			ThrowWallProjectile->DestroyProjectile();
+
+		ThrowWallProjectile = GetWorld()->SpawnActorDeferred<ADK_Projectile_Base>(ThrowWallProjectileClass, FTransform::Identity, this);
+
+
+
+		ProjectileOption ProjOp(Target, 10.f, -1.f, 4500.f, 0.5f, false, false);
+		ThrowWallProjectile->Init(ProjOp);
+		ThrowWallProjectile->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, FName(TEXT("RockAttachPoint")));
+
+		// 람다 바인드 -> 따로 멤버 함수 바인딩하면 TempWall 부분에서 Nullptr이 된다
+		FS_DamageInfo DamageInfo = ComboComponent->GetCurrentAttackInfos();
+		AActor* TempOwner = GetOwner();
+		TWeakObjectPtr<ADK_Projectile_Base> TempWall = ThrowWallProjectile;
+		ThrowWallProjectile->OnProjectileImpact.BindLambda([DamageInfo, TempOwner, TempWall](AActor* HitActor, const FHitResult& Hit)
+			{
+				if (!IsValid(TempOwner))
+					return;
+
+				IDK_DamageableInterface* HitActorDamageable = Cast<IDK_DamageableInterface>(HitActor);
+				if (HitActorDamageable == nullptr)
+					return;
+
+				HitActorDamageable->TakeDamage(DamageInfo, TempOwner);
+
+				bool bIsHit = HitActorDamageable->TakeDamage(DamageInfo, TempOwner);
+				if (!bIsHit)
+					return;
+				
+				if (!TempWall.IsValid())
+					return;
+
+				TempWall->DestroyProjectile(Hit.Location);
+				
+			});
+
+
+		CollisionManagerComponent->IgnoreCol(ThrowWallProjectile.Get());
+
+
+
+		ThrowWallProjectile->FinishSpawning(FTransform::Identity);
+
 
 	}
 	else if (NotifyName == FName("Throw"))

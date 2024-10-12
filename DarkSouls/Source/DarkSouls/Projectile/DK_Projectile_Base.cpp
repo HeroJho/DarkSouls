@@ -24,6 +24,8 @@ ADK_Projectile_Base::ADK_Projectile_Base()
 	FScriptDelegate HitDelegate;
 	HitDelegate.BindUFunction(this, FName("OnComponentHit"));
 	BoxCollision->OnComponentHit.AddUnique(HitDelegate);
+	HitDelegate.BindUFunction(this, FName("OnComponentBeginOverlap"));
+	BoxCollision->OnComponentBeginOverlap.AddUnique(HitDelegate);
 
 	RootComponent = BoxCollision;
 
@@ -98,11 +100,11 @@ void ADK_Projectile_Base::Init(ProjectileOption Option)
 	}
 	
 
-	if (UKismetMathLibrary::NearlyEqual_FloatFloat(LifeTime, 0.f) == false)
+	if (UKismetMathLibrary::NearlyEqual_FloatFloat(Option.LifeTime, 0.f) == false)
 	{
 		FTimerDelegate Del;
 		Del.BindUFunction(this, FName("DestroyProjectile"), FVector::ZeroVector);
-		GetWorldTimerManager().SetTimer(LifeTimerHandle, Del, LifeTime, false);
+		GetWorldTimerManager().SetTimer(LifeTimerHandle, Del, Option.LifeTime, false);
 	}
 
 
@@ -138,6 +140,11 @@ void ADK_Projectile_Base::RotateToTarget()
 	ProjectileMovementComponent->Velocity = UnitVector;
 }
 
+
+
+
+
+
 void ADK_Projectile_Base::DestroyProjectile(FVector HitPos)
 {
 	if (IsValid(ImpactEffect))
@@ -153,13 +160,19 @@ void ADK_Projectile_Base::DestroyProjectile(FVector HitPos)
 
 void ADK_Projectile_Base::OnComponentHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+	// 바닥과는 힛
 	if (!ProjectileMovementComponent->bSimulationEnabled)
 		return;
 
-	// 바인딩한 Hit 함수
-	if(OnProjectileImpact.IsBound())
-		OnProjectileImpact.Execute(OtherActor);
-		
-	DestroyProjectile(Hit.ImpactPoint);
+	DestroyProjectile(Hit.Location);
+}
 
+void ADK_Projectile_Base::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	// 크리쳐와는 오버랩
+	if (!ProjectileMovementComponent->bSimulationEnabled)
+		return;
+
+	if (OnProjectileImpact.IsBound())
+		OnProjectileImpact.Execute(OtherActor, SweepResult);
 }

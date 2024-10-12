@@ -6,18 +6,19 @@
 #include "GameFramework/Actor.h"
 #include "DK_Projectile_Base.generated.h"
 
-DECLARE_DELEGATE_OneParam(FOnColHitTwoDelegete, AActor*)
+DECLARE_DELEGATE_TwoParams(FOnColHitTwoDelegete, AActor*, const FHitResult& Hit)
 
 struct ProjectileOption
 {
 	ProjectileOption() {};
-	ProjectileOption(AActor* InTarget, float InHomingAcceleration, float InSpeed, float InGravity, 
+	ProjectileOption(AActor* InTarget, float InLifeTime, float InHomingAcceleration, float InSpeed, float InGravity, 
 		bool InbRotateToTarget, bool InbSimulating)
-		: Target(InTarget), HomingAcceleration(InHomingAcceleration), Speed(InSpeed), Gravity(InGravity),
+		: Target(InTarget), LifeTime(InLifeTime), HomingAcceleration(InHomingAcceleration), Speed(InSpeed), Gravity(InGravity),
 		bRotateToTarget(InbRotateToTarget), bSimulating(InbSimulating)
 	{};
 
 	AActor* Target = nullptr;
+	float LifeTime = 0.f;
 	float HomingAcceleration = 0.f;
 	float Speed = 0.f;
 	float Gravity = 0.f;
@@ -55,7 +56,8 @@ protected:
 
 	UFUNCTION()
 	void OnComponentHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
-
+	UFUNCTION()
+	void OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 protected:
 	UPROPERTY(EditAnywhere, Category = Projectile)
@@ -81,8 +83,7 @@ protected:
 	TObjectPtr<class UParticleSystem> ImpactEffect;
 	UPROPERTY(EditAnywhere, Category = Projectile)
 	FRotator RotSpeed;
-	UPROPERTY(EditAnywhere, Category = Projectile)
-	float LifeTime;
+
 
 	FTimerHandle LifeTimerHandle;
 

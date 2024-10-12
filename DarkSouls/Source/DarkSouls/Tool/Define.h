@@ -11,6 +11,7 @@
 #define CCHANNEL_CREATURE ECC_GameTraceChannel1
 #define CCHANNEL_LOCKTARGET ECC_GameTraceChannel2
 
+#define OBJ_CCHANNEL_PRJECTILE ECC_GameTraceChannel4
 
 
 #define PRINT_TEXT(X) 		GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Green, FString::Printf(X));

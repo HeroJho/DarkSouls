@@ -72,7 +72,7 @@ protected:
 
 	// 콤보 단위 작업
 	void Interrupted_ComboSkill_Combo2();
-	void End_ComboSkill_Combo2s();
+	void End_ComboSkill_Combo2();
 
 
 
@@ -114,6 +114,7 @@ protected:
 
 	void Interrupted_ComboThrowWall();
 	void End_ComboThrowWall();
+
 
 protected:
 	UPROPERTY(EditAnywhere, Category = Attack)
