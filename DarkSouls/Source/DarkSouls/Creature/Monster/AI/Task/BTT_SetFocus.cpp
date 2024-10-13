@@ -2,8 +2,10 @@
 
 
 #include "Creature/Monster/AI/Task/BTT_SetFocus.h"
-#include "Creature/Monster/DK_AIControllerBase.h"
 #include "BehaviorTree/BlackboardComponent.h"
+
+#include "Creature/Monster/DK_AIControllerBase.h"
+
 
 EBTNodeResult::Type UBTT_SetFocus::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {

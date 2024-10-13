@@ -44,13 +44,14 @@ public:
 	void SetStateAsFrozen();
 	void SetStateAsAttacking(AActor* AttackTarget, bool bUseLastKnownAttack);
 
-protected:
-	EAIState GetCurrentState();
-
 	void SetStateAsPassive();
 	void SetStateAsInvestigating(FVector Location);
 	void SetStateAsSeeking(FVector Location);
 	void SetStateAsDead();
+
+protected:
+	EAIState GetCurrentState();
+
 
 	// Perception Section
 protected:

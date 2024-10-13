@@ -59,7 +59,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Init)
 	TObjectPtr<UBehaviorTree> BTAsset;
 
-	TObjectPtr<ADK_AIControllerBase> AIControllerBase;
+	TObjectPtr<class ADK_AIControllerBase> AIControllerBase;
 
 
 

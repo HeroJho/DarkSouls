@@ -11,6 +11,7 @@
 UENUM(BlueprintType)
 enum class EAIState : uint8
 {
+	Defualt UMETA(DisplayName = "Defualt"),
 	Passive UMETA(DisplayName = "Passive"),
 	Attacking UMETA(DisplayName = "Attacking"),
 	Frozen UMETA(DisplayName = "Frozen"),
