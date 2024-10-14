@@ -182,7 +182,6 @@ void UDK_ComboComponent::EndComboAction(FName NotifyName)
 		ReserveComboActionDataIndex = -1;
 	}
 
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("EndComboAction")));
 	OnComboEndDelegate.Broadcast();
 }
 

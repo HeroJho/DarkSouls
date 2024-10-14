@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/BTTaskNode.h"
-#include "BTT_SetFocus.generated.h"
+#include "BTT_GenRandomNum.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class DARKSOULS_API UBTT_SetFocus : public UBTTaskNode
+class DARKSOULS_API UBTT_GenRandomNum : public UBTTaskNode
 {
 	GENERATED_BODY()
 	
@@ -21,9 +21,11 @@ protected:
 
 protected:
 	UPROPERTY(EditAnywhere, Category = Blackboard)
-	struct FBlackboardKeySelector FocusLocation;
+	struct FBlackboardKeySelector GenedNumber;
 
 	UPROPERTY(EditAnywhere)
-	uint8 bIsFocus : 1;
+	float Min;
+	UPROPERTY(EditAnywhere)
+	float Max;
 
 };

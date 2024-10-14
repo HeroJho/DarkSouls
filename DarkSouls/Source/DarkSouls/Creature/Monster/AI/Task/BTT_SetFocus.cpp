@@ -19,17 +19,19 @@ EBTNodeResult::Type UBTT_SetFocus::ExecuteTask(UBehaviorTreeComponent& OwnerComp
 		return EBTNodeResult::Failed;
 	}
 
+	if (FocusLocation.IsSet())
+	{
+		FVector Location = OwnerComp.GetBlackboardComponent()->GetValueAsVector(FocusLocation.SelectedKeyName);
+		Controller->SetFocalPoint(Location);
 
+		return EBTNodeResult::Succeeded;
+	}
+		
 	if (bIsFocus)
-	{
 		Controller->SetFocusTarget(360.f);
-	}
 	else
-	{
 		Controller->ClearFocusTarget();
-	}
-
-
+	
 
 	return EBTNodeResult::Succeeded;
 }

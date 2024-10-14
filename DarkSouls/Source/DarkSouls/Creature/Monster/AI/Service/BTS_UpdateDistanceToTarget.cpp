@@ -8,8 +8,8 @@
 
 UBTS_UpdateDistanceToTarget::UBTS_UpdateDistanceToTarget()
 {
-}
 
+}
 
 
 
