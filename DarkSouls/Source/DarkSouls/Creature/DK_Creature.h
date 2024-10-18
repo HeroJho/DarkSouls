@@ -60,6 +60,9 @@ protected:
 	TObjectPtr<UBehaviorTree> BTAsset;
 
 	TObjectPtr<class ADK_AIControllerBase> AIControllerBase;
+	
+	UPROPERTY()
+	TObjectPtr<class UDK_AdaptiveGenNumComponent> AdaptiveGenNumComponent;
 
 
 

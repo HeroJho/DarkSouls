@@ -125,7 +125,6 @@ void ADK_Player::BeginPlay()
 
 	APlayerController* PlayerController = Cast<APlayerController>(GetController());
 
-	//APlayerController* PlayerController = Cast<APlayerController>(GetController());
 	if (PlayerController)
 	{
 		EnableInput(PlayerController);
@@ -148,7 +147,6 @@ void ADK_Player::BeginPlay()
 
 	PlayerStatComponent->OnReleaseTPDelegate.AddUObject(this, &ADK_Player::GenRecoveryHP_Notify);
 	PlayerStatComponent->ResetStat(NormalRecoverySPPerSec, DecreaseTPPerSec);
-
 
 }
 

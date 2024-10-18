@@ -7,6 +7,7 @@
 
 #include "Component/Stat/DK_CreatureStatComponent.h"
 #include "Component/Attack/DK_AttackComponent.h"
+#include "Component/AdaptiveGenNum/DK_AdaptiveGenNumComponent.h"
 #include "UI/DK_WidgetComponent.h"
 #include "Creature/Monster/DK_AIControllerBase.h"
 
@@ -20,6 +21,8 @@ ADK_Creature::ADK_Creature()
 	// AttackComponent
 	AttackComponent = CreateDefaultSubobject<UDK_AttackComponent>(TEXT("AttackComponent"));
 
+	// AdaptiveGenNumComponent
+	AdaptiveGenNumComponent = CreateDefaultSubobject<UDK_AdaptiveGenNumComponent>(TEXT("AdaptiveGenNumComponent"));
 
 	IdleSpeed = 0.f;
 	WalkingSpeed = 150.f;

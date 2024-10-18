@@ -83,7 +83,7 @@ void UDK_ComboComponent::ComboCheck_Notify()
 
 		CurrentCombo = FMath::Clamp(CurrentCombo + 1, 1, CurData->MaxComboCount);
 		FName NextSection = *FString::Printf(TEXT("%s%d"), *CurData->MontageSectionNamePrefix, CurrentCombo);
-
+		
 
 		Owner->SetMontageCallbackProxyWithIntrrupted(UPlayMontageCallbackProxy::CreateProxyObjectForPlayMontage(
 			Owner->GetMesh(), CurData->ComboActionMontage, 1.f, 0.f, NextSection));

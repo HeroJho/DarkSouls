@@ -288,8 +288,6 @@ void ADK_Object::KnockDown(float KnockDownTime)
 	{
 		SetMontageCallbackProxyWithIntrrupted(UPlayMontageCallbackProxy::CreateProxyObjectForPlayMontage(
 			GetMesh(), StartKnockDownMontage, 1.f, 0.f));
-
-		GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Cyan, FString::Printf(TEXT("%f"), KnockDownTime));
 	}
 	
 	SetIsKnockDown(true);
