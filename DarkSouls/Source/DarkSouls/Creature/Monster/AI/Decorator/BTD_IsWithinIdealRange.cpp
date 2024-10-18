@@ -8,6 +8,8 @@
 
 bool UBTD_IsWithinIdealRange::CalculateRawConditionValue(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const
 {
+	Super::CalculateRawConditionValue(OwnerComp, NodeMemory);
+
 	APawn* Owner = OwnerComp.GetAIOwner()->GetPawn();
 	if (IsValid(Owner) == false)
 		return false;

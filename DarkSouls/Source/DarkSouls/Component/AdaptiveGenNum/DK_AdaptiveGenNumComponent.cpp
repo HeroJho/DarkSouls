@@ -74,20 +74,27 @@ int UDK_AdaptiveGenNumComponent::GenAdaptiveNum(int TableIndex)
 		return -1;
 
 
+	return SelectedIndex;
+}
 
+void UDK_AdaptiveGenNumComponent::CalculAdaptiveToken(int TableIndex, int SelectedNum)
+{
+	FAdaptiveTableInfo* Table = AdaptiveTable.Find(TableIndex);
+	if (Table == nullptr)
+		return;
 
 	// 적응형 가중치 적용
 	// 나눠줄 토큰 계산
-	int DisToken = Table->Nodes[SelectedIndex].TokenNum - Table->Nodes[SelectedIndex].DownDis;
+	int DisToken = Table->Nodes[SelectedNum].TokenNum - Table->Nodes[SelectedNum].DownDis;
 	if (DisToken < 0)
 	{
-		Table->Nodes[SelectedIndex].TokenNum = 0;
-		DisToken = Table->Nodes[SelectedIndex].DownDis + DisToken;
+		Table->Nodes[SelectedNum].TokenNum = 0;
+		DisToken = Table->Nodes[SelectedNum].DownDis + DisToken;
 	}
 	else
 	{
-		Table->Nodes[SelectedIndex].TokenNum = DisToken;
-		DisToken = Table->Nodes[SelectedIndex].DownDis;
+		Table->Nodes[SelectedNum].TokenNum = DisToken;
+		DisToken = Table->Nodes[SelectedNum].DownDis;
 	}
 
 	// 토큰 분배
@@ -99,7 +106,7 @@ int UDK_AdaptiveGenNumComponent::GenAdaptiveNum(int TableIndex)
 	int PivReTokenIndex = FMath::RandRange(0, NodeSize);
 	for (int32 i = 0; i <= NodeSize; ++i)
 	{
-		if (i == SelectedIndex)
+		if (i == SelectedNum)
 			continue;
 
 		Table->Nodes[i].TokenNum += DivToken;
@@ -114,12 +121,10 @@ int UDK_AdaptiveGenNumComponent::GenAdaptiveNum(int TableIndex)
 
 	}
 
-
-	DebugToken(TableIndex);
-
-
-	return SelectedIndex;
+	 DebugToken(TableIndex);
 }
+
+
 
 void UDK_AdaptiveGenNumComponent::ResetTable(int TableIndex)
 {

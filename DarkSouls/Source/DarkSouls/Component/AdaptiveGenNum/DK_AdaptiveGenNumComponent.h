@@ -49,6 +49,8 @@ protected:
 public:
 	void CreateNewTable(int TableIndex, TArray<FAdaptiveNodeInfo>& Infos);
 	int GenAdaptiveNum(int TableIndex);
+	void CalculAdaptiveToken(int TableIndex, int SelectedNum);
+
 	void ResetTable(int TableIndex);
 
 	bool IsExistTable(int TableIndex);
