@@ -24,7 +24,7 @@ public:
 
 
 
-
+	// GP : 그로기 포인트
 public:
 	void ResetStat(int32 CurRecoveryGPPerSpeed);
 
