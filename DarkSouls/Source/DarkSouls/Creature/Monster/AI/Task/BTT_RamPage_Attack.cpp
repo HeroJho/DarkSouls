@@ -100,7 +100,7 @@ EBTNodeResult::Type UBTT_RamPage_Attack::ExecuteTask(UBehaviorTreeComponent & Ow
 
 EBTNodeResult::Type UBTT_RamPage_Attack::AbortTask(UBehaviorTreeComponent & OwnerComp, uint8 * NodeMemory)
 {
-	return EBTNodeResult::Type();
+	return EBTNodeResult::Aborted;
 }
 
 void UBTT_RamPage_Attack::TickTask(UBehaviorTreeComponent & OwnerComp, uint8 * NodeMemory, float DeltaSeconds)

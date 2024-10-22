@@ -35,7 +35,8 @@ void ADK_AIControllerBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-
+	// ForDebug
+	/*RenderCurState(0.5f);*/
 }
 
 
@@ -427,4 +428,45 @@ void ADK_AIControllerBase::SeekTarget()
 void ADK_AIControllerBase::SetbIsAttackedKey(bool bValue)
 {
 	Blackboard->SetValueAsBool(bIsAttackedKey, bValue);
+}
+
+void ADK_AIControllerBase::RenderCurState(float Duration)
+{
+	FTimerHandle Handle;
+	GetWorldTimerManager().SetTimer(Handle, FTimerDelegate::CreateLambda(
+		[this]() {
+			EAIState State = GetCurrentState();
+			switch (State)
+			{
+			case EAIState::Defualt:
+				break;
+			case EAIState::Passive:
+				GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Cyan, FString::Printf(TEXT("Passive")));
+				break;
+			case EAIState::Attacking:
+				GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Cyan, FString::Printf(TEXT("Attacking")));
+				break;
+			case EAIState::Frozen:
+				GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Cyan, FString::Printf(TEXT("Frozen")));
+				break;
+			case EAIState::Investigating:
+				GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Cyan, FString::Printf(TEXT("Investigating")));
+				break;
+			case EAIState::Seeking:
+				GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Cyan, FString::Printf(TEXT("Seeking")));
+				break;
+			case EAIState::Dead:
+				GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Cyan, FString::Printf(TEXT("Dead")));
+				break;
+			default:
+				break;
+			}
+		}),
+		Duration, true);
+
+
+
+
+
+	
 }

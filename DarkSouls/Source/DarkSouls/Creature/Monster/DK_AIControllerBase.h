@@ -93,4 +93,9 @@ protected:
 	static const FName LocationOfInterestKey;
 	static const FName bIsAttackedKey;
 
+
+	// Debug
+protected:
+	void RenderCurState(float Duration);
+
 };
