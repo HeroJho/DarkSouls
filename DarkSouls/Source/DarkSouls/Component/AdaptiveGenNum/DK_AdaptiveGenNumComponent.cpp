@@ -121,7 +121,7 @@ void UDK_AdaptiveGenNumComponent::CalculAdaptiveToken(int TableIndex, int Select
 
 	}
 
-	 DebugToken(TableIndex);
+	 // DebugToken(TableIndex);
 }
 
 

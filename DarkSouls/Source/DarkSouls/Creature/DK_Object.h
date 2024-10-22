@@ -142,7 +142,7 @@ public:
 public:	
 	virtual void Stun(float StunTime, bool bSetAnimTime = false);
 	virtual void KnockDown(float KnockDownTime);
-	void SmallHittedTrigger();
+	virtual void SmallHittedTrigger();
 
 protected:
 	virtual void EndStun();

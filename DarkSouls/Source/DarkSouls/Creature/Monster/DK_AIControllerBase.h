@@ -80,10 +80,17 @@ protected:
 	FTimerHandle SeekAttackTargetTimerHandle;
 	float TimetoSeekAfterLosingSight;
 
+
+	// GetSetKey
+public:
+	void SetbIsAttackedKey(bool bValue);
+
+
 	// BBKeyName
 protected:
 	static const FName AIStateKey;
 	static const FName AttackTargetKey;
 	static const FName LocationOfInterestKey;
+	static const FName bIsAttackedKey;
 
 };

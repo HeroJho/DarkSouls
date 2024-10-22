@@ -30,6 +30,7 @@ public:
 	FORCEINLINE void SetIsStrafe(bool bValue) { bIsStrafe = bValue; }
 	FORCEINLINE bool GetIsStrafe() { return bIsStrafe; }
 
+
 protected:
 	void StartGroggy();
 	
@@ -90,7 +91,9 @@ public:
 public:
 	virtual void SetIsKnockDown(bool bValue) override;
 
+	virtual void SmallHittedTrigger() override;
 	
+
 	// Condition Section
 protected:
 	virtual bool CanKnockDown() override;

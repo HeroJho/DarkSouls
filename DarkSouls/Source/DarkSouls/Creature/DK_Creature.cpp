@@ -58,6 +58,21 @@ void ADK_Creature::PostInitializeComponents()
 
 }
 
+void ADK_Creature::SmallHittedTrigger()
+{
+	// "공격 당하면" 데코를 위한 오버라이딩
+	bSmallHittedTrigger = true;
+	AIControllerBase->SetbIsAttackedKey(true);
+
+	GetWorldTimerManager().ClearTimer(SmallHittedTimerHandle);
+	GetWorldTimerManager().SetTimer(SmallHittedTimerHandle, FTimerDelegate::CreateLambda(
+		[this]() { 
+			bSmallHittedTrigger = false;
+			AIControllerBase->SetbIsAttackedKey(false);
+		}), 
+		0.05f, false);
+}
+
 void ADK_Creature::StartGroggy()
 {
 	KnockDown(5.f);

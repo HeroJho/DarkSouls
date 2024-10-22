@@ -18,6 +18,7 @@
 const FName ADK_AIControllerBase::AIStateKey(TEXT("AIState"));
 const FName ADK_AIControllerBase::AttackTargetKey(TEXT("AttackTarget"));
 const FName ADK_AIControllerBase::LocationOfInterestKey(TEXT("LocationOfInterest"));
+const FName ADK_AIControllerBase::bIsAttackedKey(TEXT("bIsAttacked"));
 
 
 ADK_AIControllerBase::ADK_AIControllerBase()
@@ -416,4 +417,14 @@ void ADK_AIControllerBase::SeekTarget()
 	}
 
 	SetStateAsSeeking(CurTarget->GetActorLocation());
+}
+
+
+
+
+
+
+void ADK_AIControllerBase::SetbIsAttackedKey(bool bValue)
+{
+	Blackboard->SetValueAsBool(bIsAttackedKey, bValue);
 }
