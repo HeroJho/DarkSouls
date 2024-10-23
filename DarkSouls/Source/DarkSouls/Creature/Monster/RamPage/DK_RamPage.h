@@ -41,6 +41,8 @@ protected:
 
 
 
+
+
 public:
 	bool Skill_Combo1();
 
@@ -55,6 +57,9 @@ protected:
 
 	void Interrupted_ComboSkill_Combo1();
 	void End_ComboSkill_Combo1();
+
+
+
 
 
 
@@ -73,6 +78,7 @@ protected:
 	// 콤보 단위 작업
 	void Interrupted_ComboSkill_Combo2();
 	void End_ComboSkill_Combo2();
+
 
 
 
@@ -100,6 +106,7 @@ protected:
 
 
 
+
 public:
 	bool ThrowWall();
 
@@ -121,6 +128,7 @@ protected:
 	TSubclassOf<class ADK_Projectile_Base> ThrowWallProjectileClass;
 	UPROPERTY()
 	TWeakObjectPtr<class ADK_Projectile_Base> ThrowWallProjectile;
+
 
 
 

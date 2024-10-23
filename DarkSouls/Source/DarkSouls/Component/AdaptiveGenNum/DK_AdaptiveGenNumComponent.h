@@ -38,19 +38,21 @@ class DARKSOULS_API UDK_AdaptiveGenNumComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:	
-	// Sets default values for this component's properties
 	UDK_AdaptiveGenNumComponent();
 
 protected:
-	// Called when the game starts
 	virtual void BeginPlay() override;
 
 
 public:
+	// 테이블 생성
 	void CreateNewTable(int TableIndex, TArray<FAdaptiveNodeInfo>& Infos);
+	// TableIndex기반으로 랜덤 숫자 생성
 	int GenAdaptiveNum(int TableIndex);
+	// TableIndex에서 SelectedNum를 선택했을 때 가중치 계산
 	void CalculAdaptiveToken(int TableIndex, int SelectedNum);
-
+	
+	// 테이블 초기화
 	void ResetTable(int TableIndex);
 
 	bool IsExistTable(int TableIndex);
@@ -59,6 +61,7 @@ protected:
 	void DebugToken(int TableIndex);
 
 protected:
+	// TableIndex, Nodes 관리
 	TMap<int, FAdaptiveTableInfo> AdaptiveTable;
 
 };

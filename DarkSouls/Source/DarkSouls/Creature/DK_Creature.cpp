@@ -84,6 +84,13 @@ void ADK_Creature::DamagedByGPAttacked(int32 GPValue)
 }
 
 
+void ADK_Creature::InterruptedAttack_Notify()
+{
+	Super::InterruptedAttack_Notify();
+
+	AIControllerBase->ClearFocusTarget();
+}
+
 void ADK_Creature::BeBlockedPerfectly(int32 GPValue)
 {
 	Super::BeBlockedPerfectly(GPValue);

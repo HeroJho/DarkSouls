@@ -77,6 +77,9 @@ protected:
 
 	
 	// Attack Section
+public:
+	virtual void InterruptedAttack_Notify() override;
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Attack)
 	TObjectPtr<class UDK_AttackComponent> AttackComponent;

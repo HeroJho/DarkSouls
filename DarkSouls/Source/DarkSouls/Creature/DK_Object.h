@@ -97,7 +97,7 @@ public:
 	void BeginColRange_Notify();
 	void EndColRange_Notify();
 
-	void InterruptedAttack_Notify();
+	virtual void InterruptedAttack_Notify();
 
 	void EndAttack_Notify();
 

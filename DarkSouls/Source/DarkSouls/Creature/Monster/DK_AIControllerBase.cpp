@@ -201,7 +201,7 @@ void ADK_AIControllerBase::OnPerceptionUpdated_Notify(const TArray<AActor*>& Upd
 		}
 		else
 		{
-			HandleLostSight(CurActor);
+			// HandleLostSight(CurActor);
 		}
 
 

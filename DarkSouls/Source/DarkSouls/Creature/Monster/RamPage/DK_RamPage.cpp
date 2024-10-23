@@ -123,12 +123,12 @@ void ADK_RamPage::EndSection_Skill_Combo0(FName NotifyName)
 
 void ADK_RamPage::Interrupted_ComboSkill_Combo0()
 {
-
+	InterruptedAttack_Notify();
 }
 
 void ADK_RamPage::End_ComboSkill_Combo0()
 {
-
+	InterruptedAttack_Notify();
 }
 
 
@@ -195,12 +195,12 @@ void ADK_RamPage::EndSection_Skill_Combo1(FName NotifyName)
 
 void ADK_RamPage::Interrupted_ComboSkill_Combo1()
 {
-
+	InterruptedAttack_Notify();
 }
 
 void ADK_RamPage::End_ComboSkill_Combo1()
 {
-
+	InterruptedAttack_Notify();
 }
 
 
@@ -267,12 +267,12 @@ void ADK_RamPage::EndSection_Skill_Combo2(FName NotifyName)
 
 void ADK_RamPage::Interrupted_ComboSkill_Combo2()
 {
-
+	InterruptedAttack_Notify();
 }
 
 void ADK_RamPage::End_ComboSkill_Combo2()
 {
-
+	InterruptedAttack_Notify();
 }
 
 
@@ -352,10 +352,12 @@ void ADK_RamPage::EndSection_GroundSmash(FName NotifyName)
 
 void ADK_RamPage::Interrupted_ComboGroundSmash()
 {
+	InterruptedAttack_Notify();
 }
 
 void ADK_RamPage::End_ComboGroundSmash()
 {
+	InterruptedAttack_Notify();
 }
 
 
@@ -493,6 +495,8 @@ void ADK_RamPage::EndSection_ThrowWall(FName NotifyName)
 
 void ADK_RamPage::Interrupted_ComboThrowWall()
 {
+	InterruptedAttack_Notify();
+
 	if (ThrowWallProjectile.IsValid())
 	{
 		ThrowWallProjectile->DestroyProjectile();
@@ -502,6 +506,8 @@ void ADK_RamPage::Interrupted_ComboThrowWall()
 
 void ADK_RamPage::End_ComboThrowWall()
 {
+	InterruptedAttack_Notify();
+
 	if (ThrowWallProjectile.IsValid())
 	{
 		ThrowWallProjectile->DestroyProjectile();
@@ -604,11 +610,15 @@ void ADK_RamPage::EndSection_JumpAttack(FName NotifyName)
 
 void ADK_RamPage::StartEndJumpAttackAnim()
 {
+	InterruptedAttack_Notify();
+
 	ComboComponent->PlayNextSection();
 }
 
 void ADK_RamPage::EndPathJumpAttack()
 {
+	InterruptedAttack_Notify();
+
 	FVector SlashLocation = GetMesh()->GetSocketLocation(FName("Combo1_Smash"));
 	AttackComponent->AOEDamage(SlashLocation, 1500.f, ComboComponent->GetCurrentAttackInfos(), false);
 
