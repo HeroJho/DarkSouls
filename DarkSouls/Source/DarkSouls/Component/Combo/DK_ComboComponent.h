@@ -36,6 +36,10 @@ public:
 	
 	// 다음 Section 실행 함수
 	void PlayNextSection();
+
+	void ClearDelegate();
+	
+	UAnimMontage* GetCurMontage();
 	
 
 protected:	
@@ -76,5 +80,8 @@ public:
 	FOnNoParmDelegate OnSectionEndDelegate;
 	FOnNoParmDelegate OnComboInterruptedDelegate;
 	FOnNoParmDelegate OnComboEndDelegate;
-	
+
+	FOnNoParmDelegate OnComboInterruptedForTaskDelegate;
+	FOnNoParmDelegate OnComboEndForTaskDelegate;
+
 };

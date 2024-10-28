@@ -28,32 +28,6 @@ void ADK_RamPage::BeginPlay()
 {
 	Super::BeginPlay();
 
-
-	// * 다른 패턴들의 함수들도 호출되는 문제 고려해야함
-	ComboComponent->OnSectionEndDelegate.AddUObject(this, &ADK_RamPage::BindSectionFunction_Skill_Combo0);
-	ComboComponent->OnComboInterruptedDelegate.AddUObject(this, &ADK_RamPage::Interrupted_ComboSkill_Combo0);
-	ComboComponent->OnComboEndDelegate.AddUObject(this, &ADK_RamPage::End_ComboSkill_Combo0);
-
-	ComboComponent->OnSectionEndDelegate.AddUObject(this, &ADK_RamPage::BindSectionFunction_Skill_Combo1);
-	ComboComponent->OnComboInterruptedDelegate.AddUObject(this, &ADK_RamPage::Interrupted_ComboSkill_Combo1);
-	ComboComponent->OnComboEndDelegate.AddUObject(this, &ADK_RamPage::End_ComboSkill_Combo1);
-
-	ComboComponent->OnSectionEndDelegate.AddUObject(this, &ADK_RamPage::BindSectionFunction_Skill_Combo2);
-	ComboComponent->OnComboInterruptedDelegate.AddUObject(this, &ADK_RamPage::Interrupted_ComboSkill_Combo2);
-	ComboComponent->OnComboEndDelegate.AddUObject(this, &ADK_RamPage::End_ComboSkill_Combo2);
-
-	ComboComponent->OnSectionEndDelegate.AddUObject(this, &ADK_RamPage::BindSectionFunction_GroundSmash);
-	ComboComponent->OnComboInterruptedDelegate.AddUObject(this, &ADK_RamPage::Interrupted_ComboGroundSmash);
-	ComboComponent->OnComboEndDelegate.AddUObject(this, &ADK_RamPage::End_ComboGroundSmash);
-
-	ComboComponent->OnSectionEndDelegate.AddUObject(this, &ADK_RamPage::BindSectionFunction_JumpAttack);
-	ComboComponent->OnComboInterruptedDelegate.AddUObject(this, &ADK_RamPage::Interrupted_ComboJumpAttack);
-	ComboComponent->OnComboEndDelegate.AddUObject(this, &ADK_RamPage::End_ComboJumpAttack);
-
-	ComboComponent->OnSectionEndDelegate.AddUObject(this, &ADK_RamPage::BindSectionFunction_ThrowWall);
-	ComboComponent->OnComboInterruptedDelegate.AddUObject(this, &ADK_RamPage::Interrupted_ComboThrowWall);
-	ComboComponent->OnComboEndDelegate.AddUObject(this, &ADK_RamPage::End_ComboThrowWall);
-
 }
 
 
@@ -70,6 +44,11 @@ bool ADK_RamPage::Skill_Combo0()
 	ResetInfoOnAttack();
 
 	ComboComponent->ChangeComboActionData((int8)ERamPage_Attack::Combo1);
+
+	ComboComponent->ClearDelegate();
+	ComboComponent->OnSectionEndDelegate.AddUObject(this, &ADK_RamPage::BindSectionFunction_Skill_Combo0);
+	ComboComponent->OnComboInterruptedDelegate.AddUObject(this, &ADK_RamPage::Interrupted_ComboSkill_Combo0);
+	ComboComponent->OnComboEndDelegate.AddUObject(this, &ADK_RamPage::End_ComboSkill_Combo0);
 
 	ComboComponent->ProcessComboCommand(true);
 
@@ -147,6 +126,11 @@ bool ADK_RamPage::Skill_Combo1()
 
 	ComboComponent->ChangeComboActionData((int8)ERamPage_Attack::Combo2);
 
+	ComboComponent->ClearDelegate();
+	ComboComponent->OnSectionEndDelegate.AddUObject(this, &ADK_RamPage::BindSectionFunction_Skill_Combo1);
+	ComboComponent->OnComboInterruptedDelegate.AddUObject(this, &ADK_RamPage::Interrupted_ComboSkill_Combo1);
+	ComboComponent->OnComboEndDelegate.AddUObject(this, &ADK_RamPage::End_ComboSkill_Combo1);
+
 	ComboComponent->ProcessComboCommand(true);
 
 	bIsAttacking = true;
@@ -218,6 +202,11 @@ bool ADK_RamPage::Skill_Combo2()
 	ResetInfoOnAttack();
 
 	ComboComponent->ChangeComboActionData((int8)ERamPage_Attack::Combo3);
+
+	ComboComponent->ClearDelegate();
+	ComboComponent->OnSectionEndDelegate.AddUObject(this, &ADK_RamPage::BindSectionFunction_Skill_Combo2);
+	ComboComponent->OnComboInterruptedDelegate.AddUObject(this, &ADK_RamPage::Interrupted_ComboSkill_Combo2);
+	ComboComponent->OnComboEndDelegate.AddUObject(this, &ADK_RamPage::End_ComboSkill_Combo2);
 
 	ComboComponent->ProcessComboCommand(true);
 
@@ -294,6 +283,11 @@ bool ADK_RamPage::GroundSmash()
 	ResetInfoOnAttack();
 
 	ComboComponent->ChangeComboActionData((int8)ERamPage_Attack::GroundSmash);
+
+	ComboComponent->ClearDelegate();
+	ComboComponent->OnSectionEndDelegate.AddUObject(this, &ADK_RamPage::BindSectionFunction_GroundSmash);
+	ComboComponent->OnComboInterruptedDelegate.AddUObject(this, &ADK_RamPage::Interrupted_ComboGroundSmash);
+	ComboComponent->OnComboEndDelegate.AddUObject(this, &ADK_RamPage::End_ComboGroundSmash);
 
 	ComboComponent->ProcessComboCommand(true);
 
@@ -376,6 +370,11 @@ bool ADK_RamPage::ThrowWall()
 	ResetInfoOnAttack();
 
 	ComboComponent->ChangeComboActionData((int8)ERamPage_Attack::ThrowWall);
+
+	ComboComponent->ClearDelegate();
+	ComboComponent->OnSectionEndDelegate.AddUObject(this, &ADK_RamPage::BindSectionFunction_ThrowWall);
+	ComboComponent->OnComboInterruptedDelegate.AddUObject(this, &ADK_RamPage::Interrupted_ComboThrowWall);
+	ComboComponent->OnComboEndDelegate.AddUObject(this, &ADK_RamPage::End_ComboThrowWall);
 
 	ComboComponent->ProcessComboCommand(true);
 
@@ -538,6 +537,11 @@ bool ADK_RamPage::JumpAttack()
 
 	ComboComponent->ChangeComboActionData((int8)ERamPage_Attack::JumpAttack);
 	
+	ComboComponent->ClearDelegate();
+	ComboComponent->OnSectionEndDelegate.AddUObject(this, &ADK_RamPage::BindSectionFunction_JumpAttack);
+	ComboComponent->OnComboInterruptedDelegate.AddUObject(this, &ADK_RamPage::Interrupted_ComboJumpAttack);
+	ComboComponent->OnComboEndDelegate.AddUObject(this, &ADK_RamPage::End_ComboJumpAttack);
+
 	ComboComponent->ProcessComboCommand(true);
 
 	bIsAttacking = true;
@@ -553,6 +557,7 @@ void ADK_RamPage::BindSectionFunction_JumpAttack()
 	AnimProxy->OnNotifyBegin.AddDynamic(this, &ADK_RamPage::BeginSectionNotify_JumpAttack);
 	AnimProxy->OnNotifyEnd.AddDynamic(this, &ADK_RamPage::EndSectionNotify_JumpAttack);
 }
+
 
 void ADK_RamPage::BeginSectionNotify_JumpAttack(FName NotifyName)
 {
@@ -626,7 +631,6 @@ void ADK_RamPage::EndPathJumpAttack()
 }
 
 
-
 void ADK_RamPage::Interrupted_ComboJumpAttack()
 {
 	StatComponent->SetIsInvincible(false);
@@ -637,3 +641,121 @@ void ADK_RamPage::End_ComboJumpAttack()
 	StatComponent->SetIsInvincible(false);
 	
 }
+
+
+
+
+
+
+
+bool ADK_RamPage::BackJump()
+{
+	if (!CanAttack())
+	{
+		return false;
+	}
+
+	ResetInfoOnAttack();
+
+	ComboComponent->ChangeComboActionData((int8)ERamPage_Attack::BackJump);
+
+	ComboComponent->ClearDelegate();
+	ComboComponent->OnSectionEndDelegate.AddUObject(this, &ADK_RamPage::BindSectionFunction_BackJump);
+	ComboComponent->OnComboInterruptedDelegate.AddUObject(this, &ADK_RamPage::Interrupted_ComboBackJump);
+	ComboComponent->OnComboEndDelegate.AddUObject(this, &ADK_RamPage::End_ComboBackJump);
+
+	ComboComponent->ProcessComboCommand(true);
+
+	bIsAttacking = true;
+
+	return true;
+}
+
+
+void ADK_RamPage::BindSectionFunction_BackJump()
+{
+	UPlayMontageCallbackProxy* AnimProxy = GetMontageCallbackProxy();
+	AnimProxy->OnCompleted.AddDynamic(this, &ADK_RamPage::EndSection_BackJump);
+	AnimProxy->OnInterrupted.AddDynamic(this, &ADK_RamPage::EndSection_BackJump);
+	AnimProxy->OnNotifyBegin.AddDynamic(this, &ADK_RamPage::BeginSectionNotify_BackJump);
+	AnimProxy->OnNotifyEnd.AddDynamic(this, &ADK_RamPage::EndSectionNotify_BackJump);
+}
+
+
+void ADK_RamPage::BeginSectionNotify_BackJump(FName NotifyName)
+{
+	if (NotifyName == FName("AttackRange"))
+	{
+		BeginAttackRange_Notify();
+	}
+	else if (NotifyName == FName("ColRange"))
+	{
+		BeginColRange_Notify();
+	}
+	else if (NotifyName == FName("Jump"))
+	{
+		StatComponent->SetIsInvincible(true);
+
+		FVector TargetPos = AIControllerBase->GetLocationOfInterestKey();
+
+		// EndJump 바인딩
+		AttackComponent->Delegate_EndJump.Clear();
+		AttackComponent->Delegate_EndJump.AddUObject(this, &ADK_RamPage::EndPathBackJump);
+
+		AttackComponent->Delegate_StartEndAnim.Clear();
+		AttackComponent->Delegate_StartEndAnim.AddUObject(this, &ADK_RamPage::StartEndBackJumpAnim);
+
+		AttackComponent->JumpToPos(TargetPos, ComboComponent->GetCurrentAttackInfos().JumpAttackInfo);
+
+	}
+	else if (NotifyName == FName("JumpLoop"))
+	{
+		// End 애니메이션이 호출 중이라면 JumpLoop 안들어옴.
+		GetMesh()->GetAnimInstance()->Montage_Pause();
+	}
+}
+
+void ADK_RamPage::EndSectionNotify_BackJump(FName NotifyName)
+{
+	if (NotifyName == FName("AttackRange"))
+	{
+		EndAttackRange_Notify();
+	}
+	else if (NotifyName == FName("ColRange"))
+	{
+		EndColRange_Notify();
+	}
+}
+
+void ADK_RamPage::EndSection_BackJump(FName NotifyName)
+{
+	InterruptedAttack_Notify();
+}
+
+void ADK_RamPage::StartEndBackJumpAnim()
+{
+	InterruptedAttack_Notify();
+
+	ComboComponent->PlayNextSection();
+}
+
+void ADK_RamPage::EndPathBackJump()
+{
+	InterruptedAttack_Notify();
+
+	StatComponent->SetIsInvincible(false);
+}
+
+
+void ADK_RamPage::Interrupted_ComboBackJump()
+{
+	StatComponent->SetIsInvincible(false);
+
+}
+
+void ADK_RamPage::End_ComboBackJump()
+{
+	StatComponent->SetIsInvincible(false);
+
+}
+

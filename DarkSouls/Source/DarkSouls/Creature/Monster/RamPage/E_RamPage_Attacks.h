@@ -18,6 +18,7 @@ enum class ERamPage_Attack : uint8
 	GroundSmash UMETA(DisplayName = "GroundSmash"),
 	JumpAttack UMETA(DisplayName = "JumpAttack"),
 	ThrowWall UMETA(DisplayName = "ThrowWall"),
+	BackJump UMETA(DisplayName = "BackJump"),
 };
 
 

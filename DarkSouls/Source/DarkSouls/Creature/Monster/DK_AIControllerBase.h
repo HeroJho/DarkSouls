@@ -28,9 +28,6 @@ public:
 	void SetFocusTarget(float RotationSpeed);
 	void ClearFocusTarget();
 
-	UFUNCTION(BlueprintCallable)
-	AActor* GetAttackTarget();
-
 protected:
 	void RunAI(APawn* InPawn);
 	void StopAI();
@@ -85,6 +82,9 @@ protected:
 public:
 	void SetbIsAttackedKey(bool bValue);
 
+	UFUNCTION(BlueprintCallable)
+	AActor* GetAttackTarget();
+	FVector GetLocationOfInterestKey();
 
 	// BBKeyName
 protected:

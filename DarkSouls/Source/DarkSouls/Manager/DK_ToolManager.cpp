@@ -202,3 +202,58 @@ bool UDK_ToolManager::PredictProjectilePath(AActor* Me, AActor* Target, TArray<F
 
 	return true;
 }
+
+bool UDK_ToolManager::PredictProjectilePath(FVector From, FVector To, TArray<FVector>& OUT_Pos, float Arc, bool bDebug)
+{
+	FVector OwnerLocation = From;
+	FVector FutureLocation = To;
+	FutureLocation.Z = 100.f;
+
+
+	FVector OutLaunchVelocity;
+	bool bResult = UGameplayStatics::SuggestProjectileVelocity_CustomArc(
+		this,
+		OutLaunchVelocity,
+		OwnerLocation,
+		FutureLocation,
+		0.f,
+		Arc
+	);
+
+
+	if (bResult == false)
+		return false;
+
+
+	// 20: tracing 보여질 프로젝타일 크기, 15: 시물레이션되는 Max 시간(초)
+	FPredictProjectilePathParams predictParams(20.0f, OwnerLocation, OutLaunchVelocity, 15.0f);
+
+	predictParams.OverrideGravityZ = GetWorld()->GetGravityZ();
+	predictParams.SimFrequency = 5.f;
+
+	if (bDebug)
+	{
+		predictParams.DrawDebugTime = 5.0f;     //디버그 라인 보여지는 시간 (초)
+		predictParams.DrawDebugType = EDrawDebugTrace::ForDuration;
+	}
+	else
+		predictParams.DrawDebugType = EDrawDebugTrace::None;
+
+
+
+	predictParams.bTraceWithCollision = true;
+	predictParams.TraceChannel = ECollisionChannel::ECC_Camera;
+
+
+	FPredictProjectilePathResult Result;
+	UGameplayStatics::PredictProjectilePath(this, predictParams, Result);
+
+
+	for (int32 i = 0; i < Result.PathData.Num(); ++i)
+	{
+		OUT_Pos.Add(Result.PathData[i].Location);
+	}
+
+
+	return true;
+}

@@ -84,16 +84,24 @@ EBTNodeResult::Type UBTT_RamPage_Attack::ExecuteTask(UBehaviorTreeComponent & Ow
 			return EBTNodeResult::Failed;
 		}
 	}
+		break;
+	case ERamPage_Attack::BackJump:
+	{
+		if (!RPOwner->BackJump())
+		{
+			return EBTNodeResult::Failed;
+		}
+	}
 	break;
 	default:
 		break;
 	}
 
 
-	RPOwner->GetComboComponent()->OnComboInterruptedDelegate.Remove(InterruptedTaskHandle);
-	RPOwner->GetComboComponent()->OnComboEndDelegate.Remove(EndTaskHandle);
-	InterruptedTaskHandle = RPOwner->GetComboComponent()->OnComboInterruptedDelegate.AddUObject(this, &UBTT_RamPage_Attack::FinishTask);
-	EndTaskHandle = RPOwner->GetComboComponent()->OnComboEndDelegate.AddUObject(this, &UBTT_RamPage_Attack::FinishTask);
+	RPOwner->GetComboComponent()->OnComboInterruptedForTaskDelegate.Remove(InterruptedTaskHandle);
+	RPOwner->GetComboComponent()->OnComboEndForTaskDelegate.Remove(EndTaskHandle);
+	InterruptedTaskHandle = RPOwner->GetComboComponent()->OnComboInterruptedForTaskDelegate.AddUObject(this, &UBTT_RamPage_Attack::FinishTask);
+	EndTaskHandle = RPOwner->GetComboComponent()->OnComboEndForTaskDelegate.AddUObject(this, &UBTT_RamPage_Attack::FinishTask);
 
 	return EBTNodeResult::InProgress;
 }

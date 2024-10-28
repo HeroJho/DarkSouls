@@ -115,6 +115,18 @@ void UDK_ComboComponent::PlayNextSection()
 
 }
 
+void UDK_ComboComponent::ClearDelegate()
+{
+	OnSectionEndDelegate.Clear();
+	OnComboInterruptedDelegate.Clear();
+	OnComboEndDelegate.Clear();
+}
+
+UAnimMontage* UDK_ComboComponent::GetCurMontage()
+{
+	return ComboActionDatas[CurComboActionDataIndex]->ComboActionMontage;
+}
+
 
 void UDK_ComboComponent::BindEventFunc()
 {
@@ -165,6 +177,8 @@ void UDK_ComboComponent::InterruptedComboAction(FName NotifyName)
 		}
 
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("InterruptedComboAction")));
+		
+		OnComboInterruptedForTaskDelegate.Broadcast();
 		OnComboInterruptedDelegate.Broadcast();
 	}
 
@@ -182,6 +196,7 @@ void UDK_ComboComponent::EndComboAction(FName NotifyName)
 		ReserveComboActionDataIndex = -1;
 	}
 
+	OnComboEndForTaskDelegate.Broadcast();
 	OnComboEndDelegate.Broadcast();
 }
 

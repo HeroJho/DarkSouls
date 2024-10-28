@@ -153,4 +153,28 @@ protected:
 	void StartEndJumpAttackAnim();
 	void EndPathJumpAttack();
 
+
+
+
+
+public:
+	bool BackJump();
+
+protected:
+	void BindSectionFunction_BackJump();
+	UFUNCTION()
+	void BeginSectionNotify_BackJump(FName NotifyName);
+	UFUNCTION()
+	void EndSectionNotify_BackJump(FName NotifyName);
+	UFUNCTION()
+	void EndSection_BackJump(FName NotifyName);
+
+	void Interrupted_ComboBackJump();
+	void End_ComboBackJump();
+
+	void StartEndBackJumpAnim();
+	void EndPathBackJump();
+
+
+
 };

@@ -39,6 +39,8 @@ public:
 	// Jump
 public:
 	bool JumpToAttackTarget(AActor* Target, FS_JumpAttackInfo JumpAttackInfo);
+	bool JumpToPos(FVector Pos, FS_JumpAttackInfo JumpAttackInfo);
+
 
 protected:
 	UFUNCTION()

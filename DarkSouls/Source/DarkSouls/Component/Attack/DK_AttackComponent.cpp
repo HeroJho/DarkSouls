@@ -101,6 +101,42 @@ bool UDK_AttackComponent::JumpToAttackTarget(AActor* Target, FS_JumpAttackInfo J
 	return true;
 }
 
+bool UDK_AttackComponent::JumpToPos(FVector Pos, FS_JumpAttackInfo JumpAttackInfo)
+{
+	// Init
+	GetWorld()->GetTimerManager().ClearTimer(JumpTimerHandle);
+	JumpDeltaTimeAcc = 0.f;
+	bTriggerStartEndAnim = false;
+
+	ADK_GameMode* GameMode = Cast<ADK_GameMode>(GetWorld()->GetAuthGameMode());
+
+
+	// Getting Path of Jump
+	TArray<FVector> Poss;
+
+	FVector OwnerLocation = CharacterOwner->GetActorLocation();
+	float Arc = JumpAttackInfo.Arc;
+	if (Arc <= 0.f)
+	{
+		float Distance = UKismetMathLibrary::Vector_Distance(OwnerLocation, Pos);
+		float Rad = UKismetMathLibrary::FClamp(UKismetMathLibrary::NormalizeToRange(Distance, JumpAttackInfo.MinDisRange, JumpAttackInfo.MaxDisRange), 0.f, 1.f);
+		Arc = UKismetMathLibrary::Lerp(JumpAttackInfo.MinArc, JumpAttackInfo.MaxArc, Rad);
+	}
+
+	GameMode->GetToolManager()->PredictProjectilePath(OwnerLocation, Pos, Poss, Arc, JumpAttackInfo.bRenderDebug);
+
+	float EndTime = CharacterOwner->GetMesh()->GetAnimInstance()->GetCurrentActiveMontage()->GetSectionLength(2);
+
+	// Run JumpTick
+	FTimerDelegate JumpTimerDelegate;
+	JumpTimerDelegate.BindUFunction(this, FName("JumpTick"), JumpAttackInfo.Curve, Poss, EndTime, JumpAttackInfo.JumpSpeed, JumpAttackInfo.EndAnimPlayRatio);
+	GetWorld()->GetTimerManager().SetTimer(JumpTimerHandle, JumpTimerDelegate, 0.01f, true, 0.f);
+
+
+	return true;
+}
+
+
 void UDK_AttackComponent::JumpTick(UCurveFloat* Curve, TArray<FVector> Poss, float EndAnimLength, float JumpSpeed, float EndAnimPlayRatio)
 {
 	const float TimeDelta = GetWorld()->DeltaTimeSeconds;

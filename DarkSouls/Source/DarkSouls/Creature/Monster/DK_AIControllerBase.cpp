@@ -85,11 +85,6 @@ void ADK_AIControllerBase::ClearFocusTarget()
 	ClearFocus(EAIFocusPriority::Gameplay);
 }
 
-AActor* ADK_AIControllerBase::GetAttackTarget()
-{
-	AActor* Target = Cast<AActor>(Blackboard->GetValueAsObject(AttackTargetKey));
-	return Target;
-}
 
 void ADK_AIControllerBase::RunAI(APawn* InPawn)
 {
@@ -224,7 +219,7 @@ void ADK_AIControllerBase::OnPerceptionUpdated_Notify(const TArray<AActor*>& Upd
 
 void ADK_AIControllerBase::OnPerceptionTargetForgotten_Notify(AActor* Actor)
 {
-	HandleForgetTarget(Actor);
+	// HandleForgetTarget(Actor);
 }
 
 
@@ -429,6 +424,23 @@ void ADK_AIControllerBase::SetbIsAttackedKey(bool bValue)
 {
 	Blackboard->SetValueAsBool(bIsAttackedKey, bValue);
 }
+
+
+AActor* ADK_AIControllerBase::GetAttackTarget()
+{
+	AActor* Target = Cast<AActor>(Blackboard->GetValueAsObject(AttackTargetKey));
+	return Target;
+}
+
+FVector ADK_AIControllerBase::GetLocationOfInterestKey()
+{
+	return Blackboard->GetValueAsVector(LocationOfInterestKey);
+}
+
+
+
+
+
 
 void ADK_AIControllerBase::RenderCurState(float Duration)
 {
