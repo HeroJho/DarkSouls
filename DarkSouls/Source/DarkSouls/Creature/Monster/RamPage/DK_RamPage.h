@@ -107,8 +107,65 @@ protected:
 
 
 
+//public:
+//	bool ThrowWall();
+//
+//protected:
+//	void BindSectionFunction_ThrowWall();
+//	UFUNCTION()
+//	void BeginSectionNotify_ThrowWall(FName NotifyName);
+//	UFUNCTION()
+//	void EndSectionNotify_ThrowWall(FName NotifyName);
+//	UFUNCTION()
+//	void EndSection_ThrowWall(FName NotifyName);
+//
+//	void Interrupted_ComboThrowWall();
+//	void End_ComboThrowWall();
+//
+//
+//protected:
+//	UPROPERTY(EditAnywhere, Category = Attack)
+//	TSubclassOf<class ADK_Projectile_Base> ThrowWallProjectileClass;
+//	UPROPERTY()
+//	TWeakObjectPtr<class ADK_Projectile_Base> ThrowWallProjectile;
+
+
+
 public:
-	bool ThrowWall();
+	bool FullWall();
+
+	bool GetIsHoldingWall();
+	void CreateWall(AActor* Target);
+	void DestroyWall();
+
+
+protected:
+	void BindSectionFunction_FullWall();
+	UFUNCTION()
+	void BeginSectionNotify_FullWall(FName NotifyName);
+	UFUNCTION()
+	void EndSectionNotify_FullWall(FName NotifyName);
+	UFUNCTION()
+	void EndSection_FullWall(FName NotifyName);
+
+	void Interrupted_ComboFullWall();
+	void End_ComboFullWall();
+
+
+
+
+
+protected:
+	UPROPERTY(EditAnywhere, Category = Attack)
+	TSubclassOf<class ADK_Projectile_Base> ThrowWallProjectileClass;
+	UPROPERTY()
+	TWeakObjectPtr<class ADK_Projectile_Base> ThrowWallProjectile;
+
+
+
+
+public:
+	bool ThrowWall(bool bIsSpeed);
 
 protected:
 	void BindSectionFunction_ThrowWall();
@@ -121,13 +178,6 @@ protected:
 
 	void Interrupted_ComboThrowWall();
 	void End_ComboThrowWall();
-
-
-protected:
-	UPROPERTY(EditAnywhere, Category = Attack)
-	TSubclassOf<class ADK_Projectile_Base> ThrowWallProjectileClass;
-	UPROPERTY()
-	TWeakObjectPtr<class ADK_Projectile_Base> ThrowWallProjectile;
 
 
 

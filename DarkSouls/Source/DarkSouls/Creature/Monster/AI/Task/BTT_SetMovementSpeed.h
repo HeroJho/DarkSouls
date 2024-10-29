@@ -26,4 +26,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EMovementSpeed SpeedMode;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float Speed;
+
+
 };

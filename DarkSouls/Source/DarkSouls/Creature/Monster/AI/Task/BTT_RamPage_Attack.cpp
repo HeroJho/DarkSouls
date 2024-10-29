@@ -13,7 +13,7 @@ UBTT_RamPage_Attack::UBTT_RamPage_Attack()
 {
 
 	bNotifyTick = false;
-
+	bNotifyTaskFinished = true;
 
 }
 
@@ -77,14 +77,39 @@ EBTNodeResult::Type UBTT_RamPage_Attack::ExecuteTask(UBehaviorTreeComponent & Ow
 		}
 	}
 		break;
+	case ERamPage_Attack::FullWall:
+	{
+		OnAbortTaskDelegate.Clear();
+		OnAbortTaskDelegate.AddUObject(RPOwner, &ADK_RamPage::DestroyWall);
+
+		if (!RPOwner->FullWall())
+		{
+			return EBTNodeResult::Failed;
+		}
+	}
+		break;	
 	case ERamPage_Attack::ThrowWall:
 	{
-		if (!RPOwner->ThrowWall())
+		OnAbortTaskDelegate.Clear();
+		OnAbortTaskDelegate.AddUObject(RPOwner, &ADK_RamPage::DestroyWall);
+
+		if (!RPOwner->ThrowWall(false))
 		{
 			return EBTNodeResult::Failed;
 		}
 	}
 		break;
+	case ERamPage_Attack::SpeedThrowWall:
+	{
+		OnAbortTaskDelegate.Clear();
+		OnAbortTaskDelegate.AddUObject(RPOwner, &ADK_RamPage::DestroyWall);
+
+		if (!RPOwner->ThrowWall(true))
+		{
+			return EBTNodeResult::Failed;
+		}
+	}
+	break;
 	case ERamPage_Attack::BackJump:
 	{
 		if (!RPOwner->BackJump())
@@ -92,27 +117,56 @@ EBTNodeResult::Type UBTT_RamPage_Attack::ExecuteTask(UBehaviorTreeComponent & Ow
 			return EBTNodeResult::Failed;
 		}
 	}
-	break;
+		break;
+	default:
+		break;
+	}
+	
+
+	RPOwner->GetComboComponent()->OnComboEndForTaskDelegate.Clear();
+	RPOwner->GetComboComponent()->OnComboInterruptedForTaskDelegate.Clear();
+
+	RPOwner->GetComboComponent()->OnComboInterruptedForTaskDelegate.AddUObject(this, &UBTT_RamPage_Attack::FinishTask);
+	RPOwner->GetComboComponent()->OnComboEndForTaskDelegate.AddUObject(this, &UBTT_RamPage_Attack::FinishTask);
+
+	return EBTNodeResult::InProgress;
+}
+
+
+void UBTT_RamPage_Attack::OnTaskFinished(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, EBTNodeResult::Type TaskResult)
+{
+	Super::OnTaskFinished(OwnerComp, NodeMemory, TaskResult);
+
+
+	switch (TaskResult)
+	{
+	case EBTNodeResult::Succeeded:
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Succeeded")));
+	}
+		break;
+	case EBTNodeResult::Failed:
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Failed")));
+		OnAbortTaskDelegate.Broadcast();
+	}
+		break;
+	case EBTNodeResult::Aborted:
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Aborted")));
+		OnAbortTaskDelegate.Broadcast();
+	}
+		break;
+	case EBTNodeResult::InProgress:
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("InProgress")));
+	}
+		break;
 	default:
 		break;
 	}
 
 
-	RPOwner->GetComboComponent()->OnComboInterruptedForTaskDelegate.Remove(InterruptedTaskHandle);
-	RPOwner->GetComboComponent()->OnComboEndForTaskDelegate.Remove(EndTaskHandle);
-	InterruptedTaskHandle = RPOwner->GetComboComponent()->OnComboInterruptedForTaskDelegate.AddUObject(this, &UBTT_RamPage_Attack::FinishTask);
-	EndTaskHandle = RPOwner->GetComboComponent()->OnComboEndForTaskDelegate.AddUObject(this, &UBTT_RamPage_Attack::FinishTask);
-
-	return EBTNodeResult::InProgress;
-}
-
-EBTNodeResult::Type UBTT_RamPage_Attack::AbortTask(UBehaviorTreeComponent & OwnerComp, uint8 * NodeMemory)
-{
-	return EBTNodeResult::Aborted;
-}
-
-void UBTT_RamPage_Attack::TickTask(UBehaviorTreeComponent & OwnerComp, uint8 * NodeMemory, float DeltaSeconds)
-{
 }
 
 
@@ -120,7 +174,7 @@ void UBTT_RamPage_Attack::TickTask(UBehaviorTreeComponent & OwnerComp, uint8 * N
 
 void UBTT_RamPage_Attack::FinishTask()
 {
-	FinishLatentTask(*BTComponentOwner, EBTNodeResult::Succeeded);
+	 FinishLatentTask(*BTComponentOwner, EBTNodeResult::Succeeded);
 }
 
 

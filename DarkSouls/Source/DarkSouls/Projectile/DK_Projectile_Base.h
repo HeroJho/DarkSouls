@@ -76,6 +76,7 @@ protected:
 	float Speed;
 	float Gravity;
 	float HomingAcceleration;
+	float LifeTime;
 	bool bSimulating;
 
 	// Static Option

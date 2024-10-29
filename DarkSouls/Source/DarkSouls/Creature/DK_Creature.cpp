@@ -140,10 +140,13 @@ void ADK_Creature::SetStrafe(bool bValue)
 	bIsStrafe = bValue;
 }
 
-float ADK_Creature::SetMovementSpeed(EMovementSpeed MovementSpeed)
+float ADK_Creature::SetMovementSpeed(EMovementSpeed MovementSpeed, float Speed)
 {
 	switch (MovementSpeed)
 	{
+	case EMovementSpeed::Default:
+		GetCharacterMovement()->MaxWalkSpeed = Speed;
+		return Speed;
 	case EMovementSpeed::Idle:
 		GetCharacterMovement()->MaxWalkSpeed = IdleSpeed;
 		return IdleSpeed;

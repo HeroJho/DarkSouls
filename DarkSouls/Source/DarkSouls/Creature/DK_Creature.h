@@ -105,6 +105,6 @@ protected:
 	// IDK_EnemyAIInterface
 public:
 	virtual void SetStrafe(bool bValue) override;
-	virtual float SetMovementSpeed(EMovementSpeed MovementSpeed) override;
+	virtual float SetMovementSpeed(EMovementSpeed MovementSpeed, float Speed = 0.f) override;
 
 };

@@ -7,9 +7,10 @@
 #include "Creature/Monster/RamPage/E_RamPage_Attacks.h"
 #include "BTT_RamPage_Attack.generated.h"
 
-/**
- * 
- */
+
+DECLARE_MULTICAST_DELEGATE(FOnNoParmDelegate);
+
+
 UCLASS()
 class DARKSOULS_API UBTT_RamPage_Attack : public UBTTaskNode
 {
@@ -19,10 +20,11 @@ public:
 	UBTT_RamPage_Attack();
 
 
+
+
 protected:
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
-	virtual EBTNodeResult::Type AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
-	virtual void TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
+	virtual void OnTaskFinished(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, EBTNodeResult::Type TaskResult) override;
 
 
 protected:
@@ -35,6 +37,9 @@ protected:
 
 	TObjectPtr<UBehaviorTreeComponent> BTComponentOwner;
 
-	FDelegateHandle EndTaskHandle;
-	FDelegateHandle InterruptedTaskHandle;
+
+	// Delegate
+protected:
+	FOnNoParmDelegate OnAbortTaskDelegate;
+
 };

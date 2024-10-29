@@ -24,6 +24,6 @@ class DARKSOULS_API IDK_EnemyAIInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	virtual void SetStrafe(bool bValue) = 0;
-	virtual float SetMovementSpeed(EMovementSpeed MovementSpeed) = 0;
+	virtual float SetMovementSpeed(EMovementSpeed MovementSpeed, float Speed = 0.f) = 0;
 
 };

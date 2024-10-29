@@ -103,11 +103,13 @@ void ADK_RamPage::EndSection_Skill_Combo0(FName NotifyName)
 void ADK_RamPage::Interrupted_ComboSkill_Combo0()
 {
 	InterruptedAttack_Notify();
+	EndAttack_Notify();
 }
 
 void ADK_RamPage::End_ComboSkill_Combo0()
 {
 	InterruptedAttack_Notify();
+	EndAttack_Notify();
 }
 
 
@@ -180,11 +182,13 @@ void ADK_RamPage::EndSection_Skill_Combo1(FName NotifyName)
 void ADK_RamPage::Interrupted_ComboSkill_Combo1()
 {
 	InterruptedAttack_Notify();
+	EndAttack_Notify();
 }
 
 void ADK_RamPage::End_ComboSkill_Combo1()
 {
 	InterruptedAttack_Notify();
+	EndAttack_Notify();
 }
 
 
@@ -257,11 +261,13 @@ void ADK_RamPage::EndSection_Skill_Combo2(FName NotifyName)
 void ADK_RamPage::Interrupted_ComboSkill_Combo2()
 {
 	InterruptedAttack_Notify();
+	EndAttack_Notify();
 }
 
 void ADK_RamPage::End_ComboSkill_Combo2()
 {
 	InterruptedAttack_Notify();
+	EndAttack_Notify();
 }
 
 
@@ -347,11 +353,13 @@ void ADK_RamPage::EndSection_GroundSmash(FName NotifyName)
 void ADK_RamPage::Interrupted_ComboGroundSmash()
 {
 	InterruptedAttack_Notify();
+	EndAttack_Notify();
 }
 
 void ADK_RamPage::End_ComboGroundSmash()
 {
 	InterruptedAttack_Notify();
+	EndAttack_Notify();
 }
 
 
@@ -359,17 +367,348 @@ void ADK_RamPage::End_ComboGroundSmash()
 
 
 
+//
+//bool ADK_RamPage::ThrowWall()
+//{
+//	if (!CanAttack())
+//	{
+//		return false;
+//	}
+//
+//	ResetInfoOnAttack();
+//
+//	ComboComponent->ChangeComboActionData((int8)ERamPage_Attack::ThrowWall);
+//
+//	ComboComponent->ClearDelegate();
+//	ComboComponent->OnSectionEndDelegate.AddUObject(this, &ADK_RamPage::BindSectionFunction_ThrowWall);
+//	ComboComponent->OnComboInterruptedDelegate.AddUObject(this, &ADK_RamPage::Interrupted_ComboThrowWall);
+//	ComboComponent->OnComboEndDelegate.AddUObject(this, &ADK_RamPage::End_ComboThrowWall);
+//
+//	ComboComponent->ProcessComboCommand(true);
+//
+//	bIsAttacking = true;
+//
+//	return true;
+//}
+//
+//void ADK_RamPage::BindSectionFunction_ThrowWall()
+//{
+//	UPlayMontageCallbackProxy* AnimProxy = GetMontageCallbackProxy();
+//	AnimProxy->OnCompleted.AddDynamic(this, &ADK_RamPage::EndSection_ThrowWall);
+//	AnimProxy->OnInterrupted.AddDynamic(this, &ADK_RamPage::EndSection_ThrowWall);
+//	AnimProxy->OnNotifyBegin.AddDynamic(this, &ADK_RamPage::BeginSectionNotify_ThrowWall);
+//	AnimProxy->OnNotifyEnd.AddDynamic(this, &ADK_RamPage::EndSectionNotify_ThrowWall);
+//}
+//
+//void ADK_RamPage::BeginSectionNotify_ThrowWall(FName NotifyName)
+//{
+//	if (NotifyName == FName("AttackRange"))
+//	{
+//		BeginAttackRange_Notify();
+//	}
+//	else if (NotifyName == FName("ColRange"))
+//	{
+//		BeginColRange_Notify();
+//	}
+//	else if (NotifyName == FName("FullWall"))
+//	{
+//		// 중간에 플레이어가 죽었다
+//		AActor* Target = AIControllerBase->GetAttackTarget();
+//
+//		if (!IsValid(Target))
+//		{
+//			StopAnimMontage();
+//			return;
+//		}
+//			
+//
+//		if (ThrowWallProjectile.IsValid())
+//			ThrowWallProjectile->DestroyProjectile();
+//
+//		ThrowWallProjectile = GetWorld()->SpawnActorDeferred<ADK_Projectile_Base>(ThrowWallProjectileClass, FTransform::Identity, this);
+//
+//
+//
+//		ProjectileOption ProjOp(Target, 10.f, -1.f, 4500.f, 0.5f, false, false);
+//		ThrowWallProjectile->Init(ProjOp);
+//		ThrowWallProjectile->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, FName(TEXT("RockAttachPoint")));
+//
+//		// 람다 바인드 -> 따로 멤버 함수 바인딩하면 TempWall 부분에서 Nullptr이 된다
+//		FS_DamageInfo DamageInfo = ComboComponent->GetCurrentAttackInfos();
+//		AActor* TempOwner = GetOwner();
+//		TWeakObjectPtr<ADK_Projectile_Base> TempWall = ThrowWallProjectile;
+//		ThrowWallProjectile->OnProjectileImpact.BindLambda([DamageInfo, TempOwner, TempWall](AActor* HitActor, const FHitResult& Hit)
+//			{
+//				if (!IsValid(TempOwner))
+//					return;
+//
+//				IDK_DamageableInterface* HitActorDamageable = Cast<IDK_DamageableInterface>(HitActor);
+//				if (HitActorDamageable == nullptr)
+//					return;
+//
+//				HitActorDamageable->TakeDamage(DamageInfo, TempOwner);
+//
+//				bool bIsHit = HitActorDamageable->TakeDamage(DamageInfo, TempOwner);
+//				if (!bIsHit)
+//					return;
+//				
+//				if (!TempWall.IsValid())
+//					return;
+//
+//				TempWall->DestroyProjectile(Hit.Location);
+//				
+//			});
+//
+//
+//		CollisionManagerComponent->IgnoreCol(ThrowWallProjectile.Get());
+//
+//
+//
+//		ThrowWallProjectile->FinishSpawning(FTransform::Identity);
+//
+//
+//	}
+//	else if (NotifyName == FName("Throw"))
+//	{
+//
+//		if (ThrowWallProjectile.IsValid())
+//		{
+//			ThrowWallProjectile->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+//			ThrowWallProjectile->SimulatingProjectile();
+//
+//			ThrowWallProjectile = nullptr;
+//		}
+//
+//	}
+//
+//}
+//
+//void ADK_RamPage::EndSectionNotify_ThrowWall(FName NotifyName)
+//{
+//	if (NotifyName == FName("AttackRange"))
+//	{
+//		EndAttackRange_Notify();
+//	}
+//	else if (NotifyName == FName("ColRange"))
+//	{
+//		EndColRange_Notify();
+//	}
+//}
+//
+//void ADK_RamPage::EndSection_ThrowWall(FName NotifyName)
+//{
+//	InterruptedAttack_Notify();
+//}
+//
+//void ADK_RamPage::Interrupted_ComboThrowWall()
+//{
+//	InterruptedAttack_Notify();
+//
+//	if (ThrowWallProjectile.IsValid())
+//	{
+//		ThrowWallProjectile->DestroyProjectile();
+//	}
+//
+//}
+//
+//void ADK_RamPage::End_ComboThrowWall()
+//{
+//	InterruptedAttack_Notify();
+//
+//	if (ThrowWallProjectile.IsValid())
+//	{
+//		ThrowWallProjectile->DestroyProjectile();
+//	}
+//
+//}
+//
+//
+//
 
-bool ADK_RamPage::ThrowWall()
+
+
+
+bool ADK_RamPage::FullWall()
 {
 	if (!CanAttack())
 	{
 		return false;
 	}
 
+	// 돌을들고 있다면
+	DestroyWall();
+
+
+
 	ResetInfoOnAttack();
 
-	ComboComponent->ChangeComboActionData((int8)ERamPage_Attack::ThrowWall);
+	ComboComponent->ChangeComboActionData((int8)ERamPage_Attack::FullWall);
+
+	ComboComponent->ClearDelegate();
+	ComboComponent->OnSectionEndDelegate.AddUObject(this, &ADK_RamPage::BindSectionFunction_FullWall);
+	ComboComponent->OnComboInterruptedDelegate.AddUObject(this, &ADK_RamPage::Interrupted_ComboFullWall);
+	ComboComponent->OnComboEndDelegate.AddUObject(this, &ADK_RamPage::End_ComboFullWall);
+
+	ComboComponent->ProcessComboCommand(true);
+
+	bIsAttacking = true;
+
+	return true;
+}
+
+void ADK_RamPage::BindSectionFunction_FullWall()
+{
+	UPlayMontageCallbackProxy* AnimProxy = GetMontageCallbackProxy();
+	AnimProxy->OnCompleted.AddDynamic(this, &ADK_RamPage::EndSection_FullWall);
+	AnimProxy->OnInterrupted.AddDynamic(this, &ADK_RamPage::EndSection_FullWall);
+	AnimProxy->OnNotifyBegin.AddDynamic(this, &ADK_RamPage::BeginSectionNotify_FullWall);
+	AnimProxy->OnNotifyEnd.AddDynamic(this, &ADK_RamPage::EndSectionNotify_FullWall);
+}
+
+void ADK_RamPage::BeginSectionNotify_FullWall(FName NotifyName)
+{
+	if (NotifyName == FName("AttackRange"))
+	{
+		BeginAttackRange_Notify();
+	}
+	else if (NotifyName == FName("ColRange"))
+	{
+		BeginColRange_Notify();
+	}
+	else if (NotifyName == FName("FullWall"))
+	{
+		// 중간에 플레이어가 죽었다
+		AActor* Target = AIControllerBase->GetAttackTarget();
+
+		if (!IsValid(Target))
+		{
+			StopAnimMontage();
+			return;
+		}
+
+		CreateWall(Target);
+
+	}
+
+
+
+}
+
+void ADK_RamPage::EndSectionNotify_FullWall(FName NotifyName)
+{
+	if (NotifyName == FName("AttackRange"))
+	{
+		EndAttackRange_Notify();
+	}
+	else if (NotifyName == FName("ColRange"))
+	{
+		EndColRange_Notify();
+	}
+}
+
+void ADK_RamPage::EndSection_FullWall(FName NotifyName)
+{
+	InterruptedAttack_Notify();
+}
+
+void ADK_RamPage::Interrupted_ComboFullWall()
+{
+	InterruptedAttack_Notify();
+
+	EndAttack_Notify();
+}
+
+void ADK_RamPage::End_ComboFullWall()
+{
+	InterruptedAttack_Notify();
+
+	EndAttack_Notify();
+}
+
+
+
+
+bool ADK_RamPage::GetIsHoldingWall()
+{
+	return ThrowWallProjectile.IsValid();
+}
+
+void ADK_RamPage::CreateWall(AActor* Target)
+{
+	if (ThrowWallProjectile.IsValid())
+		ThrowWallProjectile->DestroyProjectile();
+
+	ThrowWallProjectile = GetWorld()->SpawnActorDeferred<ADK_Projectile_Base>(ThrowWallProjectileClass, FTransform::Identity, this);
+
+
+
+	ProjectileOption ProjOp(Target, 10.f, -1.f, 4500.f, 0.5f, false, false);
+	ThrowWallProjectile->Init(ProjOp);
+	ThrowWallProjectile->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, FName(TEXT("RockAttachPoint")));
+
+	// 람다 바인드 -> 따로 멤버 함수 바인딩하면 TempWall 부분에서 Nullptr이 된다
+	FS_DamageInfo DamageInfo = ComboComponent->GetCurrentAttackInfos();
+	AActor* TempOwner = GetOwner();
+	TWeakObjectPtr<ADK_Projectile_Base> TempWall = ThrowWallProjectile;
+	ThrowWallProjectile->OnProjectileImpact.BindLambda([DamageInfo, TempOwner, TempWall](AActor* HitActor, const FHitResult& Hit)
+		{
+			if (!IsValid(TempOwner))
+				return;
+
+			IDK_DamageableInterface* HitActorDamageable = Cast<IDK_DamageableInterface>(HitActor);
+			if (HitActorDamageable == nullptr)
+				return;
+
+			HitActorDamageable->TakeDamage(DamageInfo, TempOwner);
+
+			bool bIsHit = HitActorDamageable->TakeDamage(DamageInfo, TempOwner);
+			if (!bIsHit)
+				return;
+
+			if (!TempWall.IsValid())
+				return;
+
+			TempWall->DestroyProjectile(Hit.Location);
+
+		});
+
+
+	CollisionManagerComponent->IgnoreCol(ThrowWallProjectile.Get());
+
+
+
+	ThrowWallProjectile->FinishSpawning(FTransform::Identity);
+}
+
+void ADK_RamPage::DestroyWall()
+{
+	if (ThrowWallProjectile.IsValid())
+	{
+		ThrowWallProjectile->DestroyProjectile();
+		ThrowWallProjectile = nullptr;
+	}
+}
+
+
+
+
+bool ADK_RamPage::ThrowWall(bool bIsSpeed)
+{
+	if (!CanAttack())
+	{
+		return false;
+	}
+
+	// 돌을 안 들고있으면 Failed
+	if (!ThrowWallProjectile.IsValid())
+		return false;
+
+	ResetInfoOnAttack();
+
+	if(bIsSpeed)
+		ComboComponent->ChangeComboActionData((int8)ERamPage_Attack::SpeedThrowWall);
+	else
+		ComboComponent->ChangeComboActionData((int8)ERamPage_Attack::ThrowWall);
 
 	ComboComponent->ClearDelegate();
 	ComboComponent->OnSectionEndDelegate.AddUObject(this, &ADK_RamPage::BindSectionFunction_ThrowWall);
@@ -401,64 +740,6 @@ void ADK_RamPage::BeginSectionNotify_ThrowWall(FName NotifyName)
 	else if (NotifyName == FName("ColRange"))
 	{
 		BeginColRange_Notify();
-	}
-	else if (NotifyName == FName("FullWall"))
-	{
-		// 중간에 플레이어가 죽었다
-		AActor* Target = AIControllerBase->GetAttackTarget();
-
-		if (!IsValid(Target))
-		{
-			StopAnimMontage();
-			return;
-		}
-			
-
-		if (ThrowWallProjectile.IsValid())
-			ThrowWallProjectile->DestroyProjectile();
-
-		ThrowWallProjectile = GetWorld()->SpawnActorDeferred<ADK_Projectile_Base>(ThrowWallProjectileClass, FTransform::Identity, this);
-
-
-
-		ProjectileOption ProjOp(Target, 10.f, -1.f, 4500.f, 0.5f, false, false);
-		ThrowWallProjectile->Init(ProjOp);
-		ThrowWallProjectile->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, FName(TEXT("RockAttachPoint")));
-
-		// 람다 바인드 -> 따로 멤버 함수 바인딩하면 TempWall 부분에서 Nullptr이 된다
-		FS_DamageInfo DamageInfo = ComboComponent->GetCurrentAttackInfos();
-		AActor* TempOwner = GetOwner();
-		TWeakObjectPtr<ADK_Projectile_Base> TempWall = ThrowWallProjectile;
-		ThrowWallProjectile->OnProjectileImpact.BindLambda([DamageInfo, TempOwner, TempWall](AActor* HitActor, const FHitResult& Hit)
-			{
-				if (!IsValid(TempOwner))
-					return;
-
-				IDK_DamageableInterface* HitActorDamageable = Cast<IDK_DamageableInterface>(HitActor);
-				if (HitActorDamageable == nullptr)
-					return;
-
-				HitActorDamageable->TakeDamage(DamageInfo, TempOwner);
-
-				bool bIsHit = HitActorDamageable->TakeDamage(DamageInfo, TempOwner);
-				if (!bIsHit)
-					return;
-				
-				if (!TempWall.IsValid())
-					return;
-
-				TempWall->DestroyProjectile(Hit.Location);
-				
-			});
-
-
-		CollisionManagerComponent->IgnoreCol(ThrowWallProjectile.Get());
-
-
-
-		ThrowWallProjectile->FinishSpawning(FTransform::Identity);
-
-
 	}
 	else if (NotifyName == FName("Throw"))
 	{
@@ -496,26 +777,19 @@ void ADK_RamPage::Interrupted_ComboThrowWall()
 {
 	InterruptedAttack_Notify();
 
-	if (ThrowWallProjectile.IsValid())
-	{
-		ThrowWallProjectile->DestroyProjectile();
-	}
+	DestroyWall();
 
+	EndAttack_Notify();
 }
 
 void ADK_RamPage::End_ComboThrowWall()
 {
 	InterruptedAttack_Notify();
 
-	if (ThrowWallProjectile.IsValid())
-	{
-		ThrowWallProjectile->DestroyProjectile();
-	}
+	DestroyWall();
 
+	EndAttack_Notify();
 }
-
-
-
 
 
 
@@ -634,12 +908,13 @@ void ADK_RamPage::EndPathJumpAttack()
 void ADK_RamPage::Interrupted_ComboJumpAttack()
 {
 	StatComponent->SetIsInvincible(false);
+	EndAttack_Notify();
 }
 
 void ADK_RamPage::End_ComboJumpAttack()
 {
 	StatComponent->SetIsInvincible(false);
-	
+	EndAttack_Notify();
 }
 
 
@@ -751,11 +1026,13 @@ void ADK_RamPage::Interrupted_ComboBackJump()
 {
 	StatComponent->SetIsInvincible(false);
 
+	EndAttack_Notify();
 }
 
 void ADK_RamPage::End_ComboBackJump()
 {
 	StatComponent->SetIsInvincible(false);
 
+	EndAttack_Notify();
 }
 

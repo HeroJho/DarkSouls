@@ -22,7 +22,7 @@ EBTNodeResult::Type UBTT_SetMovementSpeed::ExecuteTask(UBehaviorTreeComponent& O
 		return EBTNodeResult::Failed;
 	}
 
-	Creature->SetMovementSpeed(SpeedMode);
+	Creature->SetMovementSpeed(SpeedMode, Speed);
 
 	return EBTNodeResult::Succeeded;
 }

@@ -11,6 +11,7 @@
 UENUM(BlueprintType)
 enum class EMovementSpeed : uint8
 {
+	Default UMETA(DisplayName = "Default"),
 	Idle UMETA(DisplayName = "Idle"),
 	Walking UMETA(DisplayName = "Walking"),
 	Jogging UMETA(DisplayName = "Jogging"),

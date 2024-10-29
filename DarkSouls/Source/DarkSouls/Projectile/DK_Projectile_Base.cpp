@@ -39,6 +39,7 @@ ADK_Projectile_Base::ADK_Projectile_Base()
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
 	
 	Speed = 0.f;
+	LifeTime = 0.f;
 	Gravity = 0.f;
 	HomingAcceleration = 0.f;
 	bSimulating = false;
@@ -75,6 +76,7 @@ void ADK_Projectile_Base::Init(ProjectileOption Option)
 		ProjectileMovementComponent->bSimulationEnabled = false;
 
 	TargetActor = Option.Target;
+	LifeTime = Option.LifeTime;
 	HomingAcceleration = Option.HomingAcceleration;
 	Speed = Option.Speed;
 	Gravity = Option.Gravity;
@@ -98,14 +100,6 @@ void ADK_Projectile_Base::Init(ProjectileOption Option)
 		PrimaryActorTick.bCanEverTick = true;
 		ProjectileMovementComponent->bRotationFollowsVelocity = false;
 	}
-	
-
-	if (UKismetMathLibrary::NearlyEqual_FloatFloat(Option.LifeTime, 0.f) == false)
-	{
-		FTimerDelegate Del;
-		Del.BindUFunction(this, FName("DestroyProjectile"), FVector::ZeroVector);
-		GetWorldTimerManager().SetTimer(LifeTimerHandle, Del, Option.LifeTime, false);
-	}
 
 
 }
@@ -113,6 +107,13 @@ void ADK_Projectile_Base::Init(ProjectileOption Option)
 void ADK_Projectile_Base::SimulatingProjectile()
 {
 	ProjectileMovementComponent->bSimulationEnabled = true;
+
+	if (UKismetMathLibrary::NearlyEqual_FloatFloat(LifeTime, 0.f) == false)
+	{
+		FTimerDelegate Del;
+		Del.BindUFunction(this, FName("DestroyProjectile"), FVector::ZeroVector);
+		GetWorldTimerManager().SetTimer(LifeTimerHandle, Del, LifeTime, false);
+	}
 
 	RotateToTarget();
 }
@@ -161,6 +162,9 @@ void ADK_Projectile_Base::DestroyProjectile(FVector HitPos)
 void ADK_Projectile_Base::OnComponentHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	// ¹Ù´Ú°ú´Â Èý
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("sssss")));
+	// DrawDebugSphere(GetWorld(), Hit.Location, 100.f, 5, FColor::Red, true, 5.f);
+
 	if (!ProjectileMovementComponent->bSimulationEnabled)
 		return;
 
@@ -169,7 +173,10 @@ void ADK_Projectile_Base::OnComponentHit(UPrimitiveComponent* HitComponent, AAct
 
 void ADK_Projectile_Base::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("sssss")));
 	// Å©¸®ÃÄ¿Í´Â ¿À¹ö·¦
+	DrawDebugSphere(GetWorld(), SweepResult.Location, 100.f, 5, FColor::Red, true, 5.f);
+	
 	if (!ProjectileMovementComponent->bSimulationEnabled)
 		return;
 

@@ -12,6 +12,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/ArrowComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "PlayMontageCallbackProxy.h"
 
 #include "Tool/Define.h"
 #include "Game/DK_GameMode.h"
