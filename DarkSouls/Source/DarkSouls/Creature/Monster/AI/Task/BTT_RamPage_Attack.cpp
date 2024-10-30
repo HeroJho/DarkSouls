@@ -124,9 +124,9 @@ EBTNodeResult::Type UBTT_RamPage_Attack::ExecuteTask(UBehaviorTreeComponent & Ow
 	
 
 	RPOwner->GetComboComponent()->OnComboEndForTaskDelegate.Clear();
-	RPOwner->GetComboComponent()->OnComboInterruptedForTaskDelegate.Clear();
+	//RPOwner->GetComboComponent()->OnComboInterruptedForTaskDelegate.Clear();
 
-	RPOwner->GetComboComponent()->OnComboInterruptedForTaskDelegate.AddUObject(this, &UBTT_RamPage_Attack::FinishTask);
+	//RPOwner->GetComboComponent()->OnComboInterruptedForTaskDelegate.AddUObject(this, &UBTT_RamPage_Attack::FinishTask);
 	RPOwner->GetComboComponent()->OnComboEndForTaskDelegate.AddUObject(this, &UBTT_RamPage_Attack::FinishTask);
 
 	return EBTNodeResult::InProgress;

@@ -85,6 +85,12 @@ void ADK_AIControllerBase::ClearFocusTarget()
 	ClearFocus(EAIFocusPriority::Gameplay);
 }
 
+void ADK_AIControllerBase::BroadcastAbortMoveTask()
+{
+	OnAbortMoveTaskDalage.Broadcast();
+	OnAbortMoveTaskDalage.Clear();
+}
+
 
 void ADK_AIControllerBase::RunAI(APawn* InPawn)
 {

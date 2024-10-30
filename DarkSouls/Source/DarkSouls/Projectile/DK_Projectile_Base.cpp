@@ -162,9 +162,6 @@ void ADK_Projectile_Base::DestroyProjectile(FVector HitPos)
 void ADK_Projectile_Base::OnComponentHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	// ¹Ù´Ú°ú´Â Èý
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("sssss")));
-	// DrawDebugSphere(GetWorld(), Hit.Location, 100.f, 5, FColor::Red, true, 5.f);
-
 	if (!ProjectileMovementComponent->bSimulationEnabled)
 		return;
 
@@ -173,10 +170,7 @@ void ADK_Projectile_Base::OnComponentHit(UPrimitiveComponent* HitComponent, AAct
 
 void ADK_Projectile_Base::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("sssss")));
 	// Å©¸®ÃÄ¿Í´Â ¿À¹ö·¦
-	DrawDebugSphere(GetWorld(), SweepResult.Location, 100.f, 5, FColor::Red, true, 5.f);
-	
 	if (!ProjectileMovementComponent->bSimulationEnabled)
 		return;
 

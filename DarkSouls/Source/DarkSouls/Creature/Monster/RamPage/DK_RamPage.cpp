@@ -639,45 +639,47 @@ void ADK_RamPage::CreateWall(AActor* Target)
 		ThrowWallProjectile->DestroyProjectile();
 
 	ThrowWallProjectile = GetWorld()->SpawnActorDeferred<ADK_Projectile_Base>(ThrowWallProjectileClass, FTransform::Identity, this);
+	{
+		ProjectileOption ProjOp(Target, 10.f, -1.f, 4500.f, 0.5f, false, false);
+		ThrowWallProjectile->Init(ProjOp);
+		ThrowWallProjectile->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, FName(TEXT("RockAttachPoint")));
+
+		// 람다 바인드 -> 따로 멤버 함수 바인딩하면 TempWall 부분에서 Nullptr이 된다
+		FS_DamageInfo DamageInfo = ComboComponent->GetCurrentAttackInfos();
+		AActor* TempOwner = GetOwner();
+		TWeakObjectPtr<ADK_Projectile_Base> TempWall = ThrowWallProjectile;
+		ThrowWallProjectile->OnProjectileImpact.BindLambda([DamageInfo, TempOwner, TempWall](AActor* HitActor, const FHitResult& Hit)
+			{
+				if (!IsValid(TempOwner))
+					return;
+
+				IDK_DamageableInterface* HitActorDamageable = Cast<IDK_DamageableInterface>(HitActor);
+				if (HitActorDamageable == nullptr)
+					return;
+
+				HitActorDamageable->TakeDamage(DamageInfo, TempOwner);
+
+				bool bIsHit = HitActorDamageable->TakeDamage(DamageInfo, TempOwner);
+				if (!bIsHit)
+					return;
+
+				if (!TempWall.IsValid())
+					return;
+
+				TempWall->DestroyProjectile(Hit.Location);
+
+			});
 
 
-
-	ProjectileOption ProjOp(Target, 10.f, -1.f, 4500.f, 0.5f, false, false);
-	ThrowWallProjectile->Init(ProjOp);
-	ThrowWallProjectile->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, FName(TEXT("RockAttachPoint")));
-
-	// 람다 바인드 -> 따로 멤버 함수 바인딩하면 TempWall 부분에서 Nullptr이 된다
-	FS_DamageInfo DamageInfo = ComboComponent->GetCurrentAttackInfos();
-	AActor* TempOwner = GetOwner();
-	TWeakObjectPtr<ADK_Projectile_Base> TempWall = ThrowWallProjectile;
-	ThrowWallProjectile->OnProjectileImpact.BindLambda([DamageInfo, TempOwner, TempWall](AActor* HitActor, const FHitResult& Hit)
-		{
-			if (!IsValid(TempOwner))
-				return;
-
-			IDK_DamageableInterface* HitActorDamageable = Cast<IDK_DamageableInterface>(HitActor);
-			if (HitActorDamageable == nullptr)
-				return;
-
-			HitActorDamageable->TakeDamage(DamageInfo, TempOwner);
-
-			bool bIsHit = HitActorDamageable->TakeDamage(DamageInfo, TempOwner);
-			if (!bIsHit)
-				return;
-
-			if (!TempWall.IsValid())
-				return;
-
-			TempWall->DestroyProjectile(Hit.Location);
-
-		});
-
-
-	CollisionManagerComponent->IgnoreCol(ThrowWallProjectile.Get());
-
-
+		CollisionManagerComponent->IgnoreCol(ThrowWallProjectile.Get());
+	}
 
 	ThrowWallProjectile->FinishSpawning(FTransform::Identity);
+
+
+	// 움직일 때 Abort되면 무조건 제거돼야한다
+	AIControllerBase->OnAbortMoveTaskDalage.AddUObject(this, &ADK_RamPage::DestroyWall);
+
 }
 
 void ADK_RamPage::DestroyWall()

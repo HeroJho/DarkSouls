@@ -8,6 +8,11 @@
 #include "Enum/E_AIEnum.h"
 #include "DK_AIControllerBase.generated.h"
 
+
+
+DECLARE_MULTICAST_DELEGATE(FOnNoParDelegate);
+
+
 /**
  * 
  */
@@ -27,6 +32,9 @@ protected:
 public:
 	void SetFocusTarget(float RotationSpeed);
 	void ClearFocusTarget();
+
+	UFUNCTION(BlueprintCallable)
+	void BroadcastAbortMoveTask();
 
 protected:
 	void RunAI(APawn* InPawn);
@@ -97,5 +105,11 @@ protected:
 	// Debug
 protected:
 	void RenderCurState(float Duration);
+
+
+
+	// Delegate
+public:
+	FOnNoParDelegate OnAbortMoveTaskDalage;
 
 };
