@@ -200,7 +200,7 @@ void UDK_AttackComponent::JumpTick(UCurveFloat* Curve, TArray<FVector> Poss, flo
 	float LerpAcc = (CurveValue * Poss.Num()) - CurIndex;
 	FVector DestPos = UKismetMathLibrary::VLerp(Poss[CurIndex], Poss[NexIndex], LerpAcc);
 
-	GetOwner()->SetActorLocation(DestPos, true);
+	GetOwner()->SetActorLocation(DestPos);
 }
 
 
